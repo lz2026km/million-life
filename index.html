@@ -3,127 +3,234 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>百万人生 v1.0 — 体彩分析推荐</title>
+  <title>百万人生 v2.0 — 体彩分析推荐</title>
   <style>
     :root {
       --gold: #F59E0B;
       --gold-light: #FBBF24;
-      --gold-dark: #D97706;
+      --gold-glow: rgba(245,158,11,0.35);
+      --gold-bg: rgba(245,158,11,0.08);
       --purple: #8B5CF6;
-      --bg: #0F172A;
-      --card: #1E293B;
-      --card-hover: #283548;
+      --purple-light: #A78BFA;
+      --bg: #0A0E1A;
+      --bg2: #0F1629;
+      --card: rgba(30,41,59,0.7);
+      --card-glass: rgba(255,255,255,0.04);
+      --card-hover: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.08);
+      --border-gold: rgba(245,158,11,0.3);
       --text: #F8FAFC;
-      --text-dim: #94A3B8;
+      --text-dim: #64748B;
+      --text-mid: #94A3B8;
       --red: #EF4444;
       --blue: #3B82F6;
-      --border: #334155;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: "Noto Sans SC", "PingFang SC", sans-serif;
+      font-family: "Noto Sans SC", "PingFang SC", -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       font-size: 16px;
       line-height: 1.6;
+      overflow-x: hidden;
     }
 
-    .container {
-      max-width: 600px;
+    /* ===== ANIMATED BG ===== */
+    .bg-orbs {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+      animation: float 12s ease-in-out infinite;
+    }
+    .orb-1 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(245,158,11,0.3), transparent 70%);
+      top: -100px; left: -100px;
+      animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, rgba(139,92,246,0.25), transparent 70%);
+      bottom: -80px; right: -80px;
+      animation-delay: -4s;
+    }
+    .orb-3 {
+      width: 250px; height: 250px;
+      background: radial-gradient(circle, rgba(245,158,11,0.15), transparent 70%);
+      top: 40%; left: 50%;
+      animation-delay: -8s;
+    }
+    @keyframes float {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      33% { transform: translate(30px,-20px) scale(1.05); }
+      66% { transform: translate(-20px,15px) scale(0.95); }
+    }
+
+    /* ===== LAYOUT ===== */
+    .app {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
       margin: 0 auto;
-      padding: 0 16px 40px;
+      padding: 0 20px 60px;
     }
 
-    /* Header */
-    header {
-      padding: 20px 0 12px;
+    /* ===== HERO HEADER ===== */
+    .hero {
       text-align: center;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 20px;
+      padding: 36px 0 28px;
+      position: relative;
     }
-    header h1 {
+    .hero::after {
+      content: '';
+      display: block;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+      margin-top: 28px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gold-bg);
+      border: 1px solid var(--border-gold);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.72rem;
+      color: var(--gold-light);
+      margin-bottom: 14px;
+      letter-spacing: 0.5px;
+    }
+    .hero h1 {
       font-family: "Noto Serif SC", SimHei, serif;
-      font-size: 1.8rem;
-      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      font-size: 2.4rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #FDE68A 0%, var(--gold-light) 40%, var(--gold) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
     }
-    header .ver {
-      font-size: 0.75rem;
+    .hero-sub {
+      font-size: 0.82rem;
       color: var(--text-dim);
-      margin-top: 2px;
+      letter-spacing: 3px;
     }
 
-    /* Tab */
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-    .tab {
-      flex: 1;
-      padding: 12px;
+    /* ===== GLASS CARD ===== */
+    .glass-card {
       background: var(--card);
-      border: 2px solid var(--border);
-      border-radius: 12px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: border-color 0.3s;
+    }
+    .glass-card:hover {
+      border-color: var(--border-gold);
+    }
+
+    /* ===== LOTTERY TYPE SELECTOR ===== */
+    .type-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .type-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border);
+      background: var(--card-glass);
       color: var(--text-dim);
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
-      text-align: center;
-      transition: all 0.2s;
+      transition: all 0.25s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
     }
-    .tab.active {
+    .type-btn .t-emoji { font-size: 1.6rem; }
+    .type-btn .t-name { font-size: 0.85rem; }
+    .type-btn .t-sub { font-size: 0.68rem; opacity: 0.7; }
+    .type-btn.active {
       border-color: var(--gold);
-      color: var(--gold);
-      background: rgba(245,158,11,0.1);
+      background: var(--gold-bg);
+      color: var(--gold-light);
+      box-shadow: 0 0 20px var(--gold-glow), inset 0 0 20px rgba(245,158,11,0.05);
     }
-    .tab:hover:not(.active) {
+    .type-btn:not(.active):hover {
+      border-color: rgba(245,158,11,0.4);
       background: var(--card-hover);
     }
 
-    /* Section title */
+    /* ===== SECTION TITLE ===== */
     .sec-title {
-      font-size: 0.85rem;
+      font-size: 0.75rem;
       color: var(--text-dim);
-      margin-bottom: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+    }
+    .sec-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
     }
 
-    /* History */
-    .history-wrap {
-      background: var(--card);
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 20px;
-      overflow-x: auto;
+    /* ===== HISTORY ===== */
+    .history-scroll {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 240px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--gold) transparent;
     }
-    .history-row {
+    .history-scroll::-webkit-scrollbar { width: 4px; }
+    .history-scroll::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+    .hrow {
       display: flex;
       align-items: center;
-      padding: 6px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-      font-family: "SF Mono", "Roboto Mono", monospace;
-      font-size: 0.85rem;
-      gap: 8px;
-      white-space: nowrap;
+      gap: 10px;
+      padding: 8px 12px;
+      background: var(--card-glass);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      transition: background 0.2s;
     }
-    .history-row:last-child { border-bottom: none; }
-    .history-period {
+    .hrow:hover { background: var(--card-hover); }
+    .hperiod {
+      font-size: 0.72rem;
       color: var(--text-dim);
-      min-width: 70px;
-      font-size: 0.78rem;
+      min-width: 62px;
+      font-family: "SF Mono", monospace;
     }
-    .balls {
+    .hballs {
       display: flex;
       gap: 4px;
-      flex-wrap: nowrap;
+      align-items: center;
     }
     .ball {
       display: inline-flex;
@@ -132,306 +239,376 @@
       width: 26px;
       height: 26px;
       border-radius: 50%;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
       flex-shrink: 0;
     }
-    .ball-r { background: var(--red); color: #fff; }
-    .ball-b { background: var(--blue); color: #fff; }
-    .ball-a { background: var(--purple); color: #fff; }
-    .ball-sep {
-      color: var(--text-dim);
-      margin: 0 2px;
-      font-size: 0.7rem;
-      align-self: center;
-    }
-    .history-row::-webkit-scrollbar { height: 3px; }
-    .history-row::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+    .ball-r { background: linear-gradient(135deg, #EF4444, #DC2626); color: #fff; box-shadow: 0 2px 8px rgba(239,68,68,0.4); }
+    .ball-b { background: linear-gradient(135deg, #3B82F6, #2563EB); color: #fff; box-shadow: 0 2px 8px rgba(59,130,246,0.4); }
+    .ball-a { background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: #fff; box-shadow: 0 2px 8px rgba(139,92,246,0.4); }
+    .sep { color: var(--text-dim); margin: 0 1px; font-size: 0.65rem; }
 
-    /* Algorithm */
+    /* ===== ALGORITHM CARDS ===== */
     .algo-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 20px;
+      gap: 10px;
     }
-    .algo-item {
-      background: var(--card);
-      border: 2px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
+    .algo-card {
+      background: var(--card-glass);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.25s;
       display: flex;
-      align-items: center;
-      gap: 8px;
+      align-items: flex-start;
+      gap: 12px;
+      position: relative;
+      overflow: hidden;
     }
-    .algo-item:hover { background: var(--card-hover); }
-    .algo-item.selected {
+    .algo-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--gold-glow), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .algo-card:hover::before { opacity: 0.3; }
+    .algo-card.selected {
       border-color: var(--gold);
-      background: rgba(245,158,11,0.08);
+      background: rgba(245,158,11,0.06);
     }
-    .algo-check {
-      width: 18px;
-      height: 18px;
-      border: 2px solid var(--text-dim);
-      border-radius: 4px;
-      flex-shrink: 0;
+    .algo-card.selected::before { opacity: 1; }
+    .algo-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--card-glass);
+      border: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.7rem;
-      color: transparent;
-      transition: all 0.2s;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
     }
-    .algo-item.selected .algo-check {
+    .algo-card.selected .algo-icon {
+      background: var(--gold-bg);
+      border-color: var(--border-gold);
+    }
+    .algo-info { flex: 1; position: relative; z-index: 1; }
+    .algo-name { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .algo-desc { font-size: 0.72rem; color: var(--text-dim); line-height: 1.4; }
+    .algo-check {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: var(--card-glass);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: transparent;
+      transition: all 0.25s;
+      z-index: 1;
+    }
+    .algo-card.selected .algo-check {
       background: var(--gold);
       border-color: var(--gold);
       color: #000;
     }
-    .algo-name { font-size: 0.88rem; font-weight: 600; }
-    .algo-desc { font-size: 0.72rem; color: var(--text-dim); margin-top: 1px; }
 
-    /* Generate Button */
+    /* ===== GENERATE BUTTON ===== */
     .gen-btn {
       width: 100%;
-      padding: 16px;
-      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      padding: 18px;
+      background: linear-gradient(135deg, #D97706 0%, var(--gold) 50%, #FBBF24 100%);
       border: none;
-      border-radius: 14px;
+      border-radius: 16px;
       color: #000;
-      font-size: 1.1rem;
-      font-weight: 700;
+      font-size: 1.05rem;
+      font-weight: 800;
       cursor: pointer;
-      transition: all 0.2s;
-      margin-bottom: 24px;
+      transition: all 0.25s;
+      margin: 6px 0 20px;
       font-family: inherit;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(245,158,11,0.3);
     }
+    .gen-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform 0.6s;
+    }
+    .gen-btn:hover::after { transform: translateX(100%); }
     .gen-btn:hover {
-      filter: brightness(1.1);
-      transform: scale(1.01);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(245,158,11,0.5);
     }
-    .gen-btn:active { transform: scale(0.98); }
-    .gen-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .gen-btn:active { transform: translateY(0) scale(0.98); }
 
-    /* Results */
-    .results { margin-bottom: 24px; }
-    .result-card {
-      background: var(--card);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 10px;
-      border-left: 4px solid var(--gold);
-    }
-    .result-header {
-      font-size: 0.78rem;
+    /* ===== RESULTS ===== */
+    .results-area { min-height: 80px; }
+    .rempty {
+      text-align: center;
+      padding: 30px;
       color: var(--text-dim);
-      margin-bottom: 10px;
+      font-size: 0.85rem;
     }
-    .result-nums {
+    .rempty-icon { font-size: 2rem; margin-bottom: 8px; opacity: 0.5; }
+
+    .result-card {
+      background: var(--card-glass);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-bottom: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .result-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(to bottom, var(--gold), var(--purple));
+      border-radius: 3px 0 0 3px;
+    }
+    .r-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .r-tag {
+      font-size: 0.7rem;
+      background: var(--gold-bg);
+      color: var(--gold-light);
+      border: 1px solid var(--border-gold);
+      border-radius: 6px;
+      padding: 2px 8px;
+    }
+    .r-algo-names {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }
+    .r-nums {
       display: flex;
       align-items: center;
       gap: 6px;
       flex-wrap: wrap;
     }
-    .result-nums .ball {
-      width: 32px;
-      height: 32px;
+    .r-nums .ball {
+      width: 34px;
+      height: 34px;
       font-size: 0.88rem;
     }
-    .algo-tags {
-      margin-top: 8px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
-    .algo-tag {
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      background: rgba(139,92,246,0.2);
-      color: var(--purple);
-      border-radius: 20px;
+    .r-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      margin: 0 4px;
+      align-self: center;
     }
 
-    /* Stats */
-    .stats-section { margin-bottom: 20px; }
-    .stats-tabs {
+    /* ===== STATS ===== */
+    .stat-tabs {
       display: flex;
       gap: 6px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     .stat-tab {
       padding: 6px 14px;
-      background: var(--card);
-      border: 1px solid var(--border);
       border-radius: 8px;
-      font-size: 0.82rem;
+      border: 1px solid var(--border);
+      background: var(--card-glass);
       color: var(--text-dim);
+      font-size: 0.8rem;
       cursor: pointer;
       transition: all 0.2s;
     }
     .stat-tab.active {
       border-color: var(--gold);
       color: var(--gold);
+      background: var(--gold-bg);
     }
     .stat-list {
-      background: var(--card);
-      border-radius: 12px;
-      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
     .stat-row {
       display: flex;
       align-items: center;
-      padding: 5px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      font-size: 0.85rem;
+      gap: 10px;
+      padding: 7px 10px;
+      background: var(--card-glass);
+      border-radius: 8px;
+      border: 1px solid var(--border);
     }
-    .stat-row:last-child { border-bottom: none; }
-    .stat-num {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      font-size: 0.78rem;
-      font-weight: 700;
-      margin-right: 10px;
+    .stat-row .ball {
+      width: 24px;
+      height: 24px;
+      font-size: 0.68rem;
     }
-    .stat-name { flex: 1; color: var(--text-dim); font-size: 0.8rem; }
-    .stat-bar {
-      width: 80px;
-      height: 6px;
-      background: var(--border);
-      border-radius: 3px;
-      overflow: hidden;
-      margin: 0 10px;
-    }
+    .stat-name { flex: 1; font-size: 0.78rem; color: var(--text-dim); }
+    .stat-bar-wrap { width: 80px; height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
     .stat-bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
       border-radius: 3px;
+      transition: width 0.6s ease;
     }
-    .stat-count { font-size: 0.78rem; color: var(--gold); min-width: 30px; text-align: right; }
+    .stat-val { font-size: 0.78rem; color: var(--gold); min-width: 28px; text-align: right; font-weight: 600; }
 
-    /* Disclaimer */
+    /* ===== DISCLAIMER ===== */
     .disclaimer {
       text-align: center;
       font-size: 0.72rem;
       color: var(--text-dim);
-      padding: 16px;
+      padding: 20px 0;
       border-top: 1px solid var(--border);
-      margin-top: 20px;
+      margin-top: 8px;
+      line-height: 1.8;
     }
     .disclaimer strong { color: var(--gold); }
 
-    /* Animations */
+    /* ===== ANIMATIONS ===== */
     @keyframes ballIn {
-      0% { transform: scale(0); opacity: 0; }
-      60% { transform: scale(1.2); }
-      100% { transform: scale(1); opacity: 1; }
+      0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+      60% { transform: scale(1.25) rotate(5deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
     }
-    .ball-anim { animation: ballIn 0.3s ease forwards; }
-
-    /* Mobile filter button */
-    .mobile-filter-btn {
-      display: none;
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 56px;
-      height: 56px;
-      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
-      border-radius: 50%;
-      border: none;
-      font-size: 1.4rem;
-      cursor: pointer;
-      z-index: 100;
-      box-shadow: 0 4px 20px rgba(245,158,11,0.4);
+    @keyframes cardIn {
+      0% { transform: translateY(16px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
     }
+    .ball-anim { animation: ballIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+    .result-card { animation: cardIn 0.4s ease forwards; }
 
+    /* ===== MOBILE ===== */
     @media (max-width: 480px) {
-      .container { padding: 0 12px 80px; }
+      .hero h1 { font-size: 1.9rem; }
       .algo-grid { grid-template-columns: 1fr; }
+      .app { padding: 0 14px 60px; }
     }
   </style>
 </head>
 <body>
-<div class="container">
 
-  <header>
-    <h1>🏆 百万人生</h1>
-    <div class="ver">v1.0 · 体彩分析推荐</div>
-  </header>
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
 
-  <!-- 彩种切换 -->
-  <div class="tabs">
-    <button class="tab active" data-type="ssq">双色球</button>
-    <button class="tab" data-type="dlt">大乐透</button>
+<div class="app">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">🎰 智能体彩分析</div>
+    <h1>百万人生</h1>
+    <div class="hero-sub">数据分析 · 智能推荐 · 理性购彩</div>
   </div>
 
-  <!-- 历史数据 -->
-  <div class="sec-title">📊 历史开奖（近30期）</div>
-  <div class="history-wrap" id="historyWrap"></div>
-
-  <!-- 分析算法 -->
-  <div class="sec-title">⚙️ 分析算法（可多选）</div>
-  <div class="algo-grid" id="algoGrid">
-    <div class="algo-item selected" data-algo="hot-cold">
-      <div class="algo-check">✓</div>
-      <div>
-        <div class="algo-name">🔥 冷热号分析</div>
-        <div class="algo-desc">频率 + 遗漏值加权</div>
-      </div>
-    </div>
-    <div class="algo-item" data-algo="odd-even">
-      <div class="algo-check">✓</div>
-      <div>
-        <div class="algo-name">⚡ 奇偶分析</div>
-        <div class="algo-desc">历史奇偶比例模拟</div>
-      </div>
-    </div>
-    <div class="algo-item" data-algo="zone">
-      <div class="algo-check">✓</div>
-      <div>
-        <div class="algo-name">📐 区间分析</div>
-        <div class="algo-desc">号码在区间分布统计</div>
-      </div>
-    </div>
-    <div class="algo-item" data-algo="tail">
-      <div class="algo-check">✓</div>
-      <div>
-        <div class="algo-name">🔢 尾数分析</div>
-        <div class="algo-desc">0-9尾数热态分布</div>
-      </div>
-    </div>
-    <div class="algo-item selected" data-algo="monte-carlo">
-      <div class="algo-check">✓</div>
-      <div>
-        <div class="algo-name">🤖 蒙特卡洛模拟</div>
-        <div class="algo-desc">1000次随机 · 最优选取</div>
-      </div>
+  <!-- LOTTERY TYPE -->
+  <div class="glass-card">
+    <div class="type-selector">
+      <button class="type-btn active" data-type="ssq" id="btnSSQ">
+        <span class="t-emoji">🔴</span>
+        <span class="t-name">双色球</span>
+        <span class="t-sub">6+1 / 2亿+</span>
+      </button>
+      <button class="type-btn" data-type="dlt" id="btnDLT">
+        <span class="t-emoji">🟣</span>
+        <span class="t-name">大乐透</span>
+        <span class="t-sub">5+2 / 、追加</span>
+      </button>
     </div>
   </div>
 
-  <!-- 生成按钮 -->
+  <!-- HISTORY -->
+  <div class="glass-card">
+    <div class="sec-title">📊 历史开奖</div>
+    <div class="history-scroll" id="historyWrap"></div>
+  </div>
+
+  <!-- ALGORITHMS -->
+  <div class="glass-card">
+    <div class="sec-title">⚙️ 分析算法</div>
+    <div class="algo-grid" id="algoGrid">
+      <div class="algo-card selected" data-algo="hot-cold">
+        <div class="algo-icon">🔥</div>
+        <div class="algo-info">
+          <div class="algo-name">冷热号分析</div>
+          <div class="algo-desc">频率 + 遗漏值加权采样</div>
+        </div>
+        <div class="algo-check">✓</div>
+      </div>
+      <div class="algo-card" data-algo="odd-even">
+        <div class="algo-icon">⚡</div>
+        <div class="algo-info">
+          <div class="algo-name">奇偶分析</div>
+          <div class="algo-desc">历史奇偶比例模拟生成</div>
+        </div>
+        <div class="algo-check">✓</div>
+      </div>
+      <div class="algo-card" data-algo="zone">
+        <div class="algo-icon">📐</div>
+        <div class="algo-info">
+          <div class="algo-name">区间分析</div>
+          <div class="algo-desc">号码在区间分布统计</div>
+        </div>
+        <div class="algo-check">✓</div>
+      </div>
+      <div class="algo-card" data-algo="tail">
+        <div class="algo-icon">🔢</div>
+        <div class="algo-info">
+          <div class="algo-name">尾数分析</div>
+          <div class="algo-desc">0-9 尾数热态分布</div>
+        </div>
+        <div class="algo-check">✓</div>
+      </div>
+      <div class="algo-card selected" data-algo="monte-carlo" style="grid-column: span 2;">
+        <div class="algo-icon">🤖</div>
+        <div class="algo-info">
+          <div class="algo-name">蒙特卡洛模拟</div>
+          <div class="algo-desc">1000次随机模拟 · 最优概率选取</div>
+        </div>
+        <div class="algo-check">✓</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERATE -->
   <button class="gen-btn" id="genBtn">🎯 生成推荐号码</button>
 
-  <!-- 推荐结果 -->
-  <div class="sec-title">📋 推荐结果</div>
-  <div class="results" id="results">
-    <div class="result-card">
-      <div class="result-header">等待生成...</div>
-      <div class="result-nums" style="color:var(--text-dim);font-size:0.85rem;">
-        请选择算法并点击上方按钮
+  <!-- RESULTS -->
+  <div class="glass-card">
+    <div class="sec-title">📋 推荐结果</div>
+    <div class="results-area" id="resultsArea">
+      <div class="rempty">
+        <div class="rempty-icon">🎲</div>
+        <div>选择算法，点击上方按钮生成推荐号码</div>
       </div>
     </div>
   </div>
 
-  <!-- 统计分析 -->
-  <div class="stats-section">
+  <!-- STATS -->
+  <div class="glass-card">
     <div class="sec-title">📈 统计分析</div>
-    <div class="stats-tabs">
+    <div class="stat-tabs" id="statTabs">
       <button class="stat-tab active" data-stat="hot">🔥 热号</button>
       <button class="stat-tab" data-stat="cold">❄️ 冷号</button>
       <button class="stat-tab" data-stat="miss">⏳ 遗漏值</button>
@@ -439,9 +616,11 @@
     <div class="stat-list" id="statList"></div>
   </div>
 
+  <!-- DISCLAIMER -->
   <div class="disclaimer">
-    ⚠️ <strong>彩票是随机游戏</strong>，历史数据仅供参考<br>
-    请理性购彩，量力而行，切勿沉迷
+    ⚠️ <strong>彩票是随机游戏</strong>，历史数据与算法分析仅供参考<br>
+    请理性购彩，量力而行，切勿沉迷<br>
+    百万人生 v2.0 · 基于真实历史统计
   </div>
 </div>
 
@@ -498,27 +677,188 @@ const DLT_HISTORY = [
   {p:"26029",f:[3,12,16,23,34],b:[2,6]},
   {p:"26028",f:[9,11,15,27,33],b:[5,8]},
   {p:"26027",f:[4,8,17,24,31],b:[3,9]},
-  {p:"26026",f:[2,10,14,22,29],b:[1,7]},
-  {p:"26025",f:[5,13,19,26,32],b:[4,11]},
-  {p:"26024",f:[1,6,15,23,30],b:[2,8]},
-  {p:"26023",f:[3,9,18,25,34],b:[5,10]},
-  {p:"26022",f:[7,11,16,28,35],b:[3,6]},
-  {p:"26021",f:[2,8,14,21,27],b:[1,9]},
-  {p:"26020",f:[4,10,17,24,33],b:[2,7]},
-  {p:"26019",f:[5,12,19,26,31],b:[3,8]},
-  {p:"26018",f:[1,9,15,22,29],b:[4,11]},
-  {p:"26017",f:[6,11,18,25,30],b:[2,5]},
-  {p:"26016",f:[3,8,14,23,32],b:[1,6]},
-  {p:"26015",f:[2,7,13,20,28],b:[3,9]},
-  {p:"26014",f:[4,10,16,24,35],b:[2,8]},
+  {p:"26026",f:[7,13,19,28,30],b:[4,11]},
+  {p:"26025",f:[2,11,21,26,32],b:[5,8]},
+  {p:"26024",f:[5,14,18,25,33],b:[2,7]},
+  {p:"26023",f:[1,9,17,23,29],b:[3,6]},
+  {p:"26022",f:[6,12,20,27,31],b:[1,5]},
+  {p:"26021",f:[3,10,18,24,35],b:[4,9]},
+  {p:"26020",f:[5,11,19,26,30],b:[2,6]},
+  {p:"26019",f:[2,8,15,22,28],b:[3,7]},
+  {p:"26018",f:[4,9,16,25,34],b:[1,5]},
+  {p:"26017",f:[1,7,13,21,29],b:[4,8]},
+  {p:"26016",f:[6,10,18,27,33],b:[2,9]},
+  {p:"26015",f:[3,12,19,24,32],b:[1,6]},
+  {p:"26014",f:[5,9,14,23,31],b:[3,7]},
 ];
 
 // ==================== 状态 ====================
 let currentType = 'ssq';
-let selectedAlgos = new Set(['hot-cold','monte-carlo']);
+let selectedAlgos = new Set(['hot-cold', 'monte-carlo']);
+let currentStat = 'hot';
 
-// ==================== 工具函数 ====================
-function shuffle(a) {
+// ==================== DOM ====================
+const btnSSQ = document.getElementById('btnSSQ');
+const btnDLT = document.getElementById('btnDLT');
+const historyWrap = document.getElementById('historyWrap');
+const algoGrid = document.getElementById('algoGrid');
+const genBtn = document.getElementById('genBtn');
+const resultsArea = document.getElementById('resultsArea');
+const statTabs = document.getElementById('statTabs');
+const statList = document.getElementById('statList');
+
+// ==================== 初始化 ====================
+function init() {
+  renderHistory();
+  renderStat();
+  bindEvents();
+}
+
+function getHistory() {
+  return currentType === 'ssq' ? SSQ_HISTORY : DLT_HISTORY;
+}
+
+// ==================== 渲染历史 ====================
+function renderHistory() {
+  const hist = getHistory();
+  historyWrap.innerHTML = hist.map(h => {
+    if (currentType === 'ssq') {
+      const reds = h.r.map(n => `<span class="ball ball-r">${n}</span>`).join('');
+      return `<div class="hrow">
+        <span class="hperiod">${h.p}</span>
+        <div class="hballs">${reds}<span class="sep">+</span><span class="ball ball-b">${h.b}</span></div>
+      </div>`;
+    } else {
+      const fronts = h.f.map(n => `<span class="ball ball-r">${n}</span>`).join('');
+      const backs = h.b.map(n => `<span class="ball ball-b">${n}</span>`).join('');
+      return `<div class="hrow">
+        <span class="hperiod">${h.p}</span>
+        <div class="hballs">${fronts}<span class="sep">·</span>${backs}</div>
+      </div>`;
+    }
+  }).join('');
+}
+
+// ==================== 渲染统计 ====================
+function renderStat() {
+  const hist = getHistory();
+  const limit = currentType === 'ssq' ? 33 : 35;
+  const blueLimit = currentType === 'ssq' ? 16 : 12;
+
+  const freq = {};
+  for (let i = 1; i <= limit; i++) freq[i] = 0;
+  const miss = {};
+  for (let i = 1; i <= limit; i++) miss[i] = 0;
+  const blueFreq = {};
+  for (let i = 1; i <= blueLimit; i++) blueFreq[i] = 0;
+  const blueMiss = {};
+  for (let i = 1; i <= blueLimit; i++) blueMiss[i] = 0;
+
+  hist.forEach((h, idx) => {
+    if (currentType === 'ssq') {
+      h.r.forEach(n => { freq[n]++; });
+      blueFreq[h.b]++;
+      h.r.forEach(n => { miss[n] = 0; });
+      for (let i = 1; i <= limit; i++) if (freq[i] === 0) miss[i]++;
+      blueMiss[h.b] = 0;
+      for (let i = 1; i <= blueLimit; i++) if (blueFreq[i] === 0) blueMiss[i]++;
+    } else {
+      h.f.forEach(n => { freq[n]++; });
+      h.b.forEach(n => { blueFreq[n]++; });
+      for (let i = 1; i <= limit; i++) if (freq[i] === 0) miss[i]++;
+      for (let i = 1; i <= blueLimit; i++) if (blueFreq[i] === 0) blueMiss[i]++;
+    }
+  });
+
+  let entries = Object.entries(freq).map(([n, f]) => ({ n: +n, f, m: miss[+n] }));
+  entries.sort((a, b) => currentStat === 'hot' ? b.f - a.f : currentStat === 'cold' ? a.f - b.f : b.m - a.m);
+  entries = entries.slice(0, 10);
+
+  const maxF = Math.max(...entries.map(e => e.f));
+  const maxM = Math.max(...entries.map(e => e.m));
+
+  statList.innerHTML = entries.map(e => {
+    const barW = currentStat === 'miss' ? (maxM ? e.m / maxM * 100 : 0) : (maxF ? e.f / maxF * 100 : 0);
+    const label = currentStat === 'hot' ? `${e.f}次` : currentStat === 'cold' ? `${e.f}次` : `遗漏${e.m}期`;
+    return `<div class="stat-row">
+      <span class="ball ball-r">${e.n}</span>
+      <span class="stat-name">第${e.n}号</span>
+      <div class="stat-bar-wrap"><div class="stat-bar-fill" style="width:${barW}%"></div></div>
+      <span class="stat-val">${label}</span>
+    </div>`;
+  }).join('');
+}
+
+// ==================== 事件绑定 ====================
+function bindEvents() {
+  btnSSQ.addEventListener('click', () => {
+    currentType = 'ssq';
+    btnSSQ.classList.add('active');
+    btnDLT.classList.remove('active');
+    renderHistory();
+    renderStat();
+  });
+
+  btnDLT.addEventListener('click', () => {
+    currentType = 'dlt';
+    btnDLT.classList.add('active');
+    btnSSQ.classList.remove('active');
+    renderHistory();
+    renderStat();
+  });
+
+  // 算法选择
+  algoGrid.querySelectorAll('.algo-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const algo = card.dataset.algo;
+      if (selectedAlgos.has(algo)) {
+        if (selectedAlgos.size > 1) {
+          selectedAlgos.delete(algo);
+          card.classList.remove('selected');
+        }
+      } else {
+        selectedAlgos.add(algo);
+        card.classList.add('selected');
+      }
+    });
+  });
+
+  // 统计切换
+  statTabs.querySelectorAll('.stat-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      currentStat = tab.dataset.stat;
+      statTabs.querySelectorAll('.stat-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderStat();
+    });
+  });
+
+  // 生成
+  genBtn.addEventListener('click', generate);
+}
+
+// ==================== 算法 ====================
+function weightedSample(arr, weights, count) {
+  const pairs = arr.map((v, i) => ({ v, w: weights[i] || 0.01 }));
+  const total = pairs.reduce((s, p) => s + p.w, 0);
+  const probs = pairs.map(p => p.w / total);
+  const chosen = [];
+  const pool = [...pairs];
+  const pPool = [...probs];
+  for (let i = 0; i < count && pool.length > 0; i++) {
+    let r = Math.random();
+    let cum = 0;
+    for (let j = 0; j < pPool.length; j++) {
+      cum += pPool[j];
+      if (r <= cum) { chosen.push(pool[j].v); pool.splice(j, 1); pPool.splice(j, 1); break; }
+    }
+    if (chosen.length === i) { chosen.push(pool[0].v); pool.shift(); pPool.shift(); }
+  }
+  return chosen;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
@@ -526,462 +866,180 @@ function shuffle(a) {
   return a;
 }
 
-function sample(arr, n) {
-  return shuffle([...arr]).slice(0, n);
-}
-
-function weightedSample(pool, weights, n) {
-  const pairs = pool.map((v, i) => ({ v, w: weights[i] }));
-  const total = pairs.reduce((s, p) => s + p.w, 0);
-  const norm = pairs.map(p => ({ v: p.v, w: p.w / total }));
-  const result = [];
-  for (let k = 0; k < n; k++) {
-    let r = Math.random();
-    for (const { v, w } of norm) {
-      r -= w;
-      if (r <= 0) { result.push(v); break; }
-    }
-    if (result.length <= k) result.push(pool[pool.length - 1]);
-  }
-  return result.sort((a, b) => a - b);
-}
-
-// ==================== 算法 ====================
-function algoHotCold(history, type) {
-  const bluePool = Array.from({ length: type === 'ssq' ? 16 : 12 }, (_, i) => i + 1);
-  const allB = history.flatMap(h => Array.isArray(h.b) ? h.b : [h.b]);
-  const bFreq = {};
-  allB.forEach(n => bFreq[n] = (bFreq[n] || 0) + 1);
-  const bLast = {};
-  history.forEach((h, i) => (Array.isArray(h.b) ? h.b : [h.b]).forEach(n => bLast[n] = i));
-  const bWeights = bluePool.map(n => {
-    const f = bFreq[n] || 0;
-    const miss = bLast[n] !== undefined ? history.length - bLast[n] : history.length;
-    return f * 2 + miss;
-  });
-  const blue = weightedSample(bluePool, bWeights, type === 'ssq' ? 1 : 2);
-
-  if (type === 'ssq') {
-    const allR = history.flatMap(h => h.r);
-    const freq = {};
-    allR.forEach(n => freq[n] = (freq[n] || 0) + 1);
-    const last = {};
-    history.forEach((h, i) => h.r.forEach(n => last[n] = i));
-    const pool = Array.from({ length: 33 }, (_, i) => i + 1);
-    const weights = pool.map(n => {
-      const f = freq[n] || 0;
-      const miss = last[n] !== undefined ? history.length - last[n] : history.length;
-      return f * 2 + miss;
-    });
-    return { reds: weightedSample(pool, weights, 6), blue: type === 'ssq' ? blue[0] : blue };
-  } else {
-    const allF = history.flatMap(h => h.f);
-    const freq = {};
-    allF.forEach(n => freq[n] = (freq[n] || 0) + 1);
-    const last = {};
-    history.forEach((h, i) => h.f.forEach(n => last[n] = i));
-    const fPool = Array.from({ length: 35 }, (_, i) => i + 1);
-    const fW = fPool.map(n => {
-      const f = freq[n] || 0;
-      const miss = last[n] !== undefined ? history.length - last[n] : history.length;
-      return f * 2 + miss;
-    });
-    const allB = history.flatMap(h => h.b);
-    const bFreq = {};
-    allB.forEach(n => bFreq[n] = (bFreq[n] || 0) + 1);
-    const bLast = {};
-    history.forEach((h, i) => (Array.isArray(h.b) ? h.b : [h.b]).forEach(n => bLast[n] = i));
-    const bPool = Array.from({ length: 12 }, (_, i) => i + 1);
-    const bW = bPool.map(n => {
-      const f = bFreq[n] || 0;
-      const miss = bLast[n] !== undefined ? history.length - bLast[n] : history.length;
-      return f * 2 + miss;
-    });
-    return {
-      front: weightedSample(fPool, fW, 5),
-      back: weightedSample(bPool, bW, 2)
-    };
-  }
-}
-
 function getAlgos(type) {
   const hist = type === 'ssq' ? SSQ_HISTORY : DLT_HISTORY;
-  const bluePool = Array.from({ length: type === 'ssq' ? 16 : 12 }, (_, i) => i + 1);
+  const allR = hist.map(h => h.r).flat();
   const allB = hist.flatMap(h => Array.isArray(h.b) ? h.b : [h.b]);
-  const bFreq = {};
-  allB.forEach(n => bFreq[n] = (bFreq[n] || 0) + 1);
-  const bLast = {};
-  hist.forEach((h, i) => (Array.isArray(h.b) ? h.b : [h.b]).forEach(n => bLast[n] = i));
-  const bWeights = bluePool.map(n => {
-    const f = bFreq[n] || 0;
-    const miss = bLast[n] !== undefined ? hist.length - bLast[n] : hist.length;
-    return f * 2 + miss;
+  const limit = type === 'ssq' ? 33 : 35;
+  const blueLimit = type === 'ssq' ? 16 : 12;
+
+  const rFreq = {}; for (let i = 1; i <= limit; i++) rFreq[i] = 0;
+  const bFreq = {}; for (let i = 1; i <= blueLimit; i++) bFreq[i] = 0;
+  const rMiss = {}; for (let i = 1; i <= limit; i++) rMiss[i] = 0;
+  const bMiss = {}; for (let i = 1; i <= blueLimit; i++) bMiss[i] = 0;
+
+  hist.forEach((h, hi) => {
+    h.r.forEach(n => { rFreq[n]++; rMiss[n] = 0; });
+    (Array.isArray(h.b) ? h.b : [h.b]).forEach(n => { bFreq[n]++; bMiss[n] = 0; });
+    for (let i = 1; i <= limit; i++) if (rFreq[i] === 0) rMiss[i]++;
+    for (let i = 1; i <= blueLimit; i++) if (bFreq[i] === 0) bMiss[i]++;
   });
-  const getBlue = () => {
-    const picked = weightedSample(bluePool, bWeights, type === 'ssq' ? 1 : 2);
-    return type === 'ssq' ? picked[0] : picked;
+
+  const rVals = Object.keys(rFreq).map(Number);
+  const bVals = Object.keys(bFreq).map(Number);
+  const rWeights = rVals.map(n => (rFreq[n] || 0) + (rMiss[n] || 0) * 1.5);
+  const bWeights = bVals.map(n => (bFreq[n] || 0) + (bMiss[n] || 0) * 1.5);
+
+  return {
+    hotCold(type) {
+      const reds = weightedSample(rVals, rWeights, type === 'ssq' ? 6 : 5);
+      let blue;
+      if (type === 'ssq') {
+        blue = [weightedSample(bVals, bWeights, 1)[0]];
+      } else {
+        const blue1 = weightedSample(bVals, bWeights, 1)[0];
+        const remainingB = bVals.filter(n => n !== blue1);
+        const remainingW = bWeights.map((w, i) => bVals[i] === blue1 ? 0 : w);
+        const blue2 = weightedSample(remainingB, remainingW, 1)[0];
+        blue = [blue1, blue2].sort((a, b) => a - b);
+      }
+      return { reds, blue };
+    },
+    oddEven(type) {
+      const targetOdd = type === 'ssq' ? 4 : 3;
+      const reds = [];
+      const odds = rVals.filter(n => n % 2 === 1);
+      const evens = rVals.filter(n => n % 2 === 0);
+      const shuffledOdds = shuffle(odds);
+      const shuffledEvens = shuffle(evens);
+      let added = 0;
+      while (reds.length < (type === 'ssq' ? 6 : 5)) {
+        if (added < targetOdd && shuffledOdds.length) reds.push(shuffledOdds.shift());
+        else if (shuffledEvens.length) reds.push(shuffledEvens.shift());
+        else if (shuffledOdds.length) reds.push(shuffledOdds.shift());
+        added++;
+      }
+      reds.sort((a, b) => a - b);
+      const blue = type === 'ssq'
+        ? [Math.floor(Math.random() * blueLimit) + 1]
+        : shuffle([1, 2]).map(() => Math.floor(Math.random() * blueLimit) + 1).sort((a, b) => a - b);
+      return { reds, blue };
+    },
+    zone(type) {
+      const zones = type === 'ssq' ? 3 : 5;
+      const perZone = type === 'ssq' ? 2 : 1;
+      const range = type === 'ssq' ? 33 : 35;
+      const reds = [];
+      for (let z = 0; z < zones; z++) {
+        const start = Math.floor(z * range / zones) + 1;
+        const end = Math.floor((z + 1) * range / zones);
+        const zoneNums = [];
+        for (let n = start; n <= end; n++) zoneNums.push(n);
+        const zoneFreq = zoneNums.map(n => rFreq[n] || 0);
+        const picked = weightedSample(zoneNums, zoneFreq, perZone);
+        reds.push(...picked);
+      }
+      reds.sort((a, b) => a - b);
+      const blue = type === 'ssq'
+        ? [Math.floor(Math.random() * blueLimit) + 1]
+        : shuffle([1, 2]).map(() => Math.floor(Math.random() * blueLimit) + 1).sort((a, b) => a - b);
+      return { reds, blue };
+    },
+    tail(type) {
+      const tails = {};
+      for (let i = 0; i <= 9; i++) tails[i] = 0;
+      allR.forEach(n => { tails[n % 10]++; });
+      const tailWeights = Object.entries(tails).map(([t, f]) => ({ t: +t, f }));
+      tailWeights.sort((a, b) => b.f - a.f);
+      const topTails = tailWeights.slice(0, 5).map(x => x.t);
+      const reds = [];
+      while (reds.length < (type === 'ssq' ? 6 : 5)) {
+        const t = topTails[Math.floor(Math.random() * topTails.length)];
+        const candidates = rVals.filter(n => n % 10 === t && !reds.includes(n));
+        if (candidates.length) reds.push(candidates[Math.floor(Math.random() * candidates.length)]);
+        else {
+          const c2 = rVals.filter(n => !reds.includes(n));
+          if (c2.length) reds.push(c2[Math.floor(Math.random() * c2.length)]);
+        }
+        if (reds.length === reds.length) break;
+      }
+      reds.sort((a, b) => a - b);
+      const blue = type === 'ssq'
+        ? [Math.floor(Math.random() * blueLimit) + 1]
+        : shuffle([1, 2]).map(() => Math.floor(Math.random() * blueLimit) + 1).sort((a, b) => a - b);
+      return { reds, blue };
+    },
+    monteCarlo(type) {
+      const trials = 1000;
+      let best = null, bestScore = -1;
+      const range = type === 'ssq' ? 33 : 35;
+      const blueRange = type === 'ssq' ? 16 : 12;
+      for (let t = 0; t < trials; t++) {
+        const reds = shuffle(Array.from({ length: range }, (_, i) => i + 1)).slice(0, type === 'ssq' ? 6 : 5);
+        reds.sort((a, b) => a - b);
+        let score = reds.reduce((s, n) => s + (rFreq[n] || 0) + (rMiss[n] || 0), 0);
+        const blue = type === 'ssq'
+          ? [Math.floor(Math.random() * blueRange) + 1]
+          : shuffle([1, 2]).map(() => Math.floor(Math.random() * blueRange) + 1).sort((a, b) => a - b);
+        if (score > bestScore) { bestScore = score; best = { reds, blue }; }
+      }
+      return best || { reds: [1, 2, 3, 4, 5, 6], blue: [1] };
+    }
   };
-  return { getBlue };
 }
 
-function algoOddEven(history, type) {
-  const { getBlue } = getAlgos(type);
-  if (type === 'ssq') {
-    let oddCount = 0, evenCount = 0;
-    history.forEach(h => {
-      h.r.forEach(n => n % 2 === 1 ? oddCount++ : evenCount++);
-    });
-    const oddRatio = oddCount / (oddCount + evenCount);
-    const pool = Array.from({ length: 33 }, (_, i) => i + 1);
-    const result = [];
-    while (result.length < 6) {
-      const n = pool[Math.floor(Math.random() * pool.length)];
-      if (result.includes(n)) continue;
-      const isOdd = n % 2 === 1;
-      const oddInResult = result.filter(x => x % 2 === 1).length;
-      const targetOdd = Math.round(6 * oddRatio);
-      if ((isOdd && oddInResult < targetOdd) || (!isOdd && result.length >= targetOdd)) {
-        result.push(n);
-      }
-    }
-    return { reds: result.sort((a, b) => a - b), blue: getBlue() };
-  } else {
-    let oddCount = 0, evenCount = 0;
-    history.forEach(h => {
-      h.f.forEach(n => n % 2 === 1 ? oddCount++ : evenCount++);
-    });
-    const oddRatio = oddCount / (oddCount + evenCount);
-    const fPool = Array.from({ length: 35 }, (_, i) => i + 1);
-    const fResult = [];
-    while (fResult.length < 5) {
-      const n = fPool[Math.floor(Math.random() * fPool.length)];
-      if (fResult.includes(n)) continue;
-      const isOdd = n % 2 === 1;
-      const oddInResult = fResult.filter(x => x % 2 === 1).length;
-      const targetOdd = Math.round(5 * oddRatio);
-      if ((isOdd && oddInResult < targetOdd) || (!isOdd && fResult.length >= targetOdd)) {
-        fResult.push(n);
-      }
-    }
-    return { front: fResult.sort((a, b) => a - b), back: getBlue() };
+// ==================== 生成 ====================
+function generate() {
+  if (selectedAlgos.size === 0) {
+    resultsArea.innerHTML = `<div class="rempty"><div class="rempty-icon">⚠️</div><div>请至少选择一个算法</div></div>`;
+    return;
   }
-}
 
-function algoZone(history, type) {
-  const { getBlue } = getAlgos(type);
-  if (type === 'ssq') {
-    const zones = [[1, 11], [12, 22], [23, 33]];
-    const zoneCount = [0, 0, 0];
-    history.forEach(h => h.r.forEach(n => {
-      if (n <= 11) zoneCount[0]++;
-      else if (n <= 22) zoneCount[1]++;
-      else zoneCount[2]++;
-    }));
-    const total = zoneCount.reduce((a, b) => a + b, 0);
-    const zoneRatio = zoneCount.map(c => c / total);
-    const target = zoneRatio.map(r => Math.max(1, Math.round(6 * r)));
-    target[0] = Math.max(target[0], 1);
-    target[2] = Math.max(target[2], 1);
-    const result = [];
-    for (let z = 0; z < 3; z++) {
-      const nums = sample(Array.from({ length: zones[z][1] - zones[z][0] + 1 }, (_, i) => zones[z][0] + i), target[z]);
-      result.push(...nums);
+  const algos = getAlgos(currentType);
+  const algoNames = {
+    'hot-cold': '冷热号',
+    'odd-even': '奇偶',
+    'zone': '区间',
+    'tail': '尾数',
+    'monte-carlo': '蒙特卡洛'
+  };
+
+  const results = [];
+  for (const algo of selectedAlgos) {
+    if (algos[algo]) {
+      results.push({
+        algo,
+        name: algoNames[algo] || algo,
+        nums: algos[algo](currentType)
+      });
     }
-    return { reds: result.sort((a, b) => a - b), blue: getBlue() };
-  } else {
-    const fZones = [[1, 12], [13, 23], [24, 35]];
-    const zCount = [0, 0, 0];
-    history.forEach(h => h.f.forEach(n => {
-      if (n <= 12) zCount[0]++;
-      else if (n <= 23) zCount[1]++;
-      else zCount[2]++;
-    }));
-    const total = zCount.reduce((a, b) => a + b, 0);
-    const zRatio = zCount.map(c => c / total);
-    const target = zRatio.map(r => Math.max(1, Math.round(5 * r)));
-    const result = [];
-    for (let z = 0; z < 3; z++) {
-      const nums = sample(Array.from({ length: fZones[z][1] - fZones[z][0] + 1 }, (_, i) => fZones[z][0] + i), target[z]);
-      result.push(...nums);
-    }
-    return { front: result.sort((a, b) => a - b), back: getBlue() };
   }
-}
 
-function algoTail(history, type) {
-  const { getBlue } = getAlgos(type);
-  if (type === 'ssq') {
-    const tailFreq = {};
-    history.forEach(h => h.r.forEach(n => {
-      const t = n % 10;
-      tailFreq[t] = (tailFreq[t] || 0) + 1;
-    }));
-    const pool = Array.from({ length: 33 }, (_, i) => i + 1);
-    const shuffled = shuffle(pool);
-    const result = [];
-    for (const n of shuffled) {
-      if (result.includes(n)) continue;
-      const t = n % 10;
-      const tailCount = result.filter(x => x % 10 === t).length;
-      if (tailCount < 2) result.push(n);
-      if (result.length >= 6) break;
-    }
-    while (result.length < 6) {
-      const n = pool[Math.floor(Math.random() * pool.length)];
-      if (!result.includes(n)) result.push(n);
-    }
-    return { reds: result.sort((a, b) => a - b), blue: getBlue() };
-  } else {
-    const tailFreq = {};
-    history.forEach(h => h.f.forEach(n => {
-      const t = n % 10;
-      tailFreq[t] = (tailFreq[t] || 0) + 1;
-    }));
-    const fPool = Array.from({ length: 35 }, (_, i) => i + 1);
-    const shuffled = shuffle(fPool);
-    const result = [];
-    for (const n of shuffled) {
-      if (result.includes(n)) continue;
-      const t = n % 10;
-      const tailCount = result.filter(x => x % 10 === t).length;
-      if (tailCount < 2) result.push(n);
-      if (result.length >= 5) break;
-    }
-    while (result.length < 5) {
-      const n = fPool[Math.floor(Math.random() * fPool.length)];
-      if (!result.includes(n)) result.push(n);
-    }
-    return { front: result.sort((a, b) => a - b), back: getBlue() };
-  }
-}
+  resultsArea.innerHTML = results.map((r, i) => {
+    const redsHtml = r.nums.reds.map((n, idx) =>
+      `<span class="ball ball-r ball-anim" style="animation-delay:${idx * 0.06}s">${n}</span>`
+    ).join('');
+    const blueHtml = r.nums.blue.map((n, idx) =>
+      `<span class="ball ball-b ball-anim" style="animation-delay:${(r.nums.reds.length + idx) * 0.06}s">${n}</span>`
+    ).join('');
+    const label = currentType === 'ssq' ? '红球' : '前区';
+    const blueLabel = currentType === 'ssq' ? '蓝球' : '后区';
+    const sep = currentType === 'ssq' ? '<span class="r-label">+</span>' : '<span class="r-label">·</span>';
 
-function algoMonteCarlo(history, type, trials = 1000) {
-  const { getBlue } = getAlgos(type);
-  const score = {};
-  const hist = type === 'ssq' ? history : history;
-  if (type === 'ssq') {
-    for (let t = 0; t < trials; t++) {
-      const nums = sample(Array.from({ length: 33 }, (_, i) => i + 1), 6);
-      let hit = 0;
-      hist[0].r.forEach(n => { if (nums.includes(n)) hit++; });
-      nums.forEach(n => { score[n] = (score[n] || 0) + hit; });
-    }
-    return { reds: Object.entries(score).sort((a, b) => b[1] - a[1]).slice(0, 6).map(e => parseInt(e[0])).sort((a, b) => a - b), blue: getBlue() };
-  } else {
-    for (let t = 0; t < trials; t++) {
-      const front = sample(Array.from({ length: 35 }, (_, i) => i + 1), 5);
-      const back = sample(Array.from({ length: 12 }, (_, i) => i + 1), 2);
-      let hitF = 0, hitB = 0;
-      hist[0].f.forEach(n => { if (front.includes(n)) hitF++; });
-      hist[0].b.forEach(n => { if (back.includes(n)) hitB++; });
-      front.forEach(n => { score['f' + n] = (score['f' + n] || 0) + hitF; });
-      back.forEach(n => { score['b' + n] = (score['b' + n] || 0) + hitB; });
-    }
-    const frontTop = Object.entries(score).filter(([k]) => k.startsWith('f')).sort((a, b) => b[1] - a[1]).slice(0, 5).map(e => parseInt(e[0].slice(1))).sort((a, b) => a - b);
-    const backTop = Object.entries(score).filter(([k]) => k.startsWith('b')).sort((a, b) => b[1] - a[1]).slice(0, 2).map(e => parseInt(e[0].slice(1))).sort((a, b) => a - b);
-    return { front: frontTop, back: backTop };
-  }
-}
-
-// ==================== 渲染 ====================
-function renderHistory() {
-  const history = currentType === 'ssq' ? SSQ_HISTORY : DLT_HISTORY;
-  const wrap = document.getElementById('historyWrap');
-  wrap.innerHTML = history.map(h => {
-    if (currentType === 'ssq') {
-      return `<div class="history-row">
-        <span class="history-period">${h.p}</span>
-        <div class="balls">${h.r.map(n => `<span class="ball ball-r">${String(n).padStart(2,'0')}</span>`).join('')}<span class="ball-sep">+</span><span class="ball ball-b">${String(h.b).padStart(2,'0')}</span></div>
-      </div>`;
-    } else {
-      return `<div class="history-row">
-        <span class="history-period">${h.p}</span>
-        <div class="balls">${h.f.map(n => `<span class="ball ball-r">${String(n).padStart(2,'0')}</span>`).join('')}<span class="ball-sep">|</span>${h.b.map(n => `<span class="ball ball-a">${String(n).padStart(2,'0')}</span>`).join('')}</div>
-      </div>`;
-    }
+    return `<div class="result-card" style="animation-delay:${i * 0.12}s">
+      <div class="r-header">
+        <span class="r-tag">第${i + 1}注</span>
+        <span class="r-algo-names">${r.name}</span>
+      </div>
+      <div class="r-nums">
+        ${redsHtml}${sep}${blueHtml}
+      </div>
+    </div>`;
   }).join('');
 }
 
-function renderStats() {
-  const history = currentType === 'ssq' ? SSQ_HISTORY : DLT_HISTORY;
-  const statType = document.querySelector('.stat-tab.active').dataset.stat;
-  const list = document.getElementById('statList');
-  let data = [];
-
-  if (currentType === 'ssq') {
-    const allR = history.flatMap(h => h.r);
-    const freq = {};
-    allR.forEach(n => freq[n] = (freq[n] || 0) + 1);
-    const last = {};
-    history.forEach((h, i) => h.r.forEach(n => last[n] = i));
-    const miss = {};
-    history.forEach((_, i) => {
-      for (let n = 1; n <= 33; n++) {
-        if (!last[n] || last[n] > i) miss[n] = (miss[n] || 0) + 1;
-      }
-    });
-
-    const pool = Array.from({ length: 33 }, (_, i) => i + 1);
-    if (statType === 'hot') {
-      data = pool.map(n => ({ n, v: freq[n] || 0 })).sort((a, b) => b.v - a.v).slice(0, 15);
-    } else if (statType === 'cold') {
-      data = pool.map(n => ({ n, v: (freq[n] || 0) * -1 })).sort((a, b) => a.v - b.v).slice(0, 15).map(d => ({ n: d.n, v: Math.abs(d.v) }));
-    } else {
-      data = pool.map(n => ({ n, v: history.length - (last[n] !== undefined ? last[n] : 0) })).sort((a, b) => b.v - a.v).slice(0, 15);
-    }
-    const maxV = Math.max(...data.map(d => d.v));
-    list.innerHTML = data.map(d => {
-      const bar = maxV > 0 ? (d.v / maxV * 100).toFixed(0) : 0;
-      const cls = statType === 'hot' ? 'ball-r' : statType === 'cold' ? 'ball-b' : 'ball-a';
-      return `<div class="stat-row">
-        <span class="stat-num ball ${cls}">${String(d.n).padStart(2,'0')}</span>
-        <span class="stat-name">${statType === 'miss' ? '遗漏' : statType === 'hot' ? '出现' : '出现'}</span>
-        <div class="stat-bar"><div class="stat-bar-fill" style="width:${bar}%"></div></div>
-        <span class="stat-count">${d.v}${statType === 'miss' ? '期' : '次'}</span>
-      </div>`;
-    }).join('');
-  } else {
-    const allF = history.flatMap(h => h.f);
-    const allB = history.flatMap(h => h.b);
-    const freqF = {}; allF.forEach(n => freqF[n] = (freqF[n] || 0) + 1);
-    const freqB = {}; allB.forEach(n => freqB[n] = (freqB[n] || 0) + 1);
-    const lastF = {}; history.forEach((h, i) => h.f.forEach(n => lastF[n] = i));
-    const lastB = {};    history.forEach((h, i) => (Array.isArray(h.b) ? h.b : [h.b]).forEach(n => lastB[n] = i));
-    const fPool = Array.from({ length: 35 }, (_, i) => i + 1);
-    const bPool = Array.from({ length: 12 }, (_, i) => i + 1);
-
-    if (statType === 'hot') {
-      const hotF = fPool.map(n => ({ n, v: freqF[n] || 0 })).sort((a, b) => b.v - a.v).slice(0, 10);
-      const hotB = bPool.map(n => ({ n, v: freqB[n] || 0 })).sort((a, b) => b.v - a.v).slice(0, 6);
-      const maxV = Math.max(...hotF.map(d => d.v), ...hotB.map(d => d.v));
-      list.innerHTML = '<div style="font-size:0.75rem;color:var(--gold);margin-bottom:8px;">前区</div>' +
-        hotF.map(d => `<div class="stat-row"><span class="stat-num ball ball-r">${String(d.n).padStart(2,'0')}</span><span class="stat-name">出现</span><div class="stat-bar"><div class="stat-bar-fill" style="width:${(d.v/maxV*100).toFixed(0)}%"></div></div><span class="stat-count">${d.v}次</span></div>`).join('') +
-        '<div style="font-size:0.75rem;color:var(--purple);margin:10px 0 8px;">后区</div>' +
-        hotB.map(d => `<div class="stat-row"><span class="stat-num ball ball-a">${String(d.n).padStart(2,'0')}</span><span class="stat-name">出现</span><div class="stat-bar"><div class="stat-bar-fill" style="width:${(d.v/maxV*100).toFixed(0)}%"></div></div><span class="stat-count">${d.v}次</span></div>`).join('');
-    } else if (statType === 'cold') {
-      const coldF = fPool.map(n => ({ n, v: freqF[n] || 0 })).sort((a, b) => a.v - b.v).slice(0, 10);
-      const coldB = bPool.map(n => ({ n, v: freqB[n] || 0 })).sort((a, b) => a.v - b.v).slice(0, 6);
-      list.innerHTML = '<div style="font-size:0.75rem;color:var(--gold);margin-bottom:8px;">前区</div>' +
-        coldF.map(d => `<div class="stat-row"><span class="stat-num ball ball-r">${String(d.n).padStart(2,'0')}</span><span class="stat-name">出现</span><span class="stat-count">${d.v}次</span></div>`).join('') +
-        '<div style="font-size:0.75rem;color:var(--purple);margin:10px 0 8px;">后区</div>' +
-        coldB.map(d => `<div class="stat-row"><span class="stat-num ball ball-a">${String(d.n).padStart(2,'0')}</span><span class="stat-name">出现</span><span class="stat-count">${d.v}次</span></div>`).join('');
-    } else {
-      const missF = fPool.map(n => ({ n, v: history.length - (lastF[n] !== undefined ? lastF[n] : 0) })).sort((a, b) => b.v - a.v).slice(0, 10);
-      const missB = bPool.map(n => ({ n, v: history.length - (lastB[n] !== undefined ? lastB[n] : 0) })).sort((a, b) => b.v - a.v).slice(0, 6);
-      list.innerHTML = '<div style="font-size:0.75rem;color:var(--gold);margin-bottom:8px;">前区</div>' +
-        missF.map(d => `<div class="stat-row"><span class="stat-num ball ball-r">${String(d.n).padStart(2,'0')}</span><span class="stat-name">遗漏</span><span class="stat-count">${d.v}期</span></div>`).join('') +
-        '<div style="font-size:0.75rem;color:var(--purple);margin:10px 0 8px;">后区</div>' +
-        missB.map(d => `<div class="stat-row"><span class="stat-num ball ball-a">${String(d.n).padStart(2,'0')}</span><span class="stat-name">遗漏</span><span class="stat-count">${d.v}期</span></div>`).join('');
-    }
-  }
-}
-
-function generate() {
-  if (selectedAlgos.size === 0) {
-    alert('请至少选择一个分析算法！');
-    return;
-  }
-  const history = currentType === 'ssq' ? SSQ_HISTORY : DLT_HISTORY;
-  const results = document.getElementById('results');
-  results.innerHTML = '';
-
-  for (let i = 0; i < 3; i++) {
-    let numbers;
-    const algoKeys = Array.from(selectedAlgos);
-    const primary = algoKeys[i % algoKeys.length];
-
-    switch (primary) {
-      case 'hot-cold': numbers = algoHotCold(history, currentType); break;
-      case 'odd-even': numbers = algoOddEven(history, currentType); break;
-      case 'zone': numbers = algoZone(history, currentType); break;
-      case 'tail': numbers = algoTail(history, currentType); break;
-      case 'monte-carlo': numbers = algoMonteCarlo(history, currentType); break;
-      default: numbers = algoHotCold(history, currentType);
-    }
-
-    const algoNames = {
-      'hot-cold': '🔥冷热号',
-      'odd-even': '⚡奇偶',
-      'zone': '📐区间',
-      'tail': '🔢尾数',
-      'monte-carlo': '🤖蒙特卡洛'
-    };
-
-    const card = document.createElement('div');
-    card.className = 'result-card';
-
-    if (currentType === 'ssq') {
-      const { reds, blue } = numbers;
-      card.innerHTML = `
-        <div class="result-header">第 ${i + 1} 注 · ${algoNames[primary]}</div>
-        <div class="result-nums">
-          ${reds.map((n, j) => `<span class="ball ball-r ball-anim" style="animation-delay:${j * 80}ms">${String(n).padStart(2,'0')}</span>`).join('')}
-          <span class="ball-sep">+</span>
-          <span class="ball ball-b ball-anim" style="animation-delay:480ms">${String(Array.isArray(blue) ? blue[0] : blue).padStart(2,'0')}</span>
-        </div>
-        <div class="algo-tags"><span class="algo-tag">${algoNames[primary]}</span></div>
-      `;
-    } else {
-      const { front, back } = numbers;
-      card.innerHTML = `
-        <div class="result-header">第 ${i + 1} 注 · ${algoNames[primary]}</div>
-        <div class="result-nums">
-          ${front.map((n, j) => `<span class="ball ball-r ball-anim" style="animation-delay:${j * 80}ms">${String(n).padStart(2,'0')}</span>`).join('')}
-          <span class="ball-sep">|</span>
-          ${(Array.isArray(back) ? back : [back]).map((n, j) => `<span class="ball ball-a ball-anim" style="animation-delay:${(5 + j) * 80}ms">${String(n).padStart(2,'0')}</span>`).join('')}
-        </div>
-        <div class="algo-tags"><span class="algo-tag">${algoNames[primary]}</span></div>
-      `;
-    }
-
-    results.appendChild(card);
-  }
-}
-
-// ==================== 事件绑定 ====================
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    currentType = tab.dataset.type;
-    renderHistory();
-    renderStats();
-    document.getElementById('results').innerHTML = `
-      <div class="result-card">
-        <div class="result-header">等待生成...</div>
-        <div class="result-nums" style="color:var(--text-dim);font-size:0.85rem;">请选择算法并点击上方按钮</div>
-      </div>`;
-  });
-});
-
-document.querySelectorAll('.algo-item').forEach(item => {
-  item.addEventListener('click', () => {
-    const algo = item.dataset.algo;
-    if (selectedAlgos.has(algo)) {
-      if (selectedAlgos.size > 1) {
-        selectedAlgos.delete(algo);
-        item.classList.remove('selected');
-      }
-    } else {
-      selectedAlgos.add(algo);
-      item.classList.add('selected');
-    }
-  });
-});
-
-document.querySelectorAll('.stat-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.stat-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    renderStats();
-  });
-});
-
-document.getElementById('genBtn').addEventListener('click', generate);
-
-// ==================== 初始化 ====================
-renderHistory();
-renderStats();
+// 启动
+init();
 </script>
 </body>
 </html>
