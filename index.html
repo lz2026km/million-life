@@ -1516,6 +1516,669 @@
       renderAlgoGrid();
       renderHistoryTable();
     });
+
+    // ============ ENHANCED MODULES (Integrated) ============
+    (function() {
+      'use strict';
+
+      // ===== 1. Algoritms Module (algos.js) =====
+      const AlgoModule = {
+        hotCold: function(type, opts) {
+          const { topN = 6, hotWeight = 0.7, coldWeight = 0.3 } = opts || {};
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const maxNum = isSSQ ? 33 : 35;
+          const count = isSSQ ? 6 : 5;
+          const freq = {}, miss = {};
+          for (let i = 1; i <= maxNum; i++) { freq[i] = 0; miss[i] = 0; }
+          let currentMiss = {}; for (let i = 1; i <= maxNum; i++) currentMiss[i] = 0;
+          data.forEach((row, idx) => {
+            const nums = isSSQ ? row.r : row.f;
+            nums.forEach(n => freq[n]++);
+            for (let i = 1; i <= maxNum; i++) { if (nums.includes(i)) currentMiss[i] = 0; else currentMiss[i]++; }
+            if (idx === 0) { for (let i = 1; i <= maxNum; i++) miss[i] = currentMiss[i]; }
+          });
+          const scores = [];
+          const maxFreq = Math.max(...Object.values(freq));
+          const maxMiss = Math.max(...Object.values(miss), 1);
+          for (let i = 1; i <= maxNum; i++) {
+            const hotScore = (freq[i] / maxFreq) * hotWeight;
+            const coldScore = (miss[i] / maxMiss) * coldWeight;
+            scores.push({ num: i, score: hotScore + coldScore, freq: freq[i], miss: miss[i] });
+          }
+          scores.sort((a, b) => b.score - a.score);
+          const selected = scores.slice(0, topN).map(s => s.num).sort((a, b) => a - b);
+          return { type, selected, scores: scores.slice(0, topN * 2) };
+        },
+        oddEven: function(type) {
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const stats = { odd: 0, even: 0, total: 0 };
+          data.forEach(row => {
+            const nums = isSSQ ? row.r : row.f;
+            let odd = 0, even = 0;
+            nums.forEach(n => n % 2 === 1 ? odd++ : even++);
+            stats.odd += odd; stats.even += even; stats.total += nums.length;
+          });
+          const avgOddRatio = stats.odd / stats.total;
+          const count = isSSQ ? 6 : 5;
+          const targetOdd = Math.round(avgOddRatio * count);
+          const recommended = [];
+          for (let sim = 0; sim < 10; sim++) {
+            const simResult = [];
+            let oddLeft = targetOdd;
+            const nums = isSSQ ? Array.from({length: 33}, (_, i) => i + 1) : Array.from({length: 35}, (_, i) => i + 1);
+            const shuffled = nums.sort(() => Math.random() - 0.5);
+            shuffled.forEach(n => {
+              if (simResult.length >= count) return;
+              const isOdd = n % 2 === 1;
+              if (isOdd && oddLeft > 0) { simResult.push(n); oddLeft--; }
+              else if (!isOdd && simResult.length - (targetOdd - oddLeft) < (count - targetOdd)) { simResult.push(n); }
+            });
+            if (simResult.length === count) recommended.push(simResult.sort((a, b) => a - b));
+          }
+          return { type, avgOddRatio: avgOddRatio.toFixed(3), avgEvenRatio: (1 - avgOddRatio).toFixed(3), targetOdd, recommended: recommended.slice(0, 5) };
+        },
+        zone: function(type, zones) {
+          zones = zones || 4;
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const maxNum = isSSQ ? 33 : 35;
+          const count = isSSQ ? 6 : 5;
+          const zoneSize = Math.ceil(maxNum / zones);
+          const zoneRanges = [];
+          for (let i = 0; i < zones; i++) {
+            const start = i * zoneSize + 1;
+            const end = Math.min((i + 1) * zoneSize, maxNum);
+            zoneRanges.push({ zone: i + 1, start, end });
+          }
+          const zoneCount = Array(zones).fill(0);
+          data.forEach(row => {
+            const nums = isSSQ ? row.r : row.f;
+            nums.forEach(n => { const z = Math.floor((n - 1) / zoneSize); if (z >= 0 && z < zones) zoneCount[z]++; });
+          });
+          const zoneStats = zoneRanges.map((zr, i) => ({ ...zr, count: zoneCount[i], ratio: (zoneCount[i] / (data.length * count)).toFixed(4) }));
+          const recommended = [];
+          const topZones = zoneStats.sort((a, b) => b.count - a.count).slice(0, Math.ceil(count / 2));
+          for (let sim = 0; sim < 10; sim++) {
+            const result = [];
+            const nums = isSSQ ? Array.from({length: 33}, (_, i) => i + 1) : Array.from({length: 35}, (_, i) => i + 1);
+            topZones.forEach(z => {
+              const inZone = nums.filter(n => n >= z.start && n <= z.end);
+              const shuffled = inZone.sort(() => Math.random() - 0.5);
+              result.push(...shuffled.slice(0, Math.ceil(count / 3)));
+            });
+            if (result.length < count) {
+              const remaining = nums.filter(n => !result.includes(n)).sort(() => Math.random() - 0.5);
+              result.push(...remaining.slice(0, count - result.length));
+            }
+            recommended.push([...new Set(result)].slice(0, count).sort((a, b) => a - b));
+          }
+          return { type, zones, zoneStats, recommended: recommended.slice(0, 5) };
+        },
+        tail: function(type) {
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const tailCount = Array(10).fill(0);
+          const tailMiss = Array(10).fill(0);
+          const currentMiss = Array(10).fill(0);
+          data.forEach(row => {
+            const nums = isSSQ ? row.r : row.f;
+            nums.forEach(n => { const t = n % 10; tailCount[t]++; });
+            for (let t = 0; t < 10; t++) {
+              const hasTail = nums.some(n => n % 10 === t);
+              if (hasTail) currentMiss[t] = 0; else currentMiss[t]++;
+            }
+          });
+          for (let t = 0; t < 10; t++) tailMiss[t] = currentMiss[t];
+          const maxCount = Math.max(...tailCount);
+          const maxMiss = Math.max(...tailMiss, 1);
+          const tailStats = [];
+          for (let t = 0; t < 10; t++) {
+            const hotScore = (tailCount[t] / maxCount) * 0.6;
+            const coldScore = (tailMiss[t] / maxMiss) * 0.4;
+            tailStats.push({ tail: t, count: tailCount[t], miss: tailMiss[t], score: (hotScore + coldScore).toFixed(3) });
+          }
+          tailStats.sort((a, b) => b.score - a.score);
+          const topTails = tailStats.slice(0, 5).map(s => s.tail);
+          const recommended = [];
+          const count = isSSQ ? 6 : 5;
+          for (let sim = 0; sim < 10; sim++) {
+            const result = [];
+            const nums = isSSQ ? Array.from({length: 33}, (_, i) => i + 1) : Array.from({length: 35}, (_, i) => i + 1);
+            topTails.forEach(t => {
+              const withTail = nums.filter(n => n % 10 === t && !result.includes(n));
+              if (withTail.length > 0) result.push(withTail[Math.floor(Math.random() * withTail.length)]);
+            });
+            while (result.length < count) {
+              const remaining = nums.filter(n => !result.includes(n));
+              if (remaining.length === 0) break;
+              result.push(remaining[Math.floor(Math.random() * remaining.length)]);
+            }
+            recommended.push(result.slice(0, count).sort((a, b) => a - b));
+          }
+          return { type, tailStats, topTails, recommended: recommended.slice(0, 5) };
+        },
+        monteCarlo: function(type, times) {
+          times = times || 1000;
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const maxNum = isSSQ ? 33 : 35;
+          const count = isSSQ ? 6 : 5;
+          const freq = {};
+          for (let i = 1; i <= maxNum; i++) freq[i] = 0;
+          data.forEach(row => { const nums = isSSQ ? row.r : row.f; nums.forEach(n => freq[n]++); });
+          const maxFreq = Math.max(...Object.values(freq));
+          const nums = Array.from({ length: maxNum }, (_, i) => i + 1);
+          const weightedRandom = (exclude) => {
+            const weights = nums.map(n => { if (exclude.includes(n)) return 0; return (freq[n] / maxFreq) * 0.5 + 0.5; });
+            const total = weights.reduce((a, b) => a + b, 0);
+            let r = Math.random() * total;
+            for (let i = 0; i < nums.length; i++) { r -= weights[i]; if (r <= 0) return nums[i]; }
+            return nums[nums.length - 1];
+          };
+          const results = {};
+          nums.forEach(n => results[n] = 0);
+          for (let i = 0; i < times; i++) {
+            const selected = [];
+            while (selected.length < count) { const n = weightedRandom(selected); if (!selected.includes(n)) selected.push(n); }
+            selected.forEach(n => results[n]++);
+          }
+          const sorted = Object.entries(results).map(([num, count]) => ({ num: parseInt(num), count })).sort((a, b) => b.count - a.count);
+          const recommended = [];
+          for (let i = 0; i < 5; i++) {
+            const selected = sorted.slice(i * 3, i * 3 + count).map(s => s.num).sort((a, b) => a - b);
+            if (selected.length === count) recommended.push(selected);
+          }
+          return { type, times, topFreq: sorted.slice(0, 10), recommended };
+        },
+        acValue: function(type) {
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const calcAC = (nums) => { const diffs = new Set(); for (let i = 0; i < nums.length; i++) for (let j = i + 1; j < nums.length; j++) diffs.add(Math.abs(nums[i] - nums[j])); return diffs.size - (nums.length - 1); };
+          const acStats = {};
+          data.forEach(row => { const nums = isSSQ ? row.r : row.f; const ac = calcAC(nums); acStats[ac] = (acStats[ac] || 0) + 1; });
+          const sortedAC = Object.entries(acStats).sort((a, b) => b[1] - a[1]);
+          const commonAC = sortedAC.slice(0, 3).map(([ac]) => parseInt(ac));
+          const recommended = [];
+          const maxNum = isSSQ ? 33 : 35;
+          const count = isSSQ ? 6 : 5;
+          for (let sim = 0; sim < 20 && recommended.length < 5; sim++) {
+            const shuffled = Array.from({ length: maxNum }, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+            const selected = shuffled.slice(0, count).sort((a, b) => a - b);
+            const ac = calcAC(selected);
+            if (commonAC.includes(ac)) recommended.push({ nums: selected, ac });
+          }
+          while (recommended.length < 5) {
+            const shuffled = Array.from({ length: maxNum }, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+            const selected = shuffled.slice(0, count).sort((a, b) => a - b);
+            recommended.push({ nums: selected, ac: calcAC(selected) });
+          }
+          return { type, acStats: Object.fromEntries(sortedAC.slice(0, 10)), commonAC, recommended: recommended.map(r => r.nums) };
+        },
+        sumValue: function(type) {
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const maxNum = isSSQ ? 33 : 35;
+          const count = isSSQ ? 6 : 5;
+          const sumStats = {};
+          data.forEach(row => { const nums = isSSQ ? row.r : row.f; const sum = nums.reduce((a, b) => a + b, 0); sumStats[sum] = (sumStats[sum] || 0) + 1; });
+          const sums = Object.keys(sumStats).map(Number);
+          const avgSum = sums.reduce((a, s) => a + s * (sumStats[s] || 0), 0) / data.length;
+          const sortedSums = Object.entries(sumStats).sort((a, b) => b[1] - a[1]);
+          const commonSums = sortedSums.slice(0, 5).map(([s]) => parseInt(s));
+          const targetSum = commonSums[Math.floor(commonSums.length / 2)];
+          const recommended = [];
+          for (let sim = 0; sim < 100 && recommended.length < 5; sim++) {
+            const shuffled = Array.from({ length: maxNum }, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+            const selected = shuffled.slice(0, count);
+            const sum = selected.reduce((a, b) => a + b, 0);
+            if (Math.abs(sum - targetSum) < 10) recommended.push({ nums: selected.sort((a, b) => a - b), sum });
+          }
+          return { type, avgSum: avgSum.toFixed(2), commonSums, targetSum, sumStats: Object.fromEntries(sortedSums.slice(0, 10)), recommended: recommended.slice(0, 5).map(r => r.nums) };
+        },
+        repeatLink: function(type) {
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const count = isSSQ ? 6 : 5;
+          const repeatStats = [];
+          for (let i = 1; i < data.length; i++) {
+            const prevNums = isSSQ ? data[i].r : data[i].f;
+            const currNums = isSSQ ? data[i - 1].r : data[i - 1].f;
+            repeatStats.push(prevNums.filter(n => currNums.includes(n)).length);
+          }
+          const linkStats = [];
+          for (let i = 0; i < data.length; i++) {
+            const nums = isSSQ ? data[i].r : data[i].f;
+            const sorted = [...nums].sort((a, b) => a - b);
+            let links = 0;
+            for (let j = 1; j < sorted.length; j++) { if (sorted[j] - sorted[j - 1] === 1) links++; }
+            linkStats.push(links);
+          }
+          const avgRepeat = repeatStats.reduce((a, b) => a + b, 0) / repeatStats.length;
+          const avgLink = linkStats.reduce((a, b) => a + b, 0) / linkStats.length;
+          const lastNums = isSSQ ? data[0].r : data[0].f;
+          const recommended = [];
+          for (let sim = 0; sim < 10; sim++) {
+            const result = [];
+            const repeatCount = Math.round(avgRepeat);
+            const repeatFromLast = lastNums.sort(() => Math.random() - 0.5).slice(0, repeatCount);
+            result.push(...repeatFromLast);
+            const maxNum = isSSQ ? 33 : 35;
+            const remaining = Array.from({ length: maxNum }, (_, i) => i + 1).filter(n => !result.includes(n));
+            while (result.length < count) { const n = remaining.splice(Math.floor(Math.random() * remaining.length), 1)[0]; if (n) result.push(n); }
+            recommended.push(result.sort((a, b) => a - b));
+          }
+          return { type, avgRepeat: avgRepeat.toFixed(2), avgLink: avgLink.toFixed(2), lastNums, recommended: recommended.slice(0, 5) };
+        },
+        danMa: function(type, opts) {
+          const { danma, tuomaCount } = opts || {};
+          const danmaArr = danma ? [...danma] : [];
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const count = isSSQ ? 6 : 5;
+          const maxNum = isSSQ ? 33 : 35;
+          if (danmaArr.length === 0) {
+            const freq = {}; for (let i = 1; i <= maxNum; i++) freq[i] = 0;
+            data.forEach(row => { const nums = isSSQ ? row.r : row.f; nums.forEach(n => freq[n]++); });
+            const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]);
+            const danCount = isSSQ ? 2 : 1;
+            danmaArr.push(...sorted.slice(0, danCount).map(([n]) => parseInt(n)));
+          }
+          const actualTuomaCount = tuomaCount || (count - danmaArr.length);
+          const tuomaNeed = count - danmaArr.length;
+          const tuomaPool = Array.from({ length: maxNum }, (_, i) => i + 1).filter(n => !danmaArr.includes(n));
+          const recommended = [];
+          for (let sim = 0; sim < 20 && recommended.length < 5; sim++) {
+            const shuffled = [...tuomaPool].sort(() => Math.random() - 0.5);
+            const tuoma = shuffled.slice(0, tuomaNeed);
+            const full = [...danmaArr, ...tuoma].sort((a, b) => a - b);
+            if (full.length === count) recommended.push(full);
+          }
+          return { type, danma: danmaArr.sort((a, b) => a - b), tuomaCount: actualTuomaCount, recommended };
+        },
+        rotateMatrix: function(type, opts) {
+          const { nums, guarantee } = opts || {};
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const count = isSSQ ? 6 : 5;
+          const maxNum = isSSQ ? 33 : 35;
+          let selectedNums = nums;
+          if (!selectedNums || selectedNums.length === 0) {
+            const freq = {}; for (let i = 1; i <= maxNum; i++) freq[i] = 0;
+            data.forEach(row => { const rowNums = isSSQ ? row.r : row.f; rowNums.forEach(n => freq[n]++); });
+            const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]);
+            selectedNums = sorted.slice(0, 10).map(([n]) => parseInt(n));
+          }
+          const allCombinations = [];
+          const combine = (arr, k, start, current) => { if (current.length === k) { allCombinations.push([...current]); return; } for (let i = start; i < arr.length && arr.length - i + current.length >= k; i++) { current.push(arr[i]); combine(arr, k, i + 1, current); current.pop(); } };
+          combine(selectedNums, count, 0, []);
+          const matrixSize = Math.min(20, allCombinations.length);
+          const shuffled = allCombinations.sort(() => Math.random() - 0.5);
+          const matrix = shuffled.slice(0, matrixSize);
+          return { type, guarantee: guarantee || '6保5', inputNums: selectedNums.sort((a, b) => a - b), matrixSize, matrix };
+        }
+      };
+
+      // ===== 2. Enhancements-Algo Module =====
+      const AlgoEnhancements = {
+        adjacentAnalysis: function(type) {
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const count = isSSQ ? 6 : 5;
+          const maxNum = isSSQ ? 33 : 35;
+          const getAdjacent = (num) => { const adj = []; if (num > 1) adj.push(num - 1); if (num < maxNum) adj.push(num + 1); return adj; };
+          const adjCount = {}; for (let i = 1; i <= maxNum; i++) adjCount[i] = 0;
+          const periodStats = [];
+          for (let i = 1; i < data.length; i++) {
+            const prevNums = isSSQ ? data[i].r : data[i].f;
+            const currNums = isSSQ ? data[i - 1].r : data[i - 1].f;
+            const adjNums = new Set();
+            prevNums.forEach(n => getAdjacent(n).forEach(a => adjNums.add(a)));
+            const appeared = currNums.filter(n => adjNums.has(n)).length;
+            periodStats.push({ period: data[i].p || data[i].period, appeared, total: prevNums.length * 2 });
+            currNums.forEach(n => { if (adjNums.has(n)) adjCount[n]++; });
+          }
+          const avgAdj = periodStats.reduce((a, b) => a + b.appeared, 0) / periodStats.length;
+          const adjRanking = Object.entries(adjCount).map(([num, c]) => ({ num: parseInt(num), count: c })).sort((a, b) => b.count - a.count);
+          const topAdjNums = adjRanking.slice(0, 15).map(s => s.num);
+          const recommended = [];
+          const lastNums = isSSQ ? data[0].r : data[0].f;
+          for (let sim = 0; sim < 15 && recommended.length < 5; sim++) {
+            const result = [];
+            const useAdj = Math.random() < 0.5;
+            const adjFromLast = new Set();
+            lastNums.forEach(n => getAdjacent(n).forEach(a => adjFromLast.add(a)));
+            if (useAdj) { const adjList = [...adjFromLast].sort(() => Math.random() - 0.5); result.push(...adjList.slice(0, Math.round(avgAdj))); }
+            const pool = Array.from({ length: maxNum }, (_, i) => i + 1).filter(n => !result.includes(n)).sort(() => Math.random() - 0.5);
+            while (result.length < count && pool.length > 0) { result.push(pool.shift()); }
+            if (result.length === count) { recommended.push([...new Set(result)].slice(0, count).sort((a, b) => a - b)); }
+          }
+          return { type, avgAdjCount: avgAdj.toFixed(2), topAdjNums, adjRanking: adjRanking.slice(0, 10), recommended: recommended.slice(0, 5) };
+        },
+        tailPairAnalysis: function(type) {
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const count = isSSQ ? 6 : 5;
+          const tailFreq = Array(10).fill(0);
+          const tailPairCount = {};
+          for (let t1 = 0; t1 < 10; t1++) for (let t2 = 0; t2 < 10; t2++) tailPairCount[`${t1}-${t2}`] = 0;
+          data.forEach(row => {
+            const nums = isSSQ ? row.r : row.f;
+            const tails = nums.map(n => n % 10);
+            tails.forEach(t => tailFreq[t]++);
+            for (let i = 0; i < tails.length; i++) for (let j = i + 1; j < tails.length; j++) { const key = tails[i] <= tails[j] ? `${tails[i]}-${tails[j]}` : `${tails[j]}-${tails[i]}`; tailPairCount[key]++; }
+          });
+          const pairRanking = Object.entries(tailPairCount).filter(([key, count]) => count > 0).map(([key, count]) => { const [t1, t2] = key.split('-').map(Number); return { pair: [t1, t2], count }; }).sort((a, b) => b.count - a.count);
+          const topPairs = pairRanking.slice(0, 5).map(p => p.pair);
+          const maxFreq = Math.max(...tailFreq);
+          const tailScores = tailFreq.map((f, t) => ({ tail: t, freq: f, score: (f / maxFreq).toFixed(3) })).sort((a, b) => b.freq - a.freq);
+          const recommended = [];
+          for (let sim = 0; sim < 20 && recommended.length < 5; sim++) {
+            const result = [];
+            const usedTails = new Set();
+            const shuffledPairs = [...topPairs].sort(() => Math.random() - 0.5);
+            for (const pair of shuffledPairs) {
+              if (result.length >= count) break;
+              for (const t of pair) {
+                if (result.length >= count) break;
+                if (!usedTails.has(t)) {
+                  const maxNum = isSSQ ? 33 : 35;
+                  const withTail = Array.from({ length: maxNum }, (_, i) => i + 1).filter(n => n % 10 === t && !result.includes(n));
+                  if (withTail.length > 0) { result.push(withTail[Math.floor(Math.random() * withTail.length)]); usedTails.add(t); }
+                }
+              }
+            }
+            const maxNum = isSSQ ? 33 : 35;
+            while (result.length < count) { const remaining = Array.from({ length: maxNum }, (_, i) => i + 1).filter(n => !result.includes(n)); if (remaining.length === 0) break; result.push(remaining[Math.floor(Math.random() * remaining.length)]); }
+            if (result.length === count) recommended.push(result.sort((a, b) => a - b));
+          }
+          return { type, tailScores, topPairs: pairRanking.slice(0, 10), recommended: recommended.slice(0, 5) };
+        },
+        waveCycleAnalysis: function(type) {
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const count = isSSQ ? 6 : 5;
+          const maxNum = isSSQ ? 33 : 35;
+          const appearIntervals = {}; for (let i = 1; i <= maxNum; i++) appearIntervals[i] = [];
+          const numHistory = {}; for (let i = 1; i <= maxNum; i++) numHistory[i] = [];
+          data.forEach((row, idx) => { const nums = isSSQ ? row.r : row.f; nums.forEach(n => numHistory[n].push(idx)); });
+          Object.keys(numHistory).forEach(n => { const history = numHistory[n]; for (let i = 1; i < history.length; i++) appearIntervals[n].push(history[i] - history[i - 1]); });
+          const waveStats = [];
+          for (let i = 1; i <= maxNum; i++) {
+            const intervals = appearIntervals[i];
+            const history = numHistory[i];
+            let currentMiss = history.length > 0 ? data.length - 1 - history[history.length - 1] : data.length;
+            const avgInterval = intervals.length > 0 ? intervals.reduce((a, b) => a + b, 0) / intervals.length : maxNum;
+            const missRatio = currentMiss / avgInterval;
+            let waveScore = 0;
+            if (missRatio >= 0.8 && missRatio <= 1.2) waveScore = 1.0;
+            else if (missRatio >= 0.5 && missRatio <= 1.5) waveScore = 0.6;
+            else if (missRatio > 1.5) waveScore = 0.8;
+            else waveScore = 0.3;
+            waveStats.push({ num: i, avgInterval: avgInterval.toFixed(2), currentMiss, missRatio: missRatio.toFixed(2), waveScore });
+          }
+          waveStats.sort((a, b) => b.waveScore - a.waveScore);
+          const topWaveNums = waveStats.slice(0, 15).map(s => s.num);
+          const recommended = [];
+          for (let sim = 0; sim < 15 && recommended.length < 5; sim++) {
+            const result = [];
+            const hotPool = waveStats.filter(s => s.waveScore >= 0.8).map(s => s.num);
+            const shuffledHot = hotPool.sort(() => Math.random() - 0.5);
+            while (result.length < count && shuffledHot.length > 0) { const n = shuffledHot.shift(); if (!result.includes(n)) result.push(n); }
+            const maxNum = isSSQ ? 33 : 35;
+            while (result.length < count) { const remaining = Array.from({ length: maxNum }, (_, i) => i + 1).filter(n => !result.includes(n)); if (remaining.length === 0) break; result.push(remaining[Math.floor(Math.random() * remaining.length)]); }
+            if (result.length === count) recommended.push(result.sort((a, b) => a - b));
+          }
+          return { type, waveStats: waveStats.slice(0, 10), topWaveNums, recommended: recommended.slice(0, 5) };
+        },
+        positionAnalysis: function(type) {
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const count = isSSQ ? 6 : 5;
+          const maxNum = isSSQ ? 33 : 35;
+          const positionStats = [];
+          for (let pos = 0; pos < count; pos++) {
+            const posCount = {}; for (let i = 1; i <= maxNum; i++) posCount[i] = 0;
+            data.forEach(row => { const nums = isSSQ ? row.r : row.f; if (nums[pos] !== undefined) posCount[nums[pos]]++; });
+            const ranking = Object.entries(posCount).map(([num, c]) => ({ num: parseInt(num), count: c })).sort((a, b) => b.count - a.count);
+            positionStats.push({ position: pos + 1, topNums: ranking.slice(0, 5) });
+          }
+          const positionAvg = [];
+          positionStats.forEach((ps, idx) => {
+            const nums = data.map(row => (isSSQ ? row.r : row.f)[idx]).filter(n => n !== undefined);
+            const avg = nums.reduce((a, b) => a + b, 0) / nums.length;
+            const variance = nums.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / nums.length;
+            positionAvg.push({ position: idx + 1, avg: avg.toFixed(2), std: Math.sqrt(variance).toFixed(2) });
+          });
+          const recommended = [];
+          for (let sim = 0; sim < 15 && recommended.length < 5; sim++) {
+            const result = [];
+            for (let pos = 0; pos < count; pos++) {
+              const topNums = positionStats[pos].topNums.map(s => s.num);
+              if (Math.random() < 0.7 && topNums.length > 0) result[pos] = topNums[Math.floor(Math.random() * Math.min(3, topNums.length))];
+            }
+            const maxNum = isSSQ ? 33 : 35;
+            for (let pos = 0; pos < count; pos++) {
+              if (result[pos] === undefined) { const remaining = Array.from({ length: maxNum }, (_, i) => i + 1).filter(n => !result.includes(n)); if (remaining.length > 0) result[pos] = remaining[Math.floor(Math.random() * remaining.length)]; }
+            }
+            if (result.length === count && result.every(n => n !== undefined)) recommended.push(result);
+          }
+          return { type, positionStats, positionAvg, recommended: recommended.slice(0, 5) };
+        },
+        shrinkFilter: function(type, opts) {
+          const { minSum, maxSum, allowRepeatTail, maxConsecutive, targetAC, minGap } = Object.assign({ minSum: 0, maxSum: 999, allowRepeatTail: true, maxConsecutive: 3, targetAC: null, minGap: 1 }, opts);
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const count = isSSQ ? 6 : 5;
+          const maxNum = isSSQ ? 33 : 35;
+          const historySums = data.map(row => { const nums = isSSQ ? row.r : row.f; return nums.reduce((a, b) => a + b, 0); });
+          const sumAvg = historySums.reduce((a, b) => a + b, 0) / historySums.length;
+          const filterConditions = {
+            sum: (nums) => { const s = nums.reduce((a, b) => a + b, 0); return s >= (minSum || sumAvg - 20) && s <= (maxSum || sumAvg + 20); },
+            repeatTail: (nums) => { if (allowRepeatTail) return true; const tails = nums.map(n => n % 10); return new Set(tails).size === tails.length; },
+            consecutive: (nums) => { const sorted = [...nums].sort((a, b) => a - b); let maxConsec = 1, current = 1; for (let i = 1; i < sorted.length; i++) { if (sorted[i] - sorted[i - 1] === 1) { current++; maxConsec = Math.max(maxConsec, current); } else current = 1; } return maxConsec <= maxConsecutive; },
+            gap: (nums) => { const sorted = [...nums].sort((a, b) => a - b); for (let i = 1; i < sorted.length; i++) { if (sorted[i] - sorted[i - 1] < minGap) return false; } return true; },
+            acValue: (nums, target) => { if (!target) return true; const diffs = new Set(); for (let i = 0; i < nums.length; i++) for (let j = i + 1; j < nums.length; j++) diffs.add(Math.abs(nums[i] - nums[j])); const ac = diffs.size - (nums.length - 1); return Math.abs(ac - target) <= 2; }
+          };
+          const poolSize = 1000;
+          const allCandidates = [];
+          for (let i = 0; i < poolSize; i++) { const shuffled = Array.from({ length: maxNum }, (_, idx) => idx + 1).sort(() => Math.random() - 0.5); allCandidates.push(shuffled.slice(0, count).sort((a, b) => a - b)); }
+          const filtered = allCandidates.filter(nums => { if (!filterConditions.sum(nums)) return false; if (!filterConditions.repeatTail(nums)) return false; if (!filterConditions.consecutive(nums)) return false; if (!filterConditions.gap(nums)) return false; if (!filterConditions.acValue(nums, targetAC)) return false; return true; });
+          return { type, totalCandidates: poolSize, filteredCount: filtered.length, filterRate: ((poolSize - filtered.length) / poolSize * 100).toFixed(1) + '%', samples: filtered.slice(0, 5) };
+        }
+      };
+
+      // ===== 3. DataLayer Module =====
+      const DataLayer = {
+        searchHistory: function(period, type) {
+          type = type || 'all';
+          const results = { ssq: null, dlt: null };
+          if (type === 'ssq' || type === 'all') results.ssq = SSQ_DATA.find(item => item.p === period) || null;
+          if (type === 'dlt' || type === 'all') results.dlt = DLT_DATA.find(item => item.p === period) || null;
+          if (type === 'ssq' || type === 'dlt') return results[type];
+          return results;
+        },
+        exportCSV: function(type, filename) {
+          type = type || 'all';
+          const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+          let csv = '';
+          if (type === 'ssq' || type === 'all') {
+            csv += '=== 双色球 (SSQ) ===\n期号,红球1,红球2,红球3,红球4,红球5,红球6,蓝球\n';
+            SSQ_DATA.forEach(item => { csv += `${item.p},${item.r.join(',')},${item.b}\n`; });
+            if (type === 'all') csv += '\n';
+          }
+          if (type === 'dlt' || type === 'all') {
+            csv += '=== 大乐透 (DLT) ===\n期号,前区1,前区2,前区3,前区4,前区5,后区1,后区2\n';
+            DLT_DATA.forEach(item => { csv += `${item.p},${item.f.join(',')},${item.b.join(',')}\n`; });
+          }
+          const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename || `lottery_export_${timestamp}${type === 'all' ? '' : '_' + type}.csv`;
+          a.click();
+          URL.revokeObjectURL(url);
+          return csv;
+        },
+        submitCorrection: function(period, data, type) {
+          const target = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const index = target.findIndex(item => item.p === period);
+          const correction = { period, type, original: index !== -1 ? { ...target[index] } : null, corrected: data, timestamp: new Date().toISOString(), status: index !== -1 ? 'updated' : 'not_found' };
+          if (index !== -1) { target[index] = { ...data, p: period, _corrected: true, _correctedAt: correction.timestamp }; }
+          return correction;
+        },
+        getDataVersion: function() {
+          return { ssq: { version: '1.0.0', lastUpdate: '2025-04-17', recordCount: SSQ_DATA.length }, dlt: { version: '1.0.0', lastUpdate: '2025-04-17', recordCount: DLT_DATA.length }, exportedAt: new Date().toISOString() };
+        },
+        getDataStats: function(type) {
+          type = type || 'all';
+          const stats = {};
+          if (type === 'ssq' || type === 'all') {
+            const redFreq = {}, blueFreq = {};
+            SSQ_DATA.forEach(item => { item.r.forEach(n => { redFreq[n] = (redFreq[n] || 0) + 1; }); blueFreq[item.b] = (blueFreq[item.b] || 0) + 1; });
+            const redSorted = Object.entries(redFreq).sort((a, b) => b[1] - a[1]);
+            const blueSorted = Object.entries(blueFreq).sort((a, b) => b[1] - a[1]);
+            stats.ssq = { recordCount: SSQ_DATA.length, periodRange: { from: SSQ_DATA[SSQ_DATA.length - 1]?.p, to: SSQ_DATA[0]?.p }, redBall: { range: { min: 1, max: 33 }, hotNumbers: redSorted.slice(0, 6).map(e => ({ num: +e[0], freq: e[1] })), coldNumbers: redSorted.slice(-6).map(e => ({ num: +e[0], freq: e[1] })) }, blueBall: { range: { min: 1, max: 16 }, hotNumbers: blueSorted.slice(0, 4).map(e => ({ num: +e[0], freq: e[1] })), coldNumbers: blueSorted.slice(-4).map(e => ({ num: +e[0], freq: e[1] })) } };
+          }
+          if (type === 'dlt' || type === 'all') {
+            const frontFreq = {}, backFreq = {};
+            DLT_DATA.forEach(item => { item.f.forEach(n => { frontFreq[n] = (frontFreq[n] || 0) + 1; }); item.b.forEach(n => { backFreq[n] = (backFreq[n] || 0) + 1; }); });
+            const frontSorted = Object.entries(frontFreq).sort((a, b) => b[1] - a[1]);
+            const backSorted = Object.entries(backFreq).sort((a, b) => b[1] - a[1]);
+            stats.dlt = { recordCount: DLT_DATA.length, periodRange: { from: DLT_DATA[DLT_DATA.length - 1]?.p, to: DLT_DATA[0]?.p }, frontArea: { range: { min: 1, max: 35 }, hotNumbers: frontSorted.slice(0, 5).map(e => ({ num: +e[0], freq: e[1] })), coldNumbers: frontSorted.slice(-5).map(e => ({ num: +e[0], freq: e[1] })) }, backArea: { range: { min: 1, max: 12 }, hotNumbers: backSorted.slice(0, 2).map(e => ({ num: +e[0], freq: e[1] })), coldNumbers: backSorted.slice(-2).map(e => ({ num: +e[0], freq: e[1] })) } };
+          }
+          return stats;
+        }
+      };
+
+      // ===== 4. Personal Enhancements Module =====
+      const PersonalEnhancements = {
+        _storageKey: 'million_life_personal',
+        _state: { profile: { nickname: '幸运用户', avatar: 'default' }, preferences: { theme: 'gold', algorithms: [], displayMode: 'card', soundEnabled: true }, favorites: [], history: [], budget: { monthly: 200, spent: 0, records: [] }, tracking: [] },
+        init: function() { try { const saved = localStorage.getItem(this._storageKey); if (saved) this._state = { ...this._state, ...JSON.parse(saved) }; } catch (e) { } return this; },
+        _saveState: function() { try { localStorage.setItem(this._storageKey, JSON.stringify(this._state)); } catch (e) { } },
+        profile: function(p) { if (p === undefined) return { ...this._state.profile }; this._state.profile = { ...this._state.profile, ...p }; this._saveState(); return this._state.profile; },
+        generateNickname: function() { const prefixes = ['幸运', '财运', '福气', '吉祥', '如意', '开心', '快乐']; const suffixes = ['玩家', '之星', '达人', '高手', '富翁', '小子', '宝宝']; return prefixes[Math.floor(Math.random() * prefixes.length)] + suffixes[Math.floor(Math.random() * suffixes.length)] + (Math.floor(Math.random() * 99) + 1); },
+        addFavorite: function(numbers, type, note) { type = type || 'ssq'; note = note || ''; const item = { id: Date.now(), type, numbers: JSON.parse(JSON.stringify(numbers)), note, createdAt: new Date().toISOString() }; this._state.favorites.unshift(item); this._saveState(); return item; },
+        getFavorites: function() { return this._state.favorites.map(f => ({ ...f })); },
+        removeFavorite: function(id) { const idx = this._state.favorites.findIndex(f => f.id === id); if (idx > -1) { this._state.favorites.splice(idx, 1); this._saveState(); return true; } return false; },
+        updateFavoriteNote: function(id, note) { const item = this._state.favorites.find(f => f.id === id); if (item) { item.note = note; this._saveState(); return true; } return false; },
+        addHistory: function(results, type, algorithms) { algorithms = algorithms || []; const item = { id: Date.now(), type, results: JSON.parse(JSON.stringify(results)), algorithms: [...algorithms], createdAt: new Date().toISOString() }; this._state.history.unshift(item); if (this._state.history.length > 100) this._state.history = this._state.history.slice(0, 100); this._saveState(); return item; },
+        getHistory: function(options) { options = options || {}; let filtered = [...this._state.history]; if (options.type) filtered = filtered.filter(h => h.type === options.type); if (options.dateFrom) filtered = filtered.filter(h => new Date(h.createdAt) >= new Date(options.dateFrom)); if (options.dateTo) filtered = filtered.filter(h => new Date(h.createdAt) <= new Date(options.dateTo)); return filtered.slice(0, options.limit || 50); },
+        clearHistory: function() { this._state.history = []; this._saveState(); return true; },
+        removeHistory: function(id) { const idx = this._state.history.findIndex(h => h.id === id); if (idx > -1) { this._state.history.splice(idx, 1); this._saveState(); return true; } return false; },
+        preferences: function(prefs) { if (prefs === undefined) return { ...this._state.preferences }; this._state.preferences = { ...this._state.preferences, ...prefs }; this._saveState(); return this._state.preferences; },
+        budget: function(amount) { if (amount === undefined) return { monthly: this._state.budget.monthly, spent: this._state.budget.spent, remaining: Math.max(0, this._state.budget.monthly - this._state.budget.spent) }; this._state.budget.monthly = amount; this._state.budget.spent = 0; this._saveState(); return this.budget(); },
+        recordExpense: function(amount, note) { note = note || ''; this._state.budget.spent += amount; this._state.budget.records.push({ date: new Date().toISOString().slice(0, 10), amount, note }); this._saveState(); return this.budget(); },
+        resetBudget: function() { this._state.budget.spent = 0; this._state.budget.records = []; this._saveState(); return this.budget(); },
+        getExpenseRecords: function(limit) { limit = limit || 30; return this._state.budget.records.slice(-limit).reverse(); },
+        compareWithHistory: function(numbers, type, periods) { type = type || 'ssq'; periods = periods || 10; const data = type === 'ssq' ? SSQ_DATA : DLT_DATA; const results = []; const count = type === 'ssq' ? 6 : 5; for (let i = 0; i < Math.min(periods, data.length); i++) { const draw = data[i]; const drawNums = type === 'ssq' ? draw.r : draw.f; const bonusNums = type === 'ssq' ? [draw.b] : draw.b; const userNums = type === 'ssq' ? numbers.reds : numbers.front; const userBonus = type === 'ssq' ? [numbers.blue] : numbers.back; let matched = 0; const matchedNums = []; userNums.forEach(n => { if (drawNums.includes(n)) { matched++; matchedNums.push(n); } }); let bonusMatched = 0; userBonus.forEach(n => { if (bonusNums.includes(n)) bonusMatched++; }); results.push({ period: draw.p || draw.period, matched, bonusMatched, total: count + (type === 'ssq' ? 1 : 2), matchedNums, bonusMatchedNums: userBonus.filter(n => bonusNums.includes(n)) }); } const best = results.reduce((a, b) => a.matched > b.matched ? a : b); const avgMatched = results.reduce((a, b) => a + b.matched, 0) / results.length; return { type, results, bestMatch: best, averageMatched: avgMatched.toFixed(1) }; }
+      };
+
+      // ===== 5-10. Other Enhancement Modules =====
+      const PlayEnhancements = {
+        ZODIAC_ANIMALS: ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪'],
+        ZODIAC_LUCKY_MAP: { '鼠': { redMin: 2, redMax: 32, redStep: 10, blueNums: [3, 9], elements: '水' }, '牛': { redMin: 5, redMax: 35, redStep: 10, blueNums: [4, 10], elements: '土' }, '虎': { redMin: 3, redMax: 33, redStep: 10, blueNums: [5, 11], elements: '木' }, '兔': { redMin: 4, redMax: 34, redStep: 10, blueNums: [6, 12], elements: '木' }, '龙': { redMin: 1, redMax: 31, redStep: 10, blueNums: [7, 13], elements: '土' }, '蛇': { redMin: 6, redMax: 36, redStep: 10, blueNums: [8, 14], elements: '火' }, '马': { redMin: 7, redMax: 37, redStep: 10, blueNums: [9, 15], elements: '火' }, '羊': { redMin: 8, redMax: 38, redStep: 10, blueNums: [10, 16], elements: '土' }, '猴': { redMin: 9, redMax: 29, redStep: 10, blueNums: [1, 7], elements: '金' }, '鸡': { redMin: 10, redMax: 30, redStep: 10, blueNums: [2, 8], elements: '金' }, '狗': { redMin: 11, redMax: 31, redStep: 10, blueNums: [3, 9], elements: '土' }, '猪': { redMin: 12, redMax: 32, redStep: 10, blueNums: [4, 10], elements: '水' } },
+        generateByZodiac: function(zodiacName, options) {
+          options = options || {};
+          const type = options.type || 'ssq';
+          const count = options.count || 1;
+          const result = { zodiac: zodiacName, type: type, bets: [], totalBets: count, errors: [] };
+          const luckyInfo = this.ZODIAC_LUCKY_MAP[zodiacName];
+          let redPool = [];
+          if (luckyInfo) { for (let i = luckyInfo.redMin; i <= Math.min(luckyInfo.redMax, 33); i += luckyInfo.redStep) redPool.push(i); if (redPool.length < 6) for (let i = 1; i <= 33; i++) { if (!redPool.includes(i)) redPool.push(i); if (redPool.length >= 15) break; } }
+          else redPool = Array.from({ length: 33 }, (_, i) => i + 1);
+          const bluePool = type === 'ssq' ? (luckyInfo ? luckyInfo.blueNums : Array.from({length: 16}, (_, i) => i + 1)) : Array.from({length: 12}, (_, i) => i + 1);
+          const seen = new Set();
+          while (result.bets.length < count) {
+            const sortedRedPool = [...redPool].sort(() => Math.random() - 0.5);
+            const reds = sortedRedPool.slice(0, 6).sort((a, b) => a - b);
+            const blue = bluePool[Math.floor(Math.random() * bluePool.length)];
+            const key = reds.join(',') + '|' + blue;
+            if (seen.has(key)) continue;
+            seen.add(key);
+            result.bets.push({ red: reds, blue: blue });
+          }
+          return result;
+        }
+      };
+
+      const ToolsModule = {
+        groupByPattern: function(numbers, pattern, options) {
+          pattern = pattern || 'range';
+          options = options || {};
+          const result = { pattern, groups: {}, total: numbers.length };
+          const step = options.step || 5;
+          const max = options.max || 33;
+          if (pattern === 'range') { for (let i = 1; i <= max; i += step) { const key = `${i}-${Math.min(i + step - 1, max)}`; result.groups[key] = []; } numbers.forEach(n => { const idx = Math.floor((n - 1) / step); const key = `${idx * step + 1}-${Math.min((idx + 1) * step, max)}`; if (result.groups[key]) result.groups[key].push(n); }); }
+          else if (pattern === 'oddEven') { result.groups = { odd: [], even: [] }; numbers.forEach(n => { result.groups[n % 2 === 0 ? 'even' : 'odd'].push(n); }); }
+          result.counts = {}; Object.keys(result.groups).forEach(k => { result.counts[k] = result.groups[k].length; });
+          return result;
+        },
+        compareTwoSets: function(set1, set2, type) {
+          type = type || 'full';
+          const s1 = Array.isArray(set1) ? set1 : [];
+          const s2 = Array.isArray(set2) ? set2 : [];
+          const intersect = s1.filter(n => s2.includes(n));
+          const union = [...new Set([...s1, ...s2])];
+          const jaccard = union.length > 0 ? intersect.length / union.length : 0;
+          const overlapRate = Math.min(s1.length, s2.length) > 0 ? intersect.length / Math.min(s1.length, s2.length) : 0;
+          const res = { set1: { numbers: s1, count: s1.length }, set2: { numbers: s2, count: s2.length }, common: intersect, commonCount: intersect.length, jaccardIndex: parseFloat(jaccard.toFixed(4)), overlapRate: parseFloat(overlapRate.toFixed(4)), similarity: parseFloat((jaccard * 100).toFixed(2)) + '%' };
+          if (type === 'full') res.analysis = { isIdentical: intersect.length === s1.length && s1.length === s2.length, isDisjoint: intersect.length === 0, unionCount: union.length };
+          return res;
+        }
+      };
+
+      const UXEnhancements = {
+        showGuide: function(steps, onComplete) {
+          const defaultSteps = [{ target: '.gen-btn', title: '生成号码', content: '点击此处生成推荐号码' }, { target: '.history-list', title: '历史记录', content: '查看历史生成记录' }];
+          const guideSteps = steps || defaultSteps;
+          let guideStep = 0;
+          const overlay = document.createElement('div');
+          overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;align-items:center;justify-content:center;';
+          const card = document.createElement('div');
+          card.style.cssText = 'background:#fff;border-radius:12px;padding:24px;max-width:400px;';
+          card.innerHTML = '<h3 style="margin:0 0 12px;">' + (guideSteps[0]?.title || '') + '</h3><p style="margin:0 0 20px;color:#666;">' + (guideSteps[0]?.content || '') + '</p><button id="guideNextBtn" style="padding:8px 16px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;">下一步</button>';
+          overlay.appendChild(card);
+          document.body.appendChild(overlay);
+          document.getElementById('guideNextBtn').onclick = function() {
+            guideStep++;
+            if (guideStep >= guideSteps.length) { overlay.remove(); if (onComplete) onComplete(); return; }
+            card.innerHTML = '<h3 style="margin:0 0 12px;">' + guideSteps[guideStep].title + '</h3><p style="margin:0 0 20px;color:#666;">' + guideSteps[guideStep].content + '</p><button id="guideNextBtn" style="padding:8px 16px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;">' + (guideStep >= guideSteps.length - 1 ? '完成' : '下一步') + '</button>';
+            document.getElementById('guideNextBtn').onclick = arguments.callee;
+          };
+          return overlay;
+        },
+        batchGenerate: function(count, generatorFn, options) {
+          const results = [];
+          let completed = 0;
+          const processNext = () => {
+            if (completed >= count) { if (options && options.onComplete) options.onComplete(results); return; }
+            const numbers = generatorFn(completed);
+            results.push(numbers);
+            completed++;
+            if (options && options.onProgress) options.onProgress(completed, count);
+            if (options && options.delay > 0) setTimeout(processNext, options.delay); else processNext();
+          };
+          processNext();
+          return results;
+        }
+      };
+
+      // Expose to window
+      window.AlgoModule = AlgoModule;
+      window.AlgoEnhancements = AlgoEnhancements;
+      window.DataLayer = DataLayer;
+      window.PersonalEnhancements = PersonalEnhancements;
+      window.PlayEnhancements = PlayEnhancements;
+      window.ToolsModule = ToolsModule;
+      window.UXEnhancements = UXEnhancements;
+
+      // Auto-init
+      PersonalEnhancements.init();
+      console.log('[百万人生] 所有增强模块已加载');
+    })();
   </script>
 </body>
 </html>
