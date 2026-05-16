@@ -1648,8 +1648,49 @@
     // ============ ALGORITHMS ============
     const clone = arr => Array.isArray(arr) ? arr.map(v => Array.isArray(v) ? [...v] : v) : arr;
     
-    function hotCold(type = 'ssq', opts = {}) {
-      const { topN = 6, hotWeight = 0.7, coldWeight = 0.3 } = opts;
+    function hotCold(type = 'ssq', opts) {
+      const isChartMode = (type === 'ssq' || type === 'dlt') && opts === undefined;
+      
+      // Chart rendering mode (called from stats tab)
+      if (isChartMode) {
+        const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+        const isSSQ = type === 'ssq';
+        const maxNum = isSSQ ? 33 : 35;
+        const recentData = data.slice(0, 30); // Last 30 periods
+        
+        // Count frequency for each number
+        const freq = {};
+        for (let i = 1; i <= maxNum; i++) freq[i] = 0;
+        recentData.forEach(row => {
+          const nums = isSSQ ? row.r : row.f;
+          nums.forEach(n => freq[n]++);
+        });
+        
+        const maxFreq = Math.max(...Object.values(freq));
+        const container = document.getElementById('hotColdChart');
+        
+        // Render bar chart using div + CSS
+        let html = '<div style="display:flex;align-items:flex-end;justify-content:space-around;height:160px;gap:2px;">';
+        for (let i = 1; i <= maxNum; i++) {
+          const height = (freq[i] / maxFreq) * 100;
+          const color = freq[i] >= 3 ? '#F43F5E' : (freq[i] <= 1 ? '#3B82F6' : '#94A3B8');
+          html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
+            <div style="width:100%;max-width:12px;background:${color};border-radius:2px 2px 0 0;height:${height}%;" title="${i}: ${freq[i]}次"></div>
+            <div style="font-size:9px;color:var(--text-secondary);margin-top:2px;">${String(i).padStart(2,'0')}</div>
+          </div>`;
+        }
+        html += '</div>';
+        html += '<div style="display:flex;justify-content:center;gap:16px;margin-top:8px;font-size:12px;">';
+        html += '<span style="color:#F43F5E;">●</span> 热号(≥3次)';
+        html += '<span style="color:#94A3B8;">●</span> 温号(2次)';
+        html += '<span style="color:#3B82F6;">●</span> 冷号(≤1次)';
+        html += '</div>';
+        container.innerHTML = html;
+        return;
+      }
+      
+      // Algorithm mode (returns analysis result)
+      const { topN = 6, hotWeight = 0.7, coldWeight = 0.3 } = opts || {};
       const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
       const isSSQ = type === 'ssq';
       const maxNum = isSSQ ? 33 : 35;
@@ -1679,6 +1720,48 @@
     }
     
     function oddEven(type = 'ssq') {
+      // Chart rendering mode (called from stats tab without data argument)
+      if (type === 'ssq' || type === 'dlt') {
+        const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+        const isSSQ = type === 'ssq';
+        const count = isSSQ ? 6 : 5;
+        const recentData = data.slice(0, 30); // Last 30 periods
+        
+        // Count odd/even ratio for each period
+        const ratioStats = {};
+        recentData.forEach(row => {
+          const nums = isSSQ ? row.r : row.f;
+          let odd = 0;
+          nums.forEach(n => { if (n % 2 === 1) odd++; });
+          const ratio = odd + ':' + (nums.length - odd);
+          ratioStats[ratio] = (ratioStats[ratio] || 0) + 1;
+        });
+        
+        // Sort by ratio key
+        const sortedRatios = Object.entries(ratioStats).sort((a, b) => b[1] - a[1]);
+        const maxCount = Math.max(...Object.values(ratioStats));
+        
+        const container = document.getElementById('oddEvenChart');
+        let html = '<div style="display:flex;flex-direction:column;gap:8px;">';
+        sortedRatios.forEach(([ratio, count]) => {
+          const barWidth = (count / maxCount) * 100;
+          html += `<div style="display:flex;align-items:center;gap:8px;">
+            <span style="width:40px;font-size:13px;font-weight:600;">${ratio}</span>
+            <div style="flex:1;height:20px;background:var(--border);border-radius:4px;overflow:hidden;">
+              <div style="width:${barWidth}%;height:100%;background:var(--accent);border-radius:4px;"></div>
+            </div>
+            <span style="width:30px;font-size:12px;color:var(--text-secondary);text-align:right;">${count}次</span>
+          </div>`;
+        });
+        html += '</div>';
+        html += '<div style="margin-top:12px;padding:8px;background:var(--bg);border-radius:6px;font-size:12px;color:var(--text-secondary);">';
+        html += '分析: 显示最近30期奇偶比分布，帮你了解哪种奇偶组合最常见';
+        html += '</div>';
+        container.innerHTML = html;
+        return;
+      }
+      
+      // Algorithm mode (returns analysis result)
       const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
       const isSSQ = type === 'ssq';
       const stats = { odd: 0, even: 0, total: 0 };
@@ -1689,7 +1772,6 @@
         stats.odd += odd; stats.even += even; stats.total += nums.length;
       });
       const avgOddRatio = stats.odd / stats.total;
-      const count = isSSQ ? 6 : 5;
       const targetOdd = Math.round(avgOddRatio * count);
       const recommended = [];
       for (let sim = 0; sim < 10; sim++) {
@@ -1709,6 +1791,59 @@
     }
     
     function zone(type = 'ssq', zones = 4) {
+      // Chart rendering mode (called from stats tab without data argument)
+      if ((type === 'ssq' || type === 'dlt') && zones === 4) {
+        const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+        const isSSQ = type === 'ssq';
+        const maxNum = isSSQ ? 33 : 35;
+        const count = isSSQ ? 6 : 5;
+        const recentData = data.slice(0, 30); // Last 30 periods
+        
+        // SSQ: 3 zones (01-11, 12-22, 23-33)
+        // DLT: 5 zones (01-07, 08-14, 15-21, 22-28, 29-35)
+        const numZones = isSSQ ? 3 : 5;
+        const zoneSize = isSSQ ? 11 : 7;
+        
+        const zoneCount = Array(numZones).fill(0);
+        const zoneHits = Array.from({ length: numZones }, () => []);
+        recentData.forEach(row => {
+          const nums = isSSQ ? row.r : row.f;
+          nums.forEach(n => {
+            const z = Math.floor((n - 1) / zoneSize);
+            if (z >= 0 && z < numZones) {
+              zoneCount[z]++;
+              zoneHits[z].push(n);
+            }
+          });
+        });
+        
+        const maxCount = Math.max(...zoneCount);
+        const container = document.getElementById('zoneChart');
+        
+        let html = '<div style="display:flex;flex-direction:column;gap:12px;">';
+        for (let z = 0; z < numZones; z++) {
+          const start = z * zoneSize + 1;
+          const end = Math.min((z + 1) * zoneSize, maxNum);
+          const barWidth = (zoneCount[z] / maxCount) * 100;
+          const pct = ((zoneCount[z] / (recentData.length * count)) * 100).toFixed(1);
+          
+          html += `<div style="display:flex;align-items:center;gap:12px;">
+            <span style="width:60px;font-size:12px;font-weight:600;">${start}-${end}</span>
+            <div style="flex:1;height:24px;background:var(--border);border-radius:4px;overflow:hidden;position:relative;">
+              <div style="width:${barWidth}%;height:100%;background:linear-gradient(135deg, var(--accent), var(--blue));border-radius:4px;"></div>
+            </div>
+            <span style="width:50px;font-size:12px;color:var(--text-secondary);">${zoneCount[z]}次(${pct}%)</span>
+          </div>`;
+        }
+        html += '</div>';
+        html += '<div style="margin-top:12px;padding:8px;background:var(--bg);border-radius:6px;font-size:12px;color:var(--text-secondary);">';
+        html += isSSQ ? '分析: 双色球区间分布，3个区间各11个号码' : '分析: 大乐透区间分布，5个区间各7个号码';
+        html += '</div>';
+        container.innerHTML = html;
+        return;
+      }
+      
+      // Algorithm mode (returns analysis result)
       const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
       const isSSQ = type === 'ssq';
       const maxNum = isSSQ ? 33 : 35;
@@ -1746,6 +1881,43 @@
     }
     
     function tail(type = 'ssq') {
+      // Chart rendering mode (called from stats tab without data argument)
+      if (type === 'ssq' || type === 'dlt') {
+        const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+        const isSSQ = type === 'ssq';
+        const recentData = data.slice(0, 30); // Last 30 periods
+        
+        // Count tail frequency for 0-9
+        const tailFreq = Array(10).fill(0);
+        recentData.forEach(row => {
+          const nums = isSSQ ? row.r : row.f;
+          nums.forEach(n => { tailFreq[n % 10]++; });
+        });
+        
+        const maxFreq = Math.max(...tailFreq);
+        const container = document.getElementById('tailChart');
+        
+        let html = '<div style="display:flex;align-items:flex-end;justify-content:space-around;height:160px;gap:8px;">';
+        for (let t = 0; t < 10; t++) {
+          const height = (tailFreq[t] / maxFreq) * 100;
+          const color = tailFreq[t] >= maxFreq * 0.8 ? '#F43F5E' : (tailFreq[t] <= maxFreq * 0.3 ? '#3B82F6' : '#10B981');
+          html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
+            <div style="width:100%;max-width:20px;background:${color};border-radius:3px 3px 0 0;height:${height}%;" title="尾数${t}: ${tailFreq[t]}次"></div>
+            <div style="font-size:14px;font-weight:600;margin-top:4px;">${t}</div>
+            <div style="font-size:10px;color:var(--text-secondary);">${tailFreq[t]}</div>
+          </div>`;
+        }
+        html += '</div>';
+        html += '<div style="display:flex;justify-content:center;gap:16px;margin-top:8px;font-size:12px;">';
+        html += '<span style="color:#F43F5E;">●</span> 高频尾数';
+        html += '<span style="color:#10B981;">●</span> 中频尾数';
+        html += '<span style="color:#3B82F6;">●</span> 低频尾数';
+        html += '</div>';
+        container.innerHTML = html;
+        return;
+      }
+      
+      // Algorithm mode (returns analysis result)
       const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
       const isSSQ = type === 'ssq';
       const tailCount = Array(10).fill(0);
@@ -2108,6 +2280,7 @@
       if (tab === 'play') initPlayMethods();
       if (tab === 'trend') renderTrendData();
       if (tab === 'batch') initBatchTools();
+      if (tab === 'tools') { renderExpenseRecords(); renderWatchList(); updateNextDrawCard(); }
     }
     
     function togglePanel(panel) {
@@ -4318,6 +4491,8 @@
             <div style="margin-top:8px;color:var(--text-secondary);">${result.note}</div>
           </div>
         `;
+        // Also update the next draw info card (id='nextDrawDate', 'nextDrawTime', 'nextDrawIssue')
+        updateNextDrawCard();
       }
       
       function doGetLiveStreamURL() {
@@ -4332,6 +4507,148 @@
             <button class="btn btn-primary" onclick="window.open('${result.url}', '_blank')">进入直播间</button>
           </div>
         `;
+      }
+
+      // ===== Expense Records (消费记录) =====
+      function doAddExpense() {
+        const amount = prompt('请输入消费金额 (元):');
+        if (amount === null || amount.trim() === '') return;
+        const val = parseFloat(amount);
+        if (isNaN(val) || val <= 0) {
+          showToast('请输入有效金额', 'error');
+          return;
+        }
+        const note = prompt('请输入备注 (可选):', '');
+        const records = JSON.parse(localStorage.getItem('expenseRecords') || '[]');
+        records.unshift({
+          id: Date.now(),
+          amount: val,
+          note: note || '',
+          date: new Date().toLocaleString('zh-CN')
+        });
+        localStorage.setItem('expenseRecords', JSON.stringify(records));
+        showToast(`已记录消费 ¥${val}`);
+        renderExpenseRecords();
+      }
+
+      function renderExpenseRecords() {
+        const container = document.getElementById('expenseChart');
+        const records = JSON.parse(localStorage.getItem('expenseRecords') || '[]');
+        const recent10 = records.slice(0, 10);
+        
+        if (recent10.length === 0) {
+          container.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:40px;">暂无消费记录</div>';
+          return;
+        }
+        
+        const maxAmount = Math.max(...recent10.map(r => r.amount), 1);
+        let html = '';
+        recent10.forEach(r => {
+          const height = Math.max((r.amount / maxAmount) * 80 + 10, 8);
+          html += `<div style="flex:1;text-align:center;" title="${r.date} ¥${r.amount}${r.note ? ' - ' + r.note : ''}">
+            <div style="height:${height}px;background:var(--accent);border-radius:4px 4px 0 0;min-height:4px;"></div>
+            <span style="font-size:11px;">¥${r.amount}</span>
+          </div>`;
+        });
+        
+        const total = recent10.reduce((sum, r) => sum + r.amount, 0);
+        html += `<div style="margin-top:12px;padding:8px;background:var(--bg);border-radius:6px;text-align:center;">
+          共 ${recent10.length} 笔消费，合计 <strong>¥${total.toFixed(2)}</strong>
+          <button class="btn btn-sm btn-secondary" style="margin-left:8px;" onclick="if(confirm('确定清除所有记录？')){localStorage.removeItem('expenseRecords');renderExpenseRecords();}">清除</button>
+        </div>`;
+        container.innerHTML = html;
+      }
+
+      // ===== Watch List (关注期号) =====
+      function addWatchNumber() {
+        const input = document.getElementById('watchNumbersInput');
+        const val = input.value.trim();
+        if (!val) {
+          showToast('请输入号码', 'error');
+          return;
+        }
+        const numbers = val.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n >= 1 && n <= 35);
+        if (numbers.length === 0) {
+          showToast('请输入有效号码', 'error');
+          return;
+        }
+        const watchList = JSON.parse(localStorage.getItem('watchNumbers') || '[]');
+        const existing = watchList.map(w => w.numbers.join(','));
+        const newEntry = { id: Date.now(), numbers: numbers, addedDate: new Date().toLocaleString('zh-CN') };
+        const key = numbers.join(',');
+        if (!existing.includes(key)) {
+          watchList.push(newEntry);
+          localStorage.setItem('watchNumbers', JSON.stringify(watchList));
+          showToast(`已关注号码 ${key}`);
+        } else {
+          showToast('该号码已在关注列表中');
+        }
+        input.value = '';
+        renderWatchList();
+      }
+
+      function renderWatchList() {
+        const container = document.getElementById('watchListContainer');
+        const watchList = JSON.parse(localStorage.getItem('watchNumbers') || '[]');
+        
+        if (watchList.length === 0) {
+          container.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:16px;">暂无关注的号码</div>';
+          return;
+        }
+        
+        const data = currentType === 'ssq' ? SSQ_DATA : DLT_DATA;
+        const isSSQ = currentType === 'ssq';
+        const count = isSSQ ? 6 : 5;
+        const recent10 = data.slice(0, 10);
+        
+        let html = '<div style="max-height:200px;overflow-y:auto;">';
+        watchList.forEach(item => {
+          const nums = item.numbers;
+          const statusArr = recent10.map(row => {
+            const drawn = isSSQ ? row.r : row.f;
+            const matched = nums.filter(n => drawn.includes(n)).length;
+            return matched;
+          });
+          const latestMatch = statusArr[0];
+          const badgeColor = latestMatch >= count * 0.5 ? 'var(--accent)' : latestMatch > 0 ? 'var(--blue)' : 'var(--text-secondary)';
+          html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid var(--border);">
+            <div>
+              <span style="font-weight:600;">${nums.map(n => String(n).padStart(2,'0')).join(', ')}</span>
+              <span style="font-size:11px;color:var(--text-secondary);margin-left:8px;">${item.addedDate}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="background:${badgeColor};color:white;padding:2px 8px;border-radius:10px;font-size:11px;">近10期命中 ${statusArr.filter(s => s > 0).length} 次</span>
+              <button class="btn btn-sm btn-coral" onclick="removeWatchNumber(${item.id})">×</button>
+            </div>
+          </div>`;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+      }
+
+      function removeWatchNumber(id) {
+        let watchList = JSON.parse(localStorage.getItem('watchNumbers') || '[]');
+        watchList = watchList.filter(w => w.id !== id);
+        localStorage.setItem('watchNumbers', JSON.stringify(watchList));
+        renderWatchList();
+        showToast('已取消关注');
+      }
+
+      // ===== Update Next Draw Info (更新下期开奖卡片) =====
+      function updateNextDrawCard() {
+        const type = currentType;
+        const result = window.ToolsModule.getNextDrawTime(type);
+        const dateEl = document.getElementById('nextDrawDate');
+        const timeEl = document.getElementById('nextDrawTime');
+        const issueEl = document.getElementById('nextDrawIssue');
+        if (dateEl) dateEl.textContent = result.isOpen ? '今晚开奖!' : result.nextDraw.split(' ')[0] || '--';
+        if (timeEl) timeEl.textContent = result.isOpen ? '21:15' : result.nextDraw.split(' ')[1] || '--';
+        if (issueEl) {
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const latestPeriod = data[0]?.p || '--';
+          const nextPeriod = String(parseInt(latestPeriod) + 1);
+          issueEl.textContent = `第 ${nextPeriod} 期`;
+        }
       }
 
       // ===== 4. ToolsModule Extensions =====
@@ -4504,12 +4821,17 @@ function addToShouhaoFromResult(resultId) {
   }
   const text = el.textContent;
   const numbers = text.match(/\d{2}/g) || [];
-  if (numbers.length >= 6) {
-    const reds = numbers.slice(0, 6).join(',');
-    const blue = numbers[6] || '01';
-    document.getElementById('strategyShouhaoReds').value = reds;
-    document.getElementById('strategyShouhaoBlues').value = blue;
-    showToast('已填入守号区');
+  const isSSQ = currentType === 'ssq';
+  const redCount = isSSQ ? 6 : 5;
+  const blueCount = isSSQ ? 1 : 2;
+  
+  if (numbers.length >= redCount) {
+    const reds = numbers.slice(0, redCount).join(',');
+    const blues = numbers.slice(redCount, redCount + blueCount).join(',');
+    document.getElementById('shouhaoNumbers').value = reds + (blues ? ',' + blues : '');
+    showToast(`已填入守号区，共${redCount + blueCount}注`);
+  } else {
+    showToast('号码数量不足', 'error');
   }
 }
 </script>
@@ -4546,19 +4868,137 @@ function initDanTuoUI(type) {
   let danmaHTML = '', tuomaHTML = '';
   for (let i = 1; i <= max; i++) {
     const n = String(i).padStart(2, '0');
-    danmaHTML += `<button class="ball-btn" data-num="${n}" data-type="dan" onclick="toggleDanTuo(this,'dan')" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;cursor:pointer;">${n}</button>`;
-    tuomaHTML += `<button class="ball-btn" data-num="${n}" data-type="tuo" onclick="toggleDanTuo(this,'tuo')" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;cursor:pointer;">${n}</button>`;
+    danmaHTML += `<button class="ball-btn" data-num="${n}" data-type="dan" onclick="toggleDanTuo(this,'dan')" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;cursor:pointer;margin:4px;">${n}</button>`;
+    tuomaHTML += `<button class="ball-btn" data-num="${n}" data-type="tuo" onclick="toggleDanTuo(this,'tuo')" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;cursor:pointer;margin:4px;">${n}</button>`;
   }
   danmaContainer.innerHTML = danmaHTML;
   tuomaContainer.innerHTML = tuomaHTML;
+  document.getElementById('danmaCount').textContent = '0';
+  document.getElementById('tuomaCount').textContent = '0';
 }
 function toggleDanTuo(btn, type) {
-  btn.style.background = btn.style.background === 'var(--accent)' ? 'var(--bg)' : 'var(--accent)';
-  btn.style.color = btn.style.background === 'var(--accent)' ? '#fff' : 'var(--text)';
-  const dan = document.querySelectorAll('[data-type=dan][style*="var(--accent)"]').length;
-  const tuo = document.querySelectorAll('[data-type=tuo][style*="var(--accent)"]').length;
-  document.getElementById('danmaCount').textContent = dan;
-  document.getElementById('tuomaCount').textContent = tuo;
+  const isSelected = btn.classList.toggle('selected');
+  if (isSelected) {
+    btn.style.background = 'var(--accent)';
+    btn.style.color = '#fff';
+    btn.classList.add('selected');
+  } else {
+    btn.style.background = 'var(--bg)';
+    btn.style.color = 'var(--text)';
+    btn.classList.remove('selected');
+  }
+  
+  const danBtns = document.querySelectorAll('[data-type="dan"].selected');
+  const tuoBtns = document.querySelectorAll('[data-type="tuo"].selected');
+  const danCount = danBtns.length;
+  const tuoCount = tuoBtns.length;
+  document.getElementById('danmaCount').textContent = danCount;
+  document.getElementById('tuomaCount').textContent = tuoCount;
+  
+  const isSSQ = !document.getElementById('tuomaContainer') ? true : (document.querySelector('[onclick*="ssq"]') !== null);
+  const maxDan = isSSQ ? 6 : 5;
+  if (danCount > maxDan) {
+    btn.classList.remove('selected');
+    btn.style.background = 'var(--bg)';
+    btn.style.color = 'var(--text)';
+    document.getElementById('danmaCount').textContent = danCount - 1;
+    showToast(`胆码最多${maxDan}个`, 'error');
+  }
+}
+function getDanTuoSelections() {
+  const danBtns = document.querySelectorAll('#danmaContainer .ball-btn.selected');
+  const tuoBtns = document.querySelectorAll('#tuomaContainer .ball-btn.selected');
+  const danmas = Array.from(danBtns).map(b => parseInt(b.dataset.num));
+  const tuomas = Array.from(tuoBtns).map(b => parseInt(b.dataset.num));
+  return { danmas, tuomas };
+}
+function comb(n, r) {
+  if (r > n || r < 0) return 0;
+  if (r === 0 || r === n) return 1;
+  let result = 1;
+  for (let i = 0; i < r; i++) result = result * (n - i) / (i + 1);
+  return result;
+}
+function generateCombinations(arr, size) {
+  const result = [];
+  function backtrack(start, combo) {
+    if (combo.length === size) {
+      result.push([...combo]);
+      return;
+    }
+    for (let i = start; i < arr.length; i++) {
+      combo.push(arr[i]);
+      backtrack(i + 1, combo);
+      combo.pop();
+    }
+  }
+  backtrack(0, []);
+  return result;
+}
+function getBlueBalls(isSSQ) {
+  if (isSSQ) {
+    return [Math.floor(Math.random() * 16) + 1];
+  } else {
+    const blues = [];
+    while (blues.length < 2) {
+      const b = Math.floor(Math.random() * 12) + 1;
+      if (!blues.includes(b)) blues.push(b);
+    }
+    return blues.sort((a, b) => a - b);
+  }
+}
+function generateDanTuo() {
+  const { danmas, tuomas } = getDanTuoSelections();
+  const isSSQ = danmas.length > 5 || (danmas.length > 0 && danmas[0] <= 33 && tuomas.every(t => t <= 33));
+  const needRed = isSSQ ? 6 : 5;
+  const needBlue = isSSQ ? 1 : 2;
+  const totalNeed = needRed;
+  
+  const danmaValid = danmas.length >= 1 && danmas.length <= (isSSQ ? 6 : 5);
+  if (!danmaValid) { showToast('请选择1-' + (isSSQ ? 6 : 5) + '个胆码', 'error'); return; }
+  if (danmas.length + tuomas.length < totalNeed) { showToast('胆码+拖码至少' + totalNeed + '个', 'error'); return; }
+  
+  const overlap = danmas.filter(d => tuomas.includes(d));
+  if (overlap.length > 0) { showToast('胆码和拖码不能重复: ' + overlap.join(','), 'error'); return; }
+  
+  const needFromTuo = totalNeed - danmas.length;
+  const combos = generateCombinations(tuomas, needFromTuo);
+  const blueBalls = getBlueBalls(isSSQ);
+  
+  const allBets = combos.map(combo => {
+    const reds = [...danmas, ...combo].sort((a, b) => a - b);
+    return { reds, blues: blueBalls };
+  });
+  
+  let html = `<div style="max-height:400px;overflow-y:auto;">
+    <div style="padding:8px;background:var(--bg);border-radius:8px;margin-bottom:12px;">
+      <strong>胆码[${danmas.join(',')}] + 拖码[${tuomas.join(',')}] = ${allBets.length}注</strong>
+    </div>
+    <div style="display:grid;gap:8px;">`;
+  
+  allBets.forEach((bet, idx) => {
+    const redStr = bet.reds.map(n => String(n).padStart(2, '0')).join(',');
+    const blueStr = bet.blues.map(n => String(n).padStart(2, '0')).join(',');
+    const fullStr = isSSQ ? `${redStr}|${blueStr}` : `${redStr}|${blueStr}`;
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px;background:var(--bg);border-radius:6px;font-size:13px;">
+      <span style="color:var(--text-secondary);min-width:30px;">${idx + 1}.</span>
+      <div style="flex:1;text-align:center;">
+        ${bet.reds.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join('')}
+        <span style="margin:0 4px;">|</span>
+        ${bet.blues.map(n => `<span class="ball ball-small ball-blue">${String(n).padStart(2,'0')}</span>`).join('')}
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="copyText('\${idx}')" style="padding:4px 8px;margin-left:8px;">📋</button>
+    </div>
+    <div id="copy_\${idx}" style="display:none">\${fullStr}</div>`;
+  });
+  
+  html += '</div></div>';
+  if (allBets.length > 10) {
+    html += `<div style="margin-top:12px;padding:8px;text-align:center;color:var(--text-secondary);font-size:12px;">共 ${allBets.length} 注</div>`;
+  }
+  
+  document.getElementById('danTuoResult').innerHTML = html;
+  showToast(`生成 ${allBets.length} 注胆拖号码 💪`);
 }
 function copyAllResults() {
   const container = document.getElementById('resultsContainer');
@@ -4569,15 +5009,1047 @@ function copyAllResults() {
     showToast('无结果可复制');
     return;
   }
-  navigator.clipboard.writeText(nums.join(',')).then(() => showToast('已复制全部号码'));
+  // Format: "01 05 12 17 23 28 + 09" (red balls then blue ball)
+  const reds = nums.slice(0, 6).join(' ');
+  const blue = nums.slice(6, 7)[0] || '';
+  const formatted = blue ? `${reds} + ${blue}` : reds;
+  navigator.clipboard.writeText(formatted).then(() => showToast('已复制全部号码'));
 }
 function favoriteNumbers() {
-  showToast('收藏功能已添加');
+  const container = document.getElementById('resultsContainer');
+  if (!container) return;
+  const balls = container.querySelectorAll('.ball-text, .blue-ball-text');
+  const nums = Array.from(balls).map(b => b.textContent.trim()).filter(Boolean);
+  if (nums.length === 0) {
+    showToast('无结果可收藏');
+    return;
+  }
+  const reds = nums.slice(0, 6);
+  const blue = nums.slice(6, 7)[0] || '01';
+  const favorite = {
+    date: new Date().toLocaleString('zh-CN'),
+    numbers: { reds, blue },
+    type: document.getElementById('typeSelector')?.value || 'ssq'
+  };
+  let favorites = JSON.parse(localStorage.getItem('favoriteNumbers') || '[]');
+  if (favorites.length >= 50) {
+    favorites = favorites.slice(-49); // Keep last 50
+  }
+  favorites.push(favorite);
+  localStorage.setItem('favoriteNumbers', JSON.stringify(favorites));
+  showToast(`收藏成功 (共${favorites.length}条)`);
 }
 function clearSelections() {
   const container = document.getElementById('resultsContainer');
-  if (container) container.innerHTML = '<div class="empty-state"><div class="icon">🎰</div><p>已清空，请重新生成</p></div>';
+  if (container) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">🎰</div><p>已清空，请重新生成</p></div>';
+  }
+  // Reset algorithm card selections
+  document.querySelectorAll('.algo-card').forEach(card => {
+    card.classList.remove('selected');
+    const checkbox = card.querySelector('input[type="checkbox"]');
+    if (checkbox) checkbox.checked = false;
+  });
   showToast('已清空');
+}
+function toggleAlgoPrefPanel() {
+  const p = document.getElementById('algoPrefsPanel');
+  if (!p) return;
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+function saveAlgoPrefs() {
+  const count = parseInt(document.getElementById('prefGenCount').value) || 5;
+  const prefs = {
+    genCount: count,
+    updatedAt: new Date().toLocaleString('zh-CN')
+  };
+  localStorage.setItem('algoPrefs', JSON.stringify(prefs));
+  const recommendEl = document.getElementById('recommendCount');
+  if (recommendEl) recommendEl.textContent = count + '注';
+  const panel = document.getElementById('algoPrefsPanel');
+  if (panel) panel.style.display = 'none';
+  showToast('偏好已保存');
+}
+function updateAlgoPrefsUI() {
+  const prefs = JSON.parse(localStorage.getItem('algoPrefs') || '{}');
+  const count = prefs.genCount || 5;
+  const recommendEl = document.getElementById('recommendCount');
+  if (recommendEl) recommendEl.textContent = count + '注';
+  const prefCountEl = document.getElementById('prefGenCount');
+  if (prefCountEl) prefCountEl.value = count;
+  // Update4 display slots if they exist
+  const slots = document.querySelectorAll('.algo-pref-slot');
+  if (slots.length >= 4) {
+    // Selected algorithms
+    const selectedAlgos = [];
+    document.querySelectorAll('.algo-card.selected').forEach(card => {
+      const name = card.querySelector('.algo-name')?.textContent || card.textContent.split('\n')[0];
+      selectedAlgos.push(name.trim());
+    });
+    slots[0].textContent = selectedAlgos.length ? selectedAlgos.join(', ') : '未选择';
+    // Weight mode
+    slots[1].textContent = prefs.weightMode || '智能权重';
+    // Recommend count
+    slots[2].textContent = count + '注';
+    // Historical backtest
+    slots[3].textContent = prefs.backtestRate || '待回测';
+  }
+}
+// ==================== Stats Analysis Functions ====================
+
+/**
+ * 热冷号分析 - 统计过去20期各号码出现次数
+ * @param {string} type - 'ssq' 双色球 或 'dlt' 大乐透
+ */
+function hotCold(type) {
+  type = type || 'ssq';
+  const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+  const isSSQ = type === 'ssq';
+  const maxNum = isSSQ ? 33 : 35;
+  const recentData = data.slice(0, 20); // 最近20期
+  
+  // 统计每个号码出现次数
+  const freq = {};
+  for (let i = 1; i <= maxNum; i++) freq[i] = 0;
+  
+  recentData.forEach(row => {
+    const nums = isSSQ ? row.r : row.f;
+    nums.forEach(n => { if (freq[n] !== undefined) freq[n]++; });
+  });
+  
+  // 找出最大出现次数用于归一化
+  const maxFreq = Math.max(...Object.values(freq));
+  
+  // 生成HTML
+  let html = '<div style="display:flex;align-items:flex-end;justify-content:space-around;height:180px;gap:2px;">';
+  for (let i = 1; i <= maxNum; i++) {
+    const count = freq[i];
+    const height = maxFreq > 0 ? (count / maxFreq * 150) : 5;
+    let color = '#94A3B8'; // 默认灰色 (2-3次为常态)
+    if (count > 3) color = '#F43F5E'; // 热门红色
+    else if (count <= 1) color = '#3B82F6'; // 冷门蓝色
+    
+    html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;max-width:20px;">
+      <div style="width:100%;height:${height}px;background:${color};border-radius:3px 3px 0 0;min-height:3px;"></div>
+      <span style="font-size:9px;margin-top:4px;color:var(--text-secondary);">${count}</span>
+      <span style="font-size:10px;font-weight:500;">${String(i).padStart(2,'0')}</span>
+    </div>`;
+  }
+  html += '</div>';
+  
+  document.getElementById('hotColdChart').innerHTML = html;
+}
+
+/**
+ * 奇偶比统计 - 统计最近30期奇偶比例分布
+ * @param {string} type - 'ssq' 或 'dlt'
+ */
+function oddEven(type) {
+  type = type || 'ssq';
+  const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+  const isSSQ = type === 'ssq';
+  const recentData = data.slice(0, 30); // 最近30期
+  const count = isSSQ ? 6 : 5;
+  
+  // 统计各奇偶比出现次数
+  const ratioCount = {};
+  recentData.forEach(row => {
+    const nums = isSSQ ? row.r : row.f;
+    let odd = 0;
+    nums.forEach(n => { if (n % 2 === 1) odd++; });
+    const even = nums.length - odd;
+    const key = `${odd}:${even}`;
+    ratioCount[key] = (ratioCount[key] || 0) + 1;
+  });
+  
+  // 排序并计算百分比
+  const total = recentData.length;
+  const sorted = Object.entries(ratioCount).sort((a, b) => b[1] - a[1]);
+  
+  // 生成条形图HTML
+  let html = '<div style="display:flex;flex-direction:column;gap:10px;">';
+  const colors = ['#F43F5E','#3B82F6','#10B981','#F59E0B','#8B5CF6','#EC4899','#06B6D4'];
+  let colorIdx = 0;
+  sorted.forEach(([ratio, cnt]) => {
+    const pct = Math.round((cnt / total) * 100);
+    const barWidth = pct;
+    const color = colors[colorIdx % colors.length];
+    colorIdx++;
+    html += `<div style="display:flex;align-items:center;gap:8px;">
+      <span style="width:35px;font-size:13px;font-weight:600;">${ratio}</span>
+      <div style="flex:1;height:24px;background:var(--border);border-radius:4px;overflow:hidden;">
+        <div style="width:${barWidth}%;height:100%;background:${color};border-radius:4px;"></div>
+      </div>
+      <span style="width:45px;font-size:12px;text-align:right;color:var(--text-secondary);">${cnt}期(${pct}%)</span>
+    </div>`;
+  });
+  html += '</div>';
+  
+  document.getElementById('oddEvenChart').innerHTML = html;
+}
+
+/**
+ * 区间分布 - 统计最近30期各区间出现号码个数
+ * @param {string} type - 'ssq' 或 'dlt'
+ */
+function zone(type) {
+  type = type || 'ssq';
+  const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+  const isSSQ = type === 'ssq';
+  const recentData = data.slice(0, 30); // 最近30期
+  
+  // 定义区间
+  let zones;
+  if (isSSQ) {
+    // 双色球: 3个区间 01-11, 12-22, 23-33
+    zones = [
+      { name: '01-11', min: 1, max: 11 },
+      { name: '12-22', min: 12, max: 22 },
+      { name: '23-33', min: 23, max: 33 }
+    ];
+  } else {
+    // 大乐透: 5个区间 01-07, 08-14, 15-21, 22-28, 29-35
+    zones = [
+      { name: '01-07', min: 1, max: 7 },
+      { name: '08-14', min: 8, max: 14 },
+      { name: '15-21', min: 15, max: 21 },
+      { name: '22-28', min: 22, max: 28 },
+      { name: '29-35', min: 29, max: 35 }
+    ];
+  }
+  
+  // 统计每个区间出现0,1,2,3个号码的次数
+  const zoneStats = zones.map(z => ({ name: z.name, count0: 0, count1: 0, count2: 0, count3: 0 }));
+  
+  recentData.forEach(row => {
+    const nums = isSSQ ? row.r : row.f;
+    zones.forEach((z, zi) => {
+      const cnt = nums.filter(n => n >= z.min && n <= z.max).length;
+      if (cnt >= 3) zoneStats[zi].count3++;
+      else if (cnt === 2) zoneStats[zi].count2++;
+      else if (cnt === 1) zoneStats[zi].count1++;
+      else zoneStats[zi].count0++;
+    });
+  });
+  
+  // 生成HTML (堆叠条形图)
+  const total = recentData.length;
+  let html = '<div style="display:flex;flex-direction:column;gap:12px;">';
+  zoneStats.forEach((zs, zi) => {
+    const pct0 = Math.round((zs.count0 / total) * 100);
+    const pct1 = Math.round((zs.count1 / total) * 100);
+    const pct2 = Math.round((zs.count2 / total) * 100);
+    const pct3 = Math.round((zs.count3 / total) * 100);
+    const zoneColors = ['#E2E8F0', '#93C5FD', '#FCD34D', '#FCA5A5'];
+    const zoneLabels = ['0个', '1个', '2个', '3+个'];
+    const zonePcts = [pct0, pct1, pct2, pct3];
+    
+    html += `<div style="display:flex;align-items:center;gap:8px;">
+      <span style="width:45px;font-size:12px;font-weight:500;">${zs.name}</span>
+      <div style="flex:1;height:22px;background:var(--border);border-radius:4px;overflow:hidden;display:flex;">
+        ${[pct0, pct1, pct2, pct3].map((p, i) => p > 0 ? `<div style="width:${p}%;height:100%;background:${zoneColors[i]};${i>0?'border-left:1px solid rgba(255,255,255,0.3);':''}"></div>` : '').join('')}
+      </div>
+      <div style="width:120px;font-size:10px;color:var(--text-secondary);display:flex;justify-content:space-around;">
+        ${[pct0, pct1, pct2, pct3].map((p, i) => `<span>${zoneLabels[i]}:${p}%</span>`).join('')}
+      </div>
+    </div>`;
+  });
+  html += '<div style="margin-top:8px;font-size:11px;color:var(--text-secondary);">图例: <span style="background:#E2E8F0;padding:2px 6px;border-radius:3px;">0个</span> <span style="background:#93C5FD;padding:2px 6px;border-radius:3px;">1个</span> <span style="background:#FCD34D;padding:2px 6px;border-radius:3px;">2个</span> <span style="background:#FCA5A5;padding:2px 6px;border-radius:3px;">3+个</span></div>';
+  html += '</div>';
+  
+  document.getElementById('zoneChart').innerHTML = html;
+}
+
+/**
+ * 尾数频率 - 统计最近30期各尾数(0-9)出现次数
+ * @param {string} type - 'ssq' 或 'dlt'
+ */
+function tail(type) {
+  type = type || 'ssq';
+  const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+  const isSSQ = type === 'ssq';
+  const recentData = data.slice(0, 30); // 最近30期
+  
+  // 统计每个尾数出现次数
+  const tailFreq = {};
+  for (let i = 0; i <= 9; i++) tailFreq[i] = 0;
+  
+  recentData.forEach(row => {
+    const nums = isSSQ ? row.r : row.f;
+    nums.forEach(n => {
+      const t = n % 10;
+      tailFreq[t]++;
+    });
+  });
+  
+  // 找出最大值用于归一化
+  const maxFreq = Math.max(...Object.values(tailFreq));
+  
+  // 生成柱状图HTML
+  let html = '<div style="display:flex;align-items:flex-end;justify-content:space-around;height:160px;gap:8px;padding:10px;">';
+  for (let t = 0; t <= 9; t++) {
+    const count = tailFreq[t];
+    const height = maxFreq > 0 ? (count / maxFreq * 120) : 5;
+    
+    html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+      <span style="font-size:11px;font-weight:600;margin-bottom:4px;">${count}</span>
+      <div style="width:100%;height:${height}px;background:linear-gradient(135deg,#10B981,#059669);border-radius:4px 4px 0 0;min-height:4px;"></div>
+      <span style="font-size:13px;font-weight:600;margin-top:6px;color:var(--text);">${t}</span>
+    </div>`;
+  }
+  html += '</div>';
+  
+  // 添加统计说明
+  const totalBalls = recentData.length * (isSSQ ? 6 : 5);
+  let avgPerTail = (totalBalls / 10).toFixed(1);
+  html += `<div style="margin-top:8px;text-align:center;font-size:11px;color:var(--text-secondary);">
+    近30期共${totalBalls}个号码，平均每尾数${avgPerTail}次
+  </div>`;
+  
+  document.getElementById('tailChart').innerHTML = html;
+}
+
+// ============ 遗漏报警 ============
+function doCheckMissAlert() {
+  const redThresh = parseInt(document.getElementById('missAlertRed').value) || 20;
+  const blueThresh = parseInt(document.getElementById('missAlertBlue').value) || 15;
+  const type = currentType || 'ssq';
+  const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+  const isSSQ = type === 'ssq';
+  const maxRed = isSSQ ? 33 : 35;
+  const maxBlue = isSSQ ? 16 : 12;
+
+  // 计算每个红球的当前遗漏
+  const redMiss = {};
+  for (let i = 1; i <= maxRed; i++) redMiss[i] = 0;
+  data.forEach(row => {
+    const reds = row.r;
+    for (let i = 1; i <= maxRed; i++) {
+      if (reds.includes(i)) redMiss[i] = 0; else redMiss[i]++;
+    }
+  });
+
+  // 计算每个蓝球的当前遗漏
+  const blueMiss = {};
+  for (let i = 1; i <= maxBlue; i++) blueMiss[i] = 0;
+  const getBlue = (row) => isSSQ ? row.b : row.b[0];
+  data.forEach(row => {
+    const blue = getBlue(row);
+    for (let i = 1; i <= maxBlue; i++) {
+      if (i === blue) blueMiss[i] = 0; else blueMiss[i]++;
+    }
+  });
+
+  // 找出超过阈值的号码
+  const redAlerts = [], blueAlerts = [];
+  for (let i = 1; i <= maxRed; i++) {
+    if (redMiss[i] >= redThresh) redAlerts.push({ num: i, miss: redMiss[i] });
+  }
+  for (let i = 1; i <= maxBlue; i++) {
+    if (blueMiss[i] >= blueThresh) blueAlerts.push({ num: i, miss: blueMiss[i] });
+  }
+
+  // 渲染结果
+  const resultEl = document.getElementById('missAlertResult');
+  let html = '<div style="display:flex;flex-wrap:wrap;gap:12px;">';
+  if (redAlerts.length > 0) {
+    const list = redAlerts.map(a => `<span style="background:var(--coral);color:#fff;padding:4px 10px;border-radius:4px;font-size:13px;">号码:${String(a.num).padStart(2,'0')} 已遗漏${a.miss}期 ⚠️</span>`).join('');
+    html += `<div><div style="color:var(--text-secondary);font-size:12px;margin-bottom:6px;">红球 (共${redAlerts.length}个)</div><div style="display:flex;flex-wrap:wrap;gap:4px;">${list}</div></div>`;
+  }
+  if (blueAlerts.length > 0) {
+    const list = blueAlerts.map(a => `<span style="background:var(--blue);color:#fff;padding:4px 10px;border-radius:4px;font-size:13px;">号码:${String(a.num).padStart(2,'0')} 已遗漏${a.miss}期 ⚠️</span>`).join('');
+    html += `<div><div style="color:var(--text-secondary);font-size:12px;margin-bottom:6px;">蓝球 (共${blueAlerts.length}个)</div><div style="display:flex;flex-wrap:wrap;gap:4px;">${list}</div></div>`;
+  }
+  if (redAlerts.length === 0 && blueAlerts.length === 0) {
+    html += '<div style="color:var(--accent);padding:12px;text-align:center;">✅ 当前没有超过阈值的号码</div>';
+  }
+  html += '</div>';
+  resultEl.innerHTML = html;
+}
+
+// ============ 推荐指数计算 ============
+function doCalculateRecommendIndex(type) {
+  type = type || currentType || 'ssq';
+  const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+  const isSSQ = type === 'ssq';
+  const maxRed = isSSQ ? 33 : 35;
+  const maxBlue = isSSQ ? 16 : 12;
+
+  // 1. 频率统计 (最近30期)
+  const recent30 = data.slice(0, Math.min(30, data.length));
+  const freq = {}, miss = {};
+  for (let i = 1; i <= maxRed; i++) { freq[i] = 0; miss[i] = 0; }
+  let curMiss = {}; for (let i = 1; i <= maxRed; i++) curMiss[i] = 0;
+  recent30.forEach((row, idx) => {
+    const reds = row.r;
+    reds.forEach(n => freq[n]++);
+    for (let i = 1; i <= maxRed; i++) {
+      if (reds.includes(i)) curMiss[i] = 0; else curMiss[i]++;
+    }
+    if (idx === 0) { for (let i = 1; i <= maxRed; i++) miss[i] = curMiss[i]; }
+  });
+  const maxFreq = Math.max(...Object.values(freq), 1);
+
+  // 2. 热号加成
+  const hotNums = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n]) => parseInt(n));
+  const hotScore = Math.min(20, hotNums.reduce((s, n) => s + (freq[n] / maxFreq) * 4, 0));
+
+  // 3. 冷号回调预期
+  const avgMiss = Object.values(miss).reduce((a, b) => a + b, 0) / maxRed;
+  const coldNums = Object.entries(miss).filter(([, m]) => m > avgMiss * 1.5).slice(0, 5).map(([n]) => parseInt(n));
+  const coldScore = Math.min(20, coldNums.reduce((s, n) => s + 4, 0));
+
+  // 4. 形态加成
+  let oddCount = 0, total = 0;
+  recent30.forEach(row => {
+    row.r.forEach(n => { if (n % 2 === 1) oddCount++; total++; });
+  });
+  const oddRatio = oddCount / total;
+  const shapeScore = oddRatio > 0.4 && oddRatio < 0.7 ? 10 : 5;
+
+  // 综合评分
+  const totalScore = Math.round(50 + hotScore + coldScore + shapeScore);
+  document.getElementById('recommendIndex').textContent = totalScore;
+
+  // 显示推荐理由
+  let reasonHtml = '<div style="margin-top:16px;font-size:13px;color:var(--text-secondary);text-align:left;" class="reason-box">';
+  reasonHtml += `<div style="margin-bottom:4px;">🔥 热号: ${hotNums.map(n => String(n).padStart(2,'0')).join(', ')}</div>`;
+  reasonHtml += `<div style="margin-bottom:4px;">❄️ 冷号回调: ${coldNums.length > 0 ? coldNums.map(n => String(n).padStart(2,'0')).join(', ') : '无明显机会'}</div>`;
+  reasonHtml += `<div>⚖️ 形态: ${Math.round(oddRatio * 100)}%奇 vs ${Math.round((1 - oddRatio) * 100)}%偶 (${oddRatio > 0.4 && oddRatio < 0.7 ? '✅ 均衡' : '⚠️ 偏差'})</div>`;
+  reasonHtml += '</div>';
+
+  const existing = document.getElementById('recommendIndex').parentElement.querySelector('.reason-box');
+  if (existing) existing.remove();
+  const box = document.createElement('div');
+  box.innerHTML = reasonHtml;
+  document.getElementById('recommendIndex').parentElement.appendChild(box);
+}
+
+// ============ 连号统计 ============
+function repeatLink(type) {
+  type = type || currentType || 'ssq';
+  const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+  const isSSQ = type === 'ssq';
+  const maxNum = isSSQ ? 33 : 35;
+
+  const recent30 = data.slice(0, Math.min(30, data.length));
+
+  let linkCount = 0;
+  const linkPairs = {};
+  recent30.forEach(row => {
+    const reds = row.r.slice().sort((a, b) => a - b);
+    for (let i = 0; i < reds.length - 1; i++) {
+      if (reds[i + 1] === reds[i] + 1) {
+        linkCount++;
+        const key = `${String(reds[i]).padStart(2,'0')}-${String(reds[i+1]).padStart(2,'0')}`;
+        linkPairs[key] = (linkPairs[key] || 0) + 1;
+      }
+    }
+  });
+
+  const sortedLinks = Object.entries(linkPairs).sort((a, b) => b[1] - a[1]);
+  const topLinks = sortedLinks.slice(0, 5).map(([k]) => k).join(', ') || '无';
+
+  const resultEl = document.getElementById('repeatLinkResult');
+  const pct = Math.round(linkCount / recent30.length * 100);
+  let html = `<div style="margin-bottom:12px;">
+    <div style="font-size:20px;font-weight:bold;color:var(--accent);">近30期连号出现 ${linkCount} 次</div>
+    <div style="color:var(--text-secondary);">出现频率: ${pct}%</div>
+  </div>
+  <div style="margin-bottom:8px;color:var(--text-secondary);font-size:13px;">最热连号:</div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;">`;
+  if (topLinks !== '无') {
+    topLinks.split(', ').forEach(link => {
+      html += `<span style="background:var(--accent);color:#fff;padding:4px 10px;border-radius:4px;font-size:13px;">${link}</span>`;
+    });
+  } else {
+    html += '<span style="color:var(--text-secondary);">暂无数据</span>';
+  }
+  html += '</div>';
+  const resultEl = document.getElementById('repeatLinkResult');
+  if (resultEl) resultEl.innerHTML = html;
+}
+
+// ==================== Helper Functions ====================
+
+/**
+ * 复制指定id元素的文本内容
+ */
+function copyText(id) {
+  const el = document.getElementById(id);
+  if (!el) {
+    showToast('元素不存在', 'error');
+    return;
+  }
+  const text = el.innerText || el.textContent || '';
+  if (!text.trim()) {
+    showToast('无内容可复制', 'error');
+    return;
+  }
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('已复制');
+  }).catch(() => {
+    showToast('复制失败', 'error');
+  });
+}
+
+/**
+ * 复制批量生成结果（过滤HTML标签，保留纯文本）
+ */
+function copyBatchGenResult() {
+  const el = document.getElementById('batchGenResult');
+  if (!el) {
+    showToast('结果区域不存在', 'error');
+    return;
+  }
+  const text = el.innerText || el.textContent || '';
+  if (!text.trim()) {
+    showToast('无内容可复制', 'error');
+    return;
+  }
+  // 过滤HTML标签和多余空白，只保留有效号码
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    showToast('已复制全部结果');
+  }).catch(() => {
+    showToast('复制失败', 'error');
+  });
+}
+
+/**
+ * 导出缩水结果为CSV文件
+ */
+function doExportCSV() {
+  const el = document.getElementById('shrinkResult');
+  if (!el) {
+    showToast('结果区域不存在', 'error');
+    return;
+  }
+  const text = el.innerText || el.textContent || '';
+  if (!text.trim()) {
+    showToast('无内容可导出', 'error');
+    return;
+  }
+  
+  // 解析号码列表
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  let csvContent = '期号,红球,蓝球\n';
+  
+  lines.forEach(line => {
+    // 匹配双色球格式: 01 02 03 04 05 06 + 07
+    const ssqMatch = line.match(/(\d{2}[\s]*){6}\+\s*(\d{2})/);
+    // 匹配大乐透格式: 01 02 03 04 05 + 06 07
+    const dltMatch = line.match(/(\d{2}[\s]*){5}\+\s*(\d{2}[\s]+\d{2})/);
+    
+    if (ssqMatch) {
+      const nums = line.match(/\d{2}/g) || [];
+      const reds = nums.slice(0, 6).join(',');
+      const blue = nums[6] || '';
+      csvContent += `,"${reds}","${blue}"\n`;
+    } else if (dltMatch) {
+      const nums = line.match(/\d{2}/g) || [];
+      const reds = nums.slice(0, 5).join(',');
+      const blues = nums.slice(5).join(',');
+      csvContent += `,"${reds}","${blues}"\n`;
+    } else {
+      // 未知格式，整行作为文本保存
+      const nums = line.match(/\d{2}/g) || [];
+      csvContent += `,"${line}","${nums.join(',')}"\n`;
+    }
+  });
+  
+  // 生成文件名: lottery_export_YYYYMMDD.csv
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const filename = `lottery_export_${yyyy}${mm}${dd}.csv`;
+  
+  // 创建Blob并触发下载
+  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  showToast(`已导出 ${filename}`);
+}
+
+/**
+ * 通过手机尾号生成幸运号码
+ */
+function generateByPhoneLast4() {
+  const phoneLast4Input = document.getElementById('phoneLast4Input');
+  const phoneLast4Type = document.getElementById('phoneLast4Type');
+  const resultEl = document.getElementById('phoneResult');
+  
+  if (!phoneLast4Input || !resultEl) {
+    showToast('页面元素不存在', 'error');
+    return;
+  }
+  
+  const phoneLast4 = phoneLast4Input.value.trim();
+  if (!phoneLast4 || phoneLast4.length !== 4 || !/^\d{4}$/.test(phoneLast4)) {
+    showToast('请输入4位数字手机尾号', 'error');
+    return;
+  }
+  
+  const type = phoneLast4Type ? phoneLast4Type.value : 'ssq';
+  const isSSQ = type === 'ssq';
+  const redMax = isSSQ ? 33 : 35;
+  const redCount = isSSQ ? 6 : 5;
+  
+  // 计算手机尾号各位数字之和
+  const digits = phoneLast4.split('').map(d => parseInt(d));
+  const sum = digits.reduce((a, b) => a + b, 0);
+  
+  // 生成3注推荐号码
+  const bets = [];
+  for (let betIdx = 0; betIdx < 3; betIdx++) {
+    const reds = [];
+    // 使用加权和取模生成红球
+    let seed = sum + betIdx * 7;
+    for (let i = 0; i < redCount; i++) {
+      seed = (seed * 31 + i * 17) % redMax;
+      let num = (seed % redMax) + 1;
+      // 确保不重复
+      let attempts = 0;
+      while (reds.includes(num) && attempts < 50) {
+        seed = (seed * 7 + i + betIdx) % redMax;
+        num = (seed % redMax) + 1;
+        attempts++;
+      }
+      reds.push(num);
+    }
+    reds.sort((a, b) => a - b);
+    
+    // 蓝球用生日余数（简化：用手机号+注索引的混合种子）
+    let blueSeed = (sum * 3 + betIdx * 11) % (isSSQ ? 16 : 12);
+    const blue = isSSQ ? blueSeed + 1 : blueSeed + 1;
+    
+    bets.push({ reds, blue: isSSQ ? blue : [blue, (blueSeed * 2) % 12 + 1] });
+  }
+  
+  // 渲染结果
+  let html = '<div style="padding:12px;background:var(--bg);border-radius:8px;">';
+  html += `<strong>📱 手机尾号 ${phoneLast4}</strong> 生成幸运号：<br><br>`;
+  
+  bets.forEach((bet, idx) => {
+    const redStr = bet.reds.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2, '0')}</span>`).join('');
+    if (isSSQ) {
+      html += `<div style="margin-bottom:8px;">第${idx + 1}注: ${redStr} <span class="ball ball-small ball-blue">${String(bet.blue).padStart(2, '0')}</span> <button class="btn btn-sm btn-secondary" onclick="copyText(this.parentNode)">复制</button></div>`;
+    } else {
+      const blueStr = bet.blue.map(n => `<span class="ball ball-small ball-blue">${String(n).padStart(2, '0')}</span>`).join('');
+      html += `<div style="margin-bottom:8px;">第${idx + 1}注: ${redStr} + ${blueStr} <button class="btn btn-sm btn-secondary" onclick="copyText(this.parentNode)">复制</button></div>`;
+    }
+  });
+  
+  html += '</div>';
+  resultEl.innerHTML = html;
+  showToast('手机尾号生成成功 📱');
+}
+
+/**
+ * 添加关注号码
+ */
+function addWatchNumber() {
+  const input = document.getElementById('watchNumbersInput');
+  if (!input) {
+    showToast('输入框不存在', 'error');
+    return;
+  }
+  
+  const value = input.value.trim();
+  if (!value) {
+    showToast('请输入要关注的号码', 'error');
+    return;
+  }
+  
+  // 解析号码（支持逗号、空格、换行分隔）
+  const nums = value.split(/[,，\s\n]+/).map(n => n.trim()).filter(n => n.length > 0);
+  
+  if (nums.length === 0) {
+    showToast('请输入有效号码', 'error');
+    return;
+  }
+  
+  // 获取现有关注号码
+  let watchList = JSON.parse(localStorage.getItem('watchNumbers') || '[]');
+  
+  // 添加新号码（去重）
+  nums.forEach(num => {
+    if (!watchList.includes(num)) {
+      watchList.push(num);
+    }
+  });
+  
+  // 保存到localStorage
+  localStorage.setItem('watchNumbers', JSON.stringify(watchList));
+  
+  // 清空输入框
+  input.value = '';
+  
+  // 更新显示
+  renderWatchList();
+  
+  showToast(`已添加 ${nums.length} 个关注号码（共${watchList.length}个）`);
+}
+
+/**
+ * 渲染关注号码列表（显示最近10期是否开过）
+ */
+function renderWatchList() {
+  const container = document.getElementById('watchListContainer');
+  if (!container) {
+    showToast('容器不存在', 'error');
+    return;
+  }
+  
+  const watchList = JSON.parse(localStorage.getItem('watchNumbers') || '[]');
+  
+  if (watchList.length === 0) {
+    container.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;text-align:center;padding:12px;">暂无关注的号码</div>';
+    return;
+  }
+  
+  const type = document.getElementById('batchGenType') ? document.getElementById('batchGenType').value : 'ssq';
+  const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+  const recent10 = data.slice(0, 10); // 最近10期
+  const isSSQ = type === 'ssq';
+  
+  let html = '<div style="font-size:12px;">';
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:6px;">';
+  
+  watchList.forEach(num => {
+    // 检查最近10期是否开过
+    let hit = false;
+    let hitPeriod = '';
+    
+    for (const row of recent10) {
+      const nums = isSSQ ? row.r : row.f;
+      if (nums.includes(parseInt(num))) {
+        hit = true;
+        hitPeriod = row.p;
+        break;
+      }
+    }
+    
+    const bgColor = hit ? 'var(--coral)' : 'var(--accent)';
+    const statusIcon = hit ? '🎯' : '⭐';
+    const statusText = hit ? `已开(${hitPeriod})` : '未开';
+    
+    html += `<div style="padding:6px 8px;background:${bgColor};color:#fff;border-radius:4px;text-align:center;position:relative;">
+      <span style="font-weight:bold;">${String(num).padStart(2, '0')}</span>
+      <div style="font-size:10px;margin-top:2px;">${statusIcon} ${statusText}</div>
+    </div>`;
+  });
+  
+  html += '</div></div>';
+  html += '<div style="margin-top:8px;text-align:right;"><button class="btn btn-sm btn-secondary" onclick="localStorage.removeItem(\'watchNumbers\');renderWatchList();">清空关注</button></div>';
+  
+  container.innerHTML = html;
+}
+
+/**
+ * 记录消费（弹出简单输入框询问金额）
+ */
+function doAddExpense() {
+  const type = document.getElementById('batchGenType') ? document.getElementById('batchGenType').value : 'ssq';
+  
+  // 创建简单输入框
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:center;justify-content:center;';
+  
+  const dialog = document.createElement('div');
+  dialog.style.cssText = 'background:var(--card);padding:24px;border-radius:12px;width:280px;max-width:90%;';
+  
+  dialog.innerHTML = `
+    <h3 style="margin-bottom:16px;font-size:16px;">💰 记录消费</h3>
+    <div style="margin-bottom:12px;">
+      <label style="display:block;font-size:13px;color:var(--text-secondary);margin-bottom:4px;">金额（元）</label>
+      <input type="number" id="expenseAmountInput" placeholder="请输入金额" min="0" step="0.01" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);box-sizing:border-box;">
+    </div>
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-size:13px;color:var(--text-secondary);margin-bottom:4px;">类型</label>
+      <select id="expenseTypeInput" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+        <option value="ssq">双色球</option>
+        <option value="dlt">大乐透</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button id="expenseCancelBtn" style="flex:1;padding:10px;border:none;border-radius:6px;background:var(--border);color:var(--text);cursor:pointer;">取消</button>
+      <button id="expenseSaveBtn" style="flex:1;padding:10px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer;">保存</button>
+    </div>
+  `;
+  
+  overlay.appendChild(dialog);
+  document.body.appendChild(overlay);
+  
+  // 设置默认值
+  const typeInput = document.getElementById('expenseTypeInput');
+  if (typeInput) typeInput.value = type;
+  
+  // 取消按钮
+  document.getElementById('expenseCancelBtn').onclick = () => {
+    document.body.removeChild(overlay);
+  };
+  
+  // 保存按钮
+  document.getElementById('expenseSaveBtn').onclick = () => {
+    const amountInput = document.getElementById('expenseAmountInput');
+    const typeInput = document.getElementById('expenseTypeInput');
+    
+    const amount = parseFloat(amountInput.value);
+    const expType = typeInput.value;
+    
+    if (isNaN(amount) || amount <= 0) {
+      showToast('请输入有效金额', 'error');
+      return;
+    }
+    
+    // 获取现有记录
+    let records = JSON.parse(localStorage.getItem('expenseRecords') || '[]');
+    
+    // 添加新记录
+    records.push({
+      date: new Date().toLocaleString('zh-CN'),
+      amount: amount,
+      type: expType
+    });
+    
+    // 保持最近100条记录
+    if (records.length > 100) {
+      records = records.slice(-100);
+    }
+    
+    // 保存到localStorage
+    localStorage.setItem('expenseRecords', JSON.stringify(records));
+    
+    // 关闭对话框
+    document.body.removeChild(overlay);
+    
+    // 更新图表
+    renderExpenseRecords();
+    
+    showToast(`已记录消费 ¥${amount.toFixed(2)}`);
+  };
+  
+  // 点击外部关闭
+  overlay.onclick = (e) => {
+    if (e.target === overlay) {
+      document.body.removeChild(overlay);
+    }
+  };
+  
+  // 自动聚焦金额输入框
+  setTimeout(() => {
+    const input = document.getElementById('expenseAmountInput');
+    if (input) input.focus();
+  }, 100);
+}
+
+/**
+ * 渲染消费记录（显示最近10条）
+ */
+function renderExpenseRecords() {
+  const container = document.getElementById('expenseChart');
+  if (!container) {
+    showToast('容器不存在', 'error');
+    return;
+  }
+  
+  const records = JSON.parse(localStorage.getItem('expenseRecords') || '[]');
+  const recent10 = records.slice(-10).reverse(); // 最近10条，最新的在前
+  
+  if (recent10.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:40px 0;">暂无消费记录</div>';
+    return;
+  }
+  
+  // 计算总金额和统计数据
+  const total = records.reduce((sum, r) => sum + r.amount, 0);
+  const ssqTotal = records.filter(r => r.type === 'ssq').reduce((sum, r) => sum + r.amount, 0);
+  const dltTotal = records.filter(r => r.type === 'dlt').reduce((sum, r) => sum + r.amount, 0);
+  
+  // 渲染柱状图（最近7期）
+  const last7 = records.slice(-7);
+  const maxAmount = Math.max(...last7.map(r => r.amount), 1);
+  
+  let chartHtml = '<div style="display:flex;align-items:flex-end;justify-content:space-around;height:100%;gap:8px;padding:8px 0;">';
+  last7.forEach((r, idx) => {
+    const height = (r.amount / maxAmount * 80) + 20; // 最小20%，最大100%
+    const typeColor = r.type === 'ssq' ? 'var(--coral)' : 'var(--blue)';
+    chartHtml += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;">
+      <span style="font-size:10px;color:var(--text-secondary);">¥${r.amount}</span>
+      <div style="width:100%;height:${height}px;background:${typeColor};border-radius:4px 4px 0 0;margin-top:4px;min-height:20px;"></div>
+      <span style="font-size:9px;color:var(--text-secondary);margin-top:4px;">${idx === last7.length - 1 ? '今' : idx + 1 + '天前'}</span>
+    </div>`;
+  });
+  chartHtml += '</div>';
+  
+  container.innerHTML = chartHtml;
+  
+  // 渲染详细记录表格
+  let tableHtml = `<div style="margin-top:12px;font-size:12px;">
+    <div style="display:flex;justify-content:space-between;padding:8px;background:var(--bg);border-radius:6px;margin-bottom:8px;">
+      <span>总消费: <strong style="color:var(--coral);">¥${total.toFixed(2)}</strong></span>
+      <span>双色球: ¥${ssqTotal.toFixed(2)} | 大乐透: ¥${dltTotal.toFixed(2)}</span>
+    </div>
+    <div style="max-height:200px;overflow-y:auto;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:var(--bg);">
+            <th style="padding:6px 8px;text-align:left;font-size:11px;color:var(--text-secondary);">日期</th>
+            <th style="padding:6px 8px;text-align:center;font-size:11px;color:var(--text-secondary);">类型</th>
+            <th style="padding:6px 8px;text-align:right;font-size:11px;color:var(--text-secondary);">金额</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${recent10.map(r => `
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px 8px;font-size:12px;">${r.date}</td>
+              <td style="padding:6px 8px;text-align:center;font-size:11px;color:${r.type === 'ssq' ? 'var(--coral)' : 'var(--blue)'};">${r.type === 'ssq' ? '双色球' : '大乐透'}</td>
+              <td style="padding:6px 8px;text-align:right;font-size:12px;font-weight:bold;color:var(--text);">¥${r.amount.toFixed(2)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+  
+  // 在expenseChart下方显示详情（如果容器足够大）
+  const existingDetail = document.getElementById('expenseDetailContainer');
+  if (existingDetail) {
+    existingDetail.innerHTML = tableHtml;
+  } else {
+    const detailDiv = document.createElement('div');
+    detailDiv.id = 'expenseDetailContainer';
+    detailDiv.style.marginTop = '12px';
+    detailDiv.innerHTML = tableHtml;
+    container.parentNode.insertBefore(detailDiv, container.nextSibling);
+  }
+}
+
+// ============ 完整遗漏报警功能 ============
+function doCheckMissAlert() {
+  const redThresh = parseInt(document.getElementById('missAlertRed').value) || 20;
+  const blueThresh = parseInt(document.getElementById('missAlertBlue').value) || 15;
+  const type = currentType || 'ssq';
+  const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+  const isSSQ = type === 'ssq';
+  const maxRed = isSSQ ? 33 : 35;
+  const maxBlue = isSSQ ? 16 : 12;
+
+  // 计算每个红球的当前遗漏
+  const redMiss = {};
+  for (let i = 1; i <= maxRed; i++) redMiss[i] = 0;
+  data.forEach(row => {
+    const reds = row.r;
+    for (let i = 1; i <= maxRed; i++) {
+      if (reds.includes(i)) redMiss[i] = 0; else redMiss[i]++;
+    }
+  });
+
+  // 计算每个蓝球的当前遗漏
+  const blueMiss = {};
+  for (let i = 1; i <= maxBlue; i++) blueMiss[i] = 0;
+  const getBlue = (row) => isSSQ ? row.b : row.b[0];
+  data.forEach(row => {
+    const blue = getBlue(row);
+    for (let i = 1; i <= maxBlue; i++) {
+      if (i === blue) blueMiss[i] = 0; else blueMiss[i]++;
+    }
+  });
+
+  // 找出超过阈值的号码，按遗漏期数排序
+  const redAlerts = [], blueAlerts = [];
+  for (let i = 1; i <= maxRed; i++) {
+    if (redMiss[i] >= redThresh) redAlerts.push({ num: i, miss: redMiss[i] });
+  }
+  for (let i = 1; i <= maxBlue; i++) {
+    if (blueMiss[i] >= blueThresh) blueAlerts.push({ num: i, miss: blueMiss[i] });
+  }
+  redAlerts.sort((a, b) => b.miss - a.miss);
+  blueAlerts.sort((a, b) => b.miss - a.miss);
+
+  // 渲染结果
+  const resultEl = document.getElementById('missAlertResult');
+  if (!resultEl) {
+    showToast('页面缺少遗漏报警显示区域', 'error');
+    return;
+  }
+  let html = '<div style="display:flex;flex-wrap:wrap;gap:16px;">';
+  
+  if (redAlerts.length > 0) {
+    let redList = redAlerts.map(a => {
+      const color = a.miss > 30 ? 'var(--coral)' : a.miss > 20 ? '#F59E0B' : 'var(--blue)';
+      return `<span style="background:${color};color:#fff;padding:4px 10px;border-radius:4px;font-size:13px;">${String(a.num).padStart(2,'0')}(遗漏${a.miss}期)</span>`;
+    }).join('');
+    html += `<div style="flex:1;min-width:280px;">
+      <div style="color:var(--text-secondary);font-size:12px;margin-bottom:8px;font-weight:600;">红球 ⚠️ (共${redAlerts.length}个)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">${redList}</div>
+    </div>`;
+  }
+  
+  if (blueAlerts.length > 0) {
+    let blueList = blueAlerts.map(a => {
+      const color = a.miss > 30 ? 'var(--coral)' : a.miss > 20 ? '#F59E0B' : 'var(--blue)';
+      return `<span style="background:${color};color:#fff;padding:4px 10px;border-radius:4px;font-size:13px;">${String(a.num).padStart(2,'0')}(遗漏${a.miss}期)</span>`;
+    }).join('');
+    html += `<div style="flex:1;min-width:200px;">
+      <div style="color:var(--text-secondary);font-size:12px;margin-bottom:8px;font-weight:600;">蓝球 ⚠️ (共${blueAlerts.length}个)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">${blueList}</div>
+    </div>`;
+  }
+  
+  if (redAlerts.length === 0 && blueAlerts.length === 0) {
+    html += '<div style="color:var(--accent);padding:16px;text-align:center;width:100%;">✅ 当前没有超过阈值的号码遗漏</div>';
+  }
+  
+  html += '</div>';
+  resultEl.innerHTML = html;
+}
+
+// ============ 获取下期开奖时间 ============
+function doGetNextDrawTime() {
+  const type = currentType || 'ssq';
+  const result = window.ToolsModule.getNextDrawTime(type);
+  
+  // 更新开奖时间卡片
+  const dateEl = document.getElementById('nextDrawDate');
+  const timeEl = document.getElementById('nextDrawTime');
+  const issueEl = document.getElementById('nextDrawIssue');
+  
+  if (dateEl) dateEl.textContent = result.isOpen ? '今晚开奖!' : (result.nextDraw ? result.nextDraw.split(' ')[0] : '--');
+  if (timeEl) timeEl.textContent = result.isOpen ? (type === 'ssq' ? '21:15' : '20:30') : (result.nextDraw ? result.nextDraw.split(' ')[1] : '--');
+  if (issueEl) {
+    const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+    const latestPeriod = data[0]?.p || '2024001';
+    const year = parseInt(latestPeriod.substring(0, 4));
+    const num = parseInt(latestPeriod.substring(4));
+    const nextNum = num >= 9999 ? 1 : num + 1;
+    const nextYear = nextNum === 1 ? year + 1 : year;
+    issueEl.textContent = `${nextYear}${String(nextNum).padStart(3, '0')}`;
+  }
+  
+  // 同时更新工具页面的显示
+  const resultDiv = document.getElementById('drawTimeResult');
+  if (resultDiv) {
+    resultDiv.innerHTML = `
+      <div class="fade-in" style="padding:20px;background:var(--bg);border-radius:8px;text-align:center;">
+        <div style="font-size:24px;margin-bottom:12px;">${result.isOpen ? '✅' : '⏰'}</div>
+        <div style="font-size:18px;font-weight:600;">${result.message}</div>
+        ${result.nextDraw ? `<div style="margin-top:12px;color:var(--text-secondary);">开奖时间: ${result.nextDraw}</div>` : ''}
+        <div style="margin-top:8px;color:var(--text-secondary);">${result.note}</div>
+      </div>
+    `;
+  }
+  
+  showToast(result.isOpen ? '今晚开奖!' : `距离开奖还有 ${result.daysUntil || '?'} 天`);
 }
 </script>
 </body>
