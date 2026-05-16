@@ -488,6 +488,7 @@
     <div class="tabs">
       <button class="tab active" data-tab="analyze" onclick="switchTab('analyze')">📊 分析选号</button>
       <button class="tab" data-tab="history-data" onclick="switchTab('history-data')">📈 历史数据</button>
+      <button class="tab" data-tab="trend" onclick="switchTab('trend')">🔥 趋势追踪</button>
       <button class="tab" data-tab="stats" onclick="switchTab('stats')">📉 统计分析</button>
       <button class="tab" data-tab="play" onclick="switchTab('play')">🎮 投注玩法</button>
       <button class="tab" data-tab="tools" onclick="switchTab('tools')">🛠️ 工具箱</button>
@@ -555,6 +556,57 @@
             <tbody id="historyTableBody"></tbody>
           </table>
         </div>
+      </div>
+    </div>
+    
+    <!-- Tab: Trend Tracking -->
+    <div id="tab-trend" class="tab-content" style="display:none;">
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title">
+            <span class="icon">🔥</span>
+            <span>热门号码趋势</span>
+          </div>
+          <div id="hotTrendContainer">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">
+            <span class="icon">❄️</span>
+            <span>冷门号码趋势</span>
+          </div>
+          <div id="coldTrendContainer">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">📊</span>
+          <span>号码出现频率排行</span>
+          <select id="trendPeriod" onchange="renderTrendData()" style="margin-left:auto;padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+            <option value="10">最近10期</option>
+            <option value="30">最近30期</option>
+            <option value="50" selected>最近50期</option>
+            <option value="all">全部数据</option>
+          </select>
+        </div>
+        <div id="freqRankContainer"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🎯</span>
+          <span>关注号码</span>
+        </div>
+        <div class="input-group" style="margin-bottom:16px;">
+          <label>添加关注的号码 (逗号分隔，如: 01,05,12,17,23,28)</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="watchNumbers" placeholder="01,02,03,04,05,06" style="flex:1;">
+            <button class="btn btn-primary" onclick="addWatchNumber()">添加</button>
+          </div>
+        </div>
+        <div id="watchListContainer"></div>
       </div>
     </div>
     
@@ -1092,6 +1144,7 @@
       if (tab === 'stats') renderStats();
       if (tab === 'history-data') renderHistoryTable();
       if (tab === 'play') initPlayMethods();
+      if (tab === 'trend') renderTrendData();
     }
     
     function togglePanel(panel) {
@@ -1106,6 +1159,148 @@
     function closePanel() {
       document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open'));
       document.getElementById('overlay').classList.remove('open');
+    }
+    
+    // ============ TREND TRACKING ============
+    let watchList = JSON.parse(localStorage.getItem('million_life_watch') || '[]');
+    
+    function renderTrendData() {
+      const period = document.getElementById('trendPeriod').value;
+      const data = currentType === 'ssq' ? SSQ_DATA : DLT_DATA;
+      const isSSQ = currentType === 'ssq';
+      const maxNum = isSSQ ? 33 : 35;
+      const count = isSSQ ? 6 : 5;
+      
+      // Limit data by period
+      let limitData = data;
+      if (period !== 'all') {
+        limitData = data.slice(0, parseInt(period));
+      }
+      
+      // Calculate frequency
+      const freq = {};
+      for (let i = 1; i <= maxNum; i++) freq[i] = 0;
+      limitData.forEach(row => {
+        const nums = isSSQ ? row.r : row.f;
+        nums.forEach(n => freq[n]++);
+      });
+      
+      // Sort and get hot/cold numbers
+      const sorted = Object.entries(freq).map(([num, count]) => ({ num: parseInt(num), count })).sort((a, b) => b.count - a.count);
+      const hotNums = sorted.slice(0, 10);
+      const coldNums = sorted.slice(-10).reverse();
+      
+      // Render hot trend
+      const hotContainer = document.getElementById('hotTrendContainer');
+      hotContainer.innerHTML = `
+        <div class="number-list">
+          ${hotNums.map(n => `<span class="number-item ${isSSQ ? 'red' : ''}" style="cursor:default;">${String(n.num).padStart(2, '0')} (${n.count}次)</span>`).join('')}
+        </div>
+        <p style="margin-top:12px;color:var(--text-secondary);font-size:13px;">
+          分析：热门号码为最近${period === 'all' ? '全部' : period}期出现频率最高的号码
+        </p>
+      `;
+      
+      // Render cold trend
+      const coldContainer = document.getElementById('coldTrendContainer');
+      coldContainer.innerHTML = `
+        <div class="number-list">
+          ${coldNums.map(n => `<span class="number-item ${isSSQ ? 'blue' : ''}" style="cursor:default;">${String(n.num).padStart(2, '0')} (${n.count}次)</span>`).join('')}
+        </div>
+        <p style="margin-top:12px;color:var(--text-secondary);font-size:13px;">
+          分析：冷门号码为最近${period === 'all' ? '全部' : period}期出现频率最低的号码
+        </p>
+      `;
+      
+      // Render frequency rank chart
+      renderFreqRank(sorted, maxNum);
+      
+      // Render watch list
+      renderWatchList();
+    }
+    
+    function renderFreqRank(sorted, maxNum) {
+      const container = document.getElementById('freqRankContainer');
+      const top20 = sorted.slice(0, 20);
+      const maxCount = top20[0]?.count || 1;
+      
+      container.innerHTML = `
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+          ${top20.map(n => `
+            <div style="text-align:center;min-width:50px;">
+              <div style="font-size:18px;font-weight:600;">${String(n.num).padStart(2, '0')}</div>
+              <div style="height:60px;width:30px;background:var(--border);border-radius:4px;position:relative;margin:4px auto;">
+                <div style="position:absolute;bottom:0;left:0;right:0;background:var(--accent);border-radius:4px;height:${(n.count / maxCount) * 100}%;"></div>
+              </div>
+              <div style="font-size:12px;color:var(--text-secondary);">${n.count}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    
+    function addWatchNumber() {
+      const input = document.getElementById('watchNumbers');
+      const value = input.value.trim();
+      if (!value) {
+        showToast('请输入号码', 'error');
+        return;
+      }
+      
+      const nums = value.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n >= 1 && n <= (currentType === 'ssq' ? 33 : 35));
+      if (nums.length === 0) {
+        showToast('请输入有效号码', 'error');
+        return;
+      }
+      
+      const isSSQ = currentType === 'ssq';
+      const existing = watchList.find(w => w.type === currentType);
+      if (existing) {
+        existing.numbers = [...new Set([...existing.numbers, ...nums])];
+      } else {
+        watchList.push({ type: currentType, numbers: nums });
+      }
+      
+      localStorage.setItem('million_life_watch', JSON.stringify(watchList));
+      input.value = '';
+      renderWatchList();
+      showToast(`已添加${nums.length}个关注号码`);
+    }
+    
+    function removeWatchNumber(type, num) {
+      const index = watchList.findIndex(w => w.type === type);
+      if (index !== -1) {
+        watchList[index].numbers = watchList[index].numbers.filter(n => n !== num);
+        if (watchList[index].numbers.length === 0) {
+          watchList.splice(index, 1);
+        }
+        localStorage.setItem('million_life_watch', JSON.stringify(watchList));
+        renderWatchList();
+      }
+    }
+    
+    function renderWatchList() {
+      const container = document.getElementById('watchListContainer');
+      const currentWatch = watchList.find(w => w.type === currentType);
+      
+      if (!currentWatch || currentWatch.numbers.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="icon">🎯</div><p>暂无关注号码</p></div>';
+        return;
+      }
+      
+      const isSSQ = currentType === 'ssq';
+      container.innerHTML = `
+        <div class="number-list">
+          ${currentWatch.numbers.map(n => `
+            <span class="number-item ${isSSQ ? 'red' : 'blue'} selected" onclick="removeWatchNumber('${currentType}', ${n})" title="点击移除">
+              ${String(n).padStart(2, '0')} ×
+            </span>
+          `).join('')}
+        </div>
+        <p style="margin-top:12px;color:var(--text-secondary);font-size:13px;">
+          共 ${currentWatch.numbers.length} 个关注号码，点击号码可移除
+        </p>
+      `;
     }
     
     function renderAlgoGrid() {
