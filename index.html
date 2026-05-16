@@ -3,27 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>百万人生 v2.0 — 体彩分析推荐</title>
+  <title>百万人生 — 体彩分析推荐</title>
   <style>
     :root {
+      --bg: #F7F8FA;
+      --surface: #FFFFFF;
+      --surface2: #F0F2F5;
+      --text: #1A1A2E;
+      --text2: #5C6370;
+      --text3: #9CA3AF;
+      --border: #E5E7EB;
+      --mint: #10B981;
+      --mint-light: #D1FAE5;
+      --mint-dark: #059669;
+      --coral: #F43F5E;
+      --sky: #0EA5E9;
+      --sky-light: #E0F2FE;
       --gold: #F59E0B;
-      --gold-light: #FBBF24;
-      --gold-glow: rgba(245,158,11,0.35);
-      --gold-bg: rgba(245,158,11,0.08);
-      --purple: #8B5CF6;
-      --purple-light: #A78BFA;
-      --bg: #0A0E1A;
-      --bg2: #0F1629;
-      --card: rgba(30,41,59,0.7);
-      --card-glass: rgba(255,255,255,0.04);
-      --card-hover: rgba(255,255,255,0.08);
-      --border: rgba(255,255,255,0.08);
-      --border-gold: rgba(245,158,11,0.3);
-      --text: #F8FAFC;
-      --text-dim: #64748B;
-      --text-mid: #94A3B8;
-      --red: #EF4444;
-      --blue: #3B82F6;
+      --gold-light: #FEF3C7;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --radius: 14px;
+      --radius-sm: 8px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,558 +34,401 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      font-size: 16px;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    /* ===== ANIMATED BG ===== */
-    .bg-orbs {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-    }
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.4;
-      animation: float 12s ease-in-out infinite;
-    }
-    .orb-1 {
-      width: 400px; height: 400px;
-      background: radial-gradient(circle, rgba(245,158,11,0.3), transparent 70%);
-      top: -100px; left: -100px;
-      animation-delay: 0s;
-    }
-    .orb-2 {
-      width: 350px; height: 350px;
-      background: radial-gradient(circle, rgba(139,92,246,0.25), transparent 70%);
-      bottom: -80px; right: -80px;
-      animation-delay: -4s;
-    }
-    .orb-3 {
-      width: 250px; height: 250px;
-      background: radial-gradient(circle, rgba(245,158,11,0.15), transparent 70%);
-      top: 40%; left: 50%;
-      animation-delay: -8s;
-    }
-    @keyframes float {
-      0%, 100% { transform: translate(0,0) scale(1); }
-      33% { transform: translate(30px,-20px) scale(1.05); }
-      66% { transform: translate(-20px,15px) scale(0.95); }
+      font-size: 15px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
     }
 
     /* ===== LAYOUT ===== */
-    .app {
-      position: relative;
-      z-index: 1;
-      max-width: 720px;
+    .container {
+      max-width: 520px;
       margin: 0 auto;
       padding: 0 20px 60px;
     }
 
-    /* ===== HERO HEADER ===== */
-    .hero {
+    /* ===== HEADER ===== */
+    header {
+      padding: 40px 0 28px;
       text-align: center;
-      padding: 36px 0 28px;
-      position: relative;
     }
-    .hero::after {
-      content: '';
-      display: block;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
-      margin-top: 28px;
-    }
-    .hero-badge {
+    header .logo {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: var(--gold-bg);
-      border: 1px solid var(--border-gold);
-      border-radius: 20px;
-      padding: 4px 14px;
-      font-size: 0.72rem;
-      color: var(--gold-light);
-      margin-bottom: 14px;
-      letter-spacing: 0.5px;
-    }
-    .hero h1 {
-      font-family: "Noto Serif SC", SimHei, serif;
-      font-size: 2.4rem;
-      font-weight: 900;
-      background: linear-gradient(135deg, #FDE68A 0%, var(--gold-light) 40%, var(--gold) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: 2px;
+      gap: 8px;
       margin-bottom: 6px;
     }
-    .hero-sub {
-      font-size: 0.82rem;
-      color: var(--text-dim);
-      letter-spacing: 3px;
+    header .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--coral), #FB7185);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 1px;
+    }
+    header .sub {
+      font-size: 0.78rem;
+      color: var(--text3);
+      letter-spacing: 2px;
     }
 
-    /* ===== GLASS CARD ===== */
-    .glass-card {
-      background: var(--card);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 16px;
-      transition: border-color 0.3s;
-    }
-    .glass-card:hover {
-      border-color: var(--border-gold);
-    }
-
-    /* ===== LOTTERY TYPE SELECTOR ===== */
-    .type-selector {
+    /* ===== TYPE SELECTOR ===== */
+    .type-row {
       display: flex;
       gap: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 24px;
     }
     .type-btn {
       flex: 1;
-      padding: 14px;
-      border-radius: 14px;
-      border: 1.5px solid var(--border);
-      background: var(--card-glass);
-      color: var(--text-dim);
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.25s;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 4px;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text2);
     }
-    .type-btn .t-emoji { font-size: 1.6rem; }
-    .type-btn .t-name { font-size: 0.85rem; }
-    .type-btn .t-sub { font-size: 0.68rem; opacity: 0.7; }
+    .type-btn .t-icon { font-size: 1.2rem; }
     .type-btn.active {
-      border-color: var(--gold);
-      background: var(--gold-bg);
-      color: var(--gold-light);
-      box-shadow: 0 0 20px var(--gold-glow), inset 0 0 20px rgba(245,158,11,0.05);
+      border-color: var(--mint);
+      background: var(--mint-light);
+      color: var(--mint-dark);
     }
     .type-btn:not(.active):hover {
-      border-color: rgba(245,158,11,0.4);
-      background: var(--card-hover);
+      border-color: var(--mint);
+      background: var(--surface);
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
     }
 
     /* ===== SECTION TITLE ===== */
-    .sec-title {
-      font-size: 0.75rem;
-      color: var(--text-dim);
+    .s-title {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text3);
       letter-spacing: 1.5px;
       text-transform: uppercase;
       margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .sec-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
     }
 
     /* ===== HISTORY ===== */
-    .history-scroll {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-height: 240px;
+    .h-scroll {
+      max-height: 220px;
       overflow-y: auto;
       scrollbar-width: thin;
-      scrollbar-color: var(--gold) transparent;
+      scrollbar-color: var(--border) transparent;
     }
-    .history-scroll::-webkit-scrollbar { width: 4px; }
-    .history-scroll::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
-    .hrow {
+    .h-scroll::-webkit-scrollbar { width: 4px; }
+    .h-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .h-row {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 8px 12px;
-      background: var(--card-glass);
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      transition: background 0.2s;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--surface2);
     }
-    .hrow:hover { background: var(--card-hover); }
-    .hperiod {
-      font-size: 0.72rem;
-      color: var(--text-dim);
-      min-width: 62px;
+    .h-row:last-child { border-bottom: none; }
+    .h-p {
+      font-size: 0.7rem;
+      color: var(--text3);
+      min-width: 58px;
       font-family: "SF Mono", monospace;
     }
-    .hballs {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-    }
+    .h-balls { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
     .ball {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 26px;
-      height: 26px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       font-weight: 700;
       flex-shrink: 0;
     }
-    .ball-r { background: linear-gradient(135deg, #EF4444, #DC2626); color: #fff; box-shadow: 0 2px 8px rgba(239,68,68,0.4); }
-    .ball-b { background: linear-gradient(135deg, #3B82F6, #2563EB); color: #fff; box-shadow: 0 2px 8px rgba(59,130,246,0.4); }
-    .ball-a { background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: #fff; box-shadow: 0 2px 8px rgba(139,92,246,0.4); }
-    .sep { color: var(--text-dim); margin: 0 1px; font-size: 0.65rem; }
+    .ball-r {
+      background: var(--coral);
+      color: #fff;
+    }
+    .ball-b {
+      background: var(--sky);
+      color: #fff;
+    }
+    .sep { color: var(--text3); margin: 0 1px; font-size: 0.6rem; }
 
-    /* ===== ALGORITHM CARDS ===== */
-    .algo-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .algo-card {
-      background: var(--card-glass);
-      border: 1.5px solid var(--border);
-      border-radius: 14px;
-      padding: 14px;
-      cursor: pointer;
-      transition: all 0.25s;
+    /* ===== ALGORITHMS ===== */
+    .algo-list { display: flex; flex-direction: column; gap: 8px; }
+    .algo-item {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 12px;
-      position: relative;
-      overflow: hidden;
+      padding: 13px 14px;
+      background: var(--surface2);
+      border: 1.5px solid transparent;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
     }
-    .algo-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, var(--gold-glow), transparent);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .algo-card:hover::before { opacity: 0.3; }
-    .algo-card.selected {
+    .algo-item:hover { background: var(--surface); border-color: var(--border); }
+    .algo-item.selected {
+      background: var(--gold-light);
       border-color: var(--gold);
-      background: rgba(245,158,11,0.06);
     }
-    .algo-card.selected::before { opacity: 1; }
     .algo-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      background: var(--card-glass);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--surface);
       border: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
+      font-size: 1rem;
       flex-shrink: 0;
-      position: relative;
-      z-index: 1;
     }
-    .algo-card.selected .algo-icon {
-      background: var(--gold-bg);
-      border-color: var(--border-gold);
+    .algo-item.selected .algo-icon {
+      background: var(--surface);
+      border-color: var(--gold);
     }
-    .algo-info { flex: 1; position: relative; z-index: 1; }
-    .algo-name { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
-    .algo-desc { font-size: 0.72rem; color: var(--text-dim); line-height: 1.4; }
+    .algo-name { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+    .algo-desc { font-size: 0.72rem; color: var(--text3); }
     .algo-check {
-      position: absolute;
-      top: 10px;
-      right: 10px;
+      margin-left: auto;
       width: 20px;
       height: 20px;
       border-radius: 50%;
       border: 1.5px solid var(--border);
-      background: var(--card-glass);
+      background: var(--surface);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       color: transparent;
-      transition: all 0.25s;
-      z-index: 1;
+      transition: all 0.2s;
+      flex-shrink: 0;
     }
-    .algo-card.selected .algo-check {
+    .algo-item.selected .algo-check {
       background: var(--gold);
       border-color: var(--gold);
-      color: #000;
+      color: #fff;
     }
 
     /* ===== GENERATE BUTTON ===== */
     .gen-btn {
       width: 100%;
-      padding: 18px;
-      background: linear-gradient(135deg, #D97706 0%, var(--gold) 50%, #FBBF24 100%);
+      padding: 15px;
+      background: var(--text);
+      color: #fff;
       border: none;
-      border-radius: 16px;
-      color: #000;
-      font-size: 1.05rem;
-      font-weight: 800;
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.25s;
-      margin: 6px 0 20px;
+      transition: all 0.2s;
       font-family: inherit;
-      letter-spacing: 1px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 4px 24px rgba(245,158,11,0.3);
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
     }
-    .gen-btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
-      transform: translateX(-100%);
-      transition: transform 0.6s;
-    }
-    .gen-btn:hover::after { transform: translateX(100%); }
     .gen-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(245,158,11,0.5);
+      background: #2D2D44;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
     }
-    .gen-btn:active { transform: translateY(0) scale(0.98); }
+    .gen-btn:active { transform: translateY(0); }
 
     /* ===== RESULTS ===== */
-    .results-area { min-height: 80px; }
-    .rempty {
+    .r-empty {
       text-align: center;
-      padding: 30px;
-      color: var(--text-dim);
+      padding: 28px;
+      color: var(--text3);
       font-size: 0.85rem;
     }
-    .rempty-icon { font-size: 2rem; margin-bottom: 8px; opacity: 0.5; }
+    .r-empty-icon { font-size: 2rem; margin-bottom: 8px; opacity: 0.5; }
 
-    .result-card {
-      background: var(--card-glass);
+    .r-card {
+      padding: 16px;
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px 18px;
+      border-radius: var(--radius);
       margin-bottom: 10px;
-      position: relative;
-      overflow: hidden;
+      background: var(--surface);
     }
-    .result-card::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      background: linear-gradient(to bottom, var(--gold), var(--purple));
-      border-radius: 3px 0 0 3px;
-    }
-    .r-header {
+    .r-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
     }
-    .r-tag {
+    .r-num {
       font-size: 0.7rem;
-      background: var(--gold-bg);
-      color: var(--gold-light);
-      border: 1px solid var(--border-gold);
-      border-radius: 6px;
+      font-weight: 600;
+      color: var(--mint-dark);
+      background: var(--mint-light);
       padding: 2px 8px;
+      border-radius: 4px;
     }
-    .r-algo-names {
-      font-size: 0.7rem;
-      color: var(--text-dim);
+    .r-algo { font-size: 0.7rem; color: var(--text3); }
+    .r-balls { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+    .r-balls .ball {
+      width: 30px;
+      height: 30px;
+      font-size: 0.82rem;
     }
-    .r-nums {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    .r-nums .ball {
-      width: 34px;
-      height: 34px;
-      font-size: 0.88rem;
-    }
-    .r-label {
-      font-size: 0.65rem;
-      color: var(--text-dim);
-      margin: 0 4px;
-      align-self: center;
-    }
+    .r-sep { color: var(--text3); font-size: 0.7rem; margin: 0 2px; }
 
     /* ===== STATS ===== */
-    .stat-tabs {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 12px;
-    }
-    .stat-tab {
-      padding: 6px 14px;
-      border-radius: 8px;
+    .stat-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+    .s-tab {
+      padding: 5px 12px;
+      border-radius: 6px;
       border: 1px solid var(--border);
-      background: var(--card-glass);
-      color: var(--text-dim);
-      font-size: 0.8rem;
+      background: var(--surface2);
+      color: var(--text3);
+      font-size: 0.78rem;
       cursor: pointer;
       transition: all 0.2s;
     }
-    .stat-tab.active {
-      border-color: var(--gold);
-      color: var(--gold);
-      background: var(--gold-bg);
+    .s-tab.active {
+      background: var(--mint-light);
+      border-color: var(--mint);
+      color: var(--mint-dark);
     }
-    .stat-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .stat-row {
+    .stat-rows { display: flex; flex-direction: column; gap: 6px; }
+    .st-row {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 7px 10px;
-      background: var(--card-glass);
-      border-radius: 8px;
-      border: 1px solid var(--border);
+      padding: 6px 10px;
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
     }
-    .stat-row .ball {
-      width: 24px;
-      height: 24px;
-      font-size: 0.68rem;
-    }
-    .stat-name { flex: 1; font-size: 0.78rem; color: var(--text-dim); }
-    .stat-bar-wrap { width: 80px; height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
-    .stat-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
-      border-radius: 3px;
-      transition: width 0.6s ease;
-    }
-    .stat-val { font-size: 0.78rem; color: var(--gold); min-width: 28px; text-align: right; font-weight: 600; }
+    .st-row .ball { width: 22px; height: 22px; font-size: 0.62rem; }
+    .st-name { flex: 1; font-size: 0.75rem; color: var(--text2); }
+    .st-bar { width: 72px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .st-bar-fill { height: 100%; background: var(--mint); border-radius: 2px; transition: width 0.5s ease; }
+    .st-val { font-size: 0.75rem; color: var(--mint-dark); min-width: 32px; text-align: right; font-weight: 600; }
 
     /* ===== DISCLAIMER ===== */
     .disclaimer {
       text-align: center;
-      font-size: 0.72rem;
-      color: var(--text-dim);
-      padding: 20px 0;
-      border-top: 1px solid var(--border);
-      margin-top: 8px;
+      font-size: 0.7rem;
+      color: var(--text3);
+      padding: 16px 0;
       line-height: 1.8;
     }
-    .disclaimer strong { color: var(--gold); }
+    .disclaimer strong { color: var(--text2); }
 
     /* ===== ANIMATIONS ===== */
-    @keyframes ballIn {
-      0% { transform: scale(0) rotate(-20deg); opacity: 0; }
-      60% { transform: scale(1.25) rotate(5deg); }
-      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    @keyframes ballPop {
+      0% { transform: scale(0); opacity: 0; }
+      65% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
     }
-    @keyframes cardIn {
-      0% { transform: translateY(16px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
+    @keyframes cardUp {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
-    .ball-anim { animation: ballIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
-    .result-card { animation: cardIn 0.4s ease forwards; }
+    .ball-a { animation: ballPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+    .r-card { animation: cardUp 0.35s ease forwards; }
 
     /* ===== MOBILE ===== */
     @media (max-width: 480px) {
-      .hero h1 { font-size: 1.9rem; }
-      .algo-grid { grid-template-columns: 1fr; }
-      .app { padding: 0 14px 60px; }
+      .container { padding: 0 14px 50px; }
+      header { padding: 32px 0 20px; }
     }
   </style>
 </head>
 <body>
+<div class="container">
 
-<div class="bg-orbs">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-</div>
-
-<div class="app">
-
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-badge">🎰 智能体彩分析</div>
-    <h1>百万人生</h1>
-    <div class="hero-sub">数据分析 · 智能推荐 · 理性购彩</div>
-  </div>
-
-  <!-- LOTTERY TYPE -->
-  <div class="glass-card">
-    <div class="type-selector">
-      <button class="type-btn active" data-type="ssq" id="btnSSQ">
-        <span class="t-emoji">🔴</span>
-        <span class="t-name">双色球</span>
-        <span class="t-sub">6+1 / 2亿+</span>
-      </button>
-      <button class="type-btn" data-type="dlt" id="btnDLT">
-        <span class="t-emoji">🟣</span>
-        <span class="t-name">大乐透</span>
-        <span class="t-sub">5+2 / 、追加</span>
-      </button>
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🎰</div>
+      <h1>百万人生</h1>
     </div>
+    <div class="sub">体彩数据分析 · 智能推荐</div>
+  </header>
+
+  <!-- TYPE SELECTOR -->
+  <div class="type-row">
+    <button class="type-btn active" data-type="ssq" id="btnSSQ">
+      <span class="t-icon">🔴</span>
+      <span>双色球</span>
+    </button>
+    <button class="type-btn" data-type="dlt" id="btnDLT">
+      <span class="t-icon">🔵</span>
+      <span>大乐透</span>
+    </button>
   </div>
 
   <!-- HISTORY -->
-  <div class="glass-card">
-    <div class="sec-title">📊 历史开奖</div>
-    <div class="history-scroll" id="historyWrap"></div>
+  <div class="card">
+    <div class="s-title">历史开奖</div>
+    <div class="h-scroll" id="hWrap"></div>
   </div>
 
   <!-- ALGORITHMS -->
-  <div class="glass-card">
-    <div class="sec-title">⚙️ 分析算法</div>
-    <div class="algo-grid" id="algoGrid">
-      <div class="algo-card selected" data-algo="hot-cold">
+  <div class="card">
+    <div class="s-title">分析算法</div>
+    <div class="algo-list" id="aList">
+      <div class="algo-item selected" data-algo="hot-cold">
         <div class="algo-icon">🔥</div>
-        <div class="algo-info">
+        <div>
           <div class="algo-name">冷热号分析</div>
           <div class="algo-desc">频率 + 遗漏值加权采样</div>
         </div>
         <div class="algo-check">✓</div>
       </div>
-      <div class="algo-card" data-algo="odd-even">
+      <div class="algo-item" data-algo="odd-even">
         <div class="algo-icon">⚡</div>
-        <div class="algo-info">
+        <div>
           <div class="algo-name">奇偶分析</div>
-          <div class="algo-desc">历史奇偶比例模拟生成</div>
+          <div class="algo-desc">历史奇偶比例模拟</div>
         </div>
         <div class="algo-check">✓</div>
       </div>
-      <div class="algo-card" data-algo="zone">
+      <div class="algo-item" data-algo="zone">
         <div class="algo-icon">📐</div>
-        <div class="algo-info">
+        <div>
           <div class="algo-name">区间分析</div>
           <div class="algo-desc">号码在区间分布统计</div>
         </div>
         <div class="algo-check">✓</div>
       </div>
-      <div class="algo-card" data-algo="tail">
+      <div class="algo-item" data-algo="tail">
         <div class="algo-icon">🔢</div>
-        <div class="algo-info">
+        <div>
           <div class="algo-name">尾数分析</div>
           <div class="algo-desc">0-9 尾数热态分布</div>
         </div>
         <div class="algo-check">✓</div>
       </div>
-      <div class="algo-card selected" data-algo="monte-carlo" style="grid-column: span 2;">
+      <div class="algo-item selected" data-algo="monte-carlo">
         <div class="algo-icon">🤖</div>
-        <div class="algo-info">
+        <div>
           <div class="algo-name">蒙特卡洛模拟</div>
-          <div class="algo-desc">1000次随机模拟 · 最优概率选取</div>
+          <div class="algo-desc">1000次随机模拟 · 最优选取</div>
         </div>
         <div class="algo-check">✓</div>
       </div>
@@ -595,37 +439,37 @@
   <button class="gen-btn" id="genBtn">🎯 生成推荐号码</button>
 
   <!-- RESULTS -->
-  <div class="glass-card">
-    <div class="sec-title">📋 推荐结果</div>
-    <div class="results-area" id="resultsArea">
-      <div class="rempty">
-        <div class="rempty-icon">🎲</div>
-        <div>选择算法，点击上方按钮生成推荐号码</div>
+  <div class="card">
+    <div class="s-title">推荐结果</div>
+    <div id="rArea">
+      <div class="r-empty">
+        <div class="r-empty-icon">✨</div>
+        <div>选择算法，点击按钮生成推荐号码</div>
       </div>
     </div>
   </div>
 
   <!-- STATS -->
-  <div class="glass-card">
-    <div class="sec-title">📈 统计分析</div>
-    <div class="stat-tabs" id="statTabs">
-      <button class="stat-tab active" data-stat="hot">🔥 热号</button>
-      <button class="stat-tab" data-stat="cold">❄️ 冷号</button>
-      <button class="stat-tab" data-stat="miss">⏳ 遗漏值</button>
+  <div class="card">
+    <div class="s-title">统计分析</div>
+    <div class="stat-tabs" id="sTabs">
+      <button class="s-tab active" data-s="hot">🔥 热号</button>
+      <button class="s-tab" data-s="cold">❄️ 冷号</button>
+      <button class="s-tab" data-s="miss">⏳ 遗漏值</button>
     </div>
-    <div class="stat-list" id="statList"></div>
+    <div class="stat-rows" id="sList"></div>
   </div>
 
   <!-- DISCLAIMER -->
   <div class="disclaimer">
-    ⚠️ <strong>彩票是随机游戏</strong>，历史数据与算法分析仅供参考<br>
-    请理性购彩，量力而行，切勿沉迷<br>
-    百万人生 v2.0 · 基于真实历史统计
+    ⚠️ <strong>彩票是随机游戏</strong>，历史数据仅供参考<br>
+    请理性购彩，量力而行
   </div>
+
 </div>
 
 <script>
-// ==================== 数据 ====================
+// ==================== DATA ====================
 const SSQ_HISTORY = [
   {p:"2026043",r:[2,7,12,19,24,31],b:10},
   {p:"2026042",r:[3,10,13,15,25,27],b:8},
@@ -692,361 +536,249 @@ const DLT_HISTORY = [
   {p:"26014",f:[5,9,14,23,31],b:[3,7]},
 ];
 
-// ==================== 状态 ====================
-let currentType = 'ssq';
-let selectedAlgos = new Set(['hot-cold', 'monte-carlo']);
-let currentStat = 'hot';
+// ==================== STATE ====================
+let cur = 'ssq';
+let sel = new Set(['hot-cold', 'monte-carlo']);
+let curStat = 'hot';
 
-// ==================== DOM ====================
-const btnSSQ = document.getElementById('btnSSQ');
-const btnDLT = document.getElementById('btnDLT');
-const historyWrap = document.getElementById('historyWrap');
-const algoGrid = document.getElementById('algoGrid');
-const genBtn = document.getElementById('genBtn');
-const resultsArea = document.getElementById('resultsArea');
-const statTabs = document.getElementById('statTabs');
-const statList = document.getElementById('statList');
-
-// ==================== 初始化 ====================
+// ==================== INIT ====================
 function init() {
-  renderHistory();
-  renderStat();
-  bindEvents();
+  renderH();
+  renderS();
+  bind();
 }
 
-function getHistory() {
-  return currentType === 'ssq' ? SSQ_HISTORY : DLT_HISTORY;
-}
+function hist() { return cur === 'ssq' ? SSQ_HISTORY : DLT_HISTORY; }
 
-// ==================== 渲染历史 ====================
-function renderHistory() {
-  const hist = getHistory();
-  historyWrap.innerHTML = hist.map(h => {
-    if (currentType === 'ssq') {
-      const reds = h.r.map(n => `<span class="ball ball-r">${n}</span>`).join('');
-      return `<div class="hrow">
-        <span class="hperiod">${h.p}</span>
-        <div class="hballs">${reds}<span class="sep">+</span><span class="ball ball-b">${h.b}</span></div>
-      </div>`;
+// ==================== RENDER HISTORY ====================
+function renderH() {
+  const h = hist();
+  document.getElementById('hWrap').innerHTML = h.map(item => {
+    if (cur === 'ssq') {
+      const r = item.r.map(n => `<span class="ball ball-r">${n}</span>`).join('');
+      return `<div class="h-row"><span class="h-p">${item.p}</span><div class="h-balls">${r}<span class="sep">+</span><span class="ball ball-b">${item.b}</span></div></div>`;
     } else {
-      const fronts = h.f.map(n => `<span class="ball ball-r">${n}</span>`).join('');
-      const backs = h.b.map(n => `<span class="ball ball-b">${n}</span>`).join('');
-      return `<div class="hrow">
-        <span class="hperiod">${h.p}</span>
-        <div class="hballs">${fronts}<span class="sep">·</span>${backs}</div>
-      </div>`;
+      const f = item.f.map(n => `<span class="ball ball-r">${n}</span>`).join('');
+      const b = item.b.map(n => `<span class="ball ball-b">${n}</span>`).join('');
+      return `<div class="h-row"><span class="h-p">${item.p}</span><div class="h-balls">${f}<span class="sep">·</span>${b}</div></div>`;
     }
   }).join('');
 }
 
-// ==================== 渲染统计 ====================
-function renderStat() {
-  const hist = getHistory();
-  const limit = currentType === 'ssq' ? 33 : 35;
-  const blueLimit = currentType === 'ssq' ? 16 : 12;
+// ==================== RENDER STATS ====================
+function renderS() {
+  const h = hist();
+  const lim = cur === 'ssq' ? 33 : 35;
+  const blim = cur === 'ssq' ? 16 : 12;
 
-  const freq = {};
-  for (let i = 1; i <= limit; i++) freq[i] = 0;
-  const miss = {};
-  for (let i = 1; i <= limit; i++) miss[i] = 0;
-  const blueFreq = {};
-  for (let i = 1; i <= blueLimit; i++) blueFreq[i] = 0;
-  const blueMiss = {};
-  for (let i = 1; i <= blueLimit; i++) blueMiss[i] = 0;
+  const rf = {}, rm = {};
+  const bf = {}, bm = {};
+  for (let i = 1; i <= lim; i++) { rf[i] = 0; rm[i] = 0; }
+  for (let i = 1; i <= blim; i++) { bf[i] = 0; bm[i] = 0; }
 
-  hist.forEach((h, idx) => {
-    if (currentType === 'ssq') {
-      h.r.forEach(n => { freq[n]++; });
-      blueFreq[h.b]++;
-      h.r.forEach(n => { miss[n] = 0; });
-      for (let i = 1; i <= limit; i++) if (freq[i] === 0) miss[i]++;
-      blueMiss[h.b] = 0;
-      for (let i = 1; i <= blueLimit; i++) if (blueFreq[i] === 0) blueMiss[i]++;
-    } else {
-      h.f.forEach(n => { freq[n]++; });
-      h.b.forEach(n => { blueFreq[n]++; });
-      for (let i = 1; i <= limit; i++) if (freq[i] === 0) miss[i]++;
-      for (let i = 1; i <= blueLimit; i++) if (blueFreq[i] === 0) blueMiss[i]++;
-    }
+  h.forEach(item => {
+    item.r.forEach(n => { rf[n]++; rm[n] = 0; });
+    (Array.isArray(item.b) ? item.b : [item.b]).forEach(n => { bf[n]++; bm[n] = 0; });
+    for (let i = 1; i <= lim; i++) if (rf[i] === 0) rm[i]++;
+    for (let i = 1; i <= blim; i++) if (bf[i] === 0) bm[i]++;
   });
 
-  let entries = Object.entries(freq).map(([n, f]) => ({ n: +n, f, m: miss[+n] }));
-  entries.sort((a, b) => currentStat === 'hot' ? b.f - a.f : currentStat === 'cold' ? a.f - b.f : b.m - a.m);
+  let entries = Object.entries(rf).map(([n, f]) => ({ n: +n, f, m: rm[+n] }));
+  entries.sort((a, b) => {
+    if (curStat === 'hot') return b.f - a.f;
+    if (curStat === 'cold') return a.f - b.f;
+    return b.m - a.m;
+  });
   entries = entries.slice(0, 10);
 
   const maxF = Math.max(...entries.map(e => e.f));
   const maxM = Math.max(...entries.map(e => e.m));
 
-  statList.innerHTML = entries.map(e => {
-    const barW = currentStat === 'miss' ? (maxM ? e.m / maxM * 100 : 0) : (maxF ? e.f / maxF * 100 : 0);
-    const label = currentStat === 'hot' ? `${e.f}次` : currentStat === 'cold' ? `${e.f}次` : `遗漏${e.m}期`;
-    return `<div class="stat-row">
+  document.getElementById('sList').innerHTML = entries.map(e => {
+    const w = curStat === 'miss' ? (maxM ? e.m / maxM * 100 : 0) : (maxF ? e.f / maxF * 100 : 0);
+    const label = curStat === 'hot' ? `${e.f}次` : curStat === 'cold' ? `${e.f}次` : `遗漏${e.m}期`;
+    return `<div class="st-row">
       <span class="ball ball-r">${e.n}</span>
-      <span class="stat-name">第${e.n}号</span>
-      <div class="stat-bar-wrap"><div class="stat-bar-fill" style="width:${barW}%"></div></div>
-      <span class="stat-val">${label}</span>
+      <span class="st-name">第${e.n}号</span>
+      <div class="st-bar"><div class="st-bar-fill" style="width:${w}%"></div></div>
+      <span class="st-val">${label}</span>
     </div>`;
   }).join('');
 }
 
-// ==================== 事件绑定 ====================
-function bindEvents() {
-  btnSSQ.addEventListener('click', () => {
-    currentType = 'ssq';
-    btnSSQ.classList.add('active');
-    btnDLT.classList.remove('active');
-    renderHistory();
-    renderStat();
+// ==================== BIND ====================
+function bind() {
+  document.getElementById('btnSSQ').onclick = () => { cur = 'ssq'; document.getElementById('btnSSQ').classList.add('active'); document.getElementById('btnDLT').classList.remove('active'); renderH(); renderS(); };
+  document.getElementById('btnDLT').onclick = () => { cur = 'dlt'; document.getElementById('btnDLT').classList.add('active'); document.getElementById('btnSSQ').classList.remove('active'); renderH(); renderS(); };
+
+  document.querySelectorAll('.algo-item').forEach(item => {
+    item.onclick = () => {
+      const a = item.dataset.algo;
+      if (sel.has(a)) { if (sel.size > 1) { sel.delete(a); item.classList.remove('selected'); } }
+      else { sel.add(a); item.classList.add('selected'); }
+    };
   });
 
-  btnDLT.addEventListener('click', () => {
-    currentType = 'dlt';
-    btnDLT.classList.add('active');
-    btnSSQ.classList.remove('active');
-    renderHistory();
-    renderStat();
-  });
-
-  // 算法选择
-  algoGrid.querySelectorAll('.algo-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const algo = card.dataset.algo;
-      if (selectedAlgos.has(algo)) {
-        if (selectedAlgos.size > 1) {
-          selectedAlgos.delete(algo);
-          card.classList.remove('selected');
-        }
-      } else {
-        selectedAlgos.add(algo);
-        card.classList.add('selected');
-      }
-    });
-  });
-
-  // 统计切换
-  statTabs.querySelectorAll('.stat-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      currentStat = tab.dataset.stat;
-      statTabs.querySelectorAll('.stat-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.s-tab').forEach(tab => {
+    tab.onclick = () => {
+      curStat = tab.dataset.s;
+      document.querySelectorAll('.s-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      renderStat();
-    });
+      renderS();
+    };
   });
 
-  // 生成
-  genBtn.addEventListener('click', generate);
+  document.getElementById('genBtn').onclick = gen;
 }
 
-// ==================== 算法 ====================
-function weightedSample(arr, weights, count) {
-  const pairs = arr.map((v, i) => ({ v, w: weights[i] || 0.01 }));
-  const total = pairs.reduce((s, p) => s + p.w, 0);
-  const probs = pairs.map(p => p.w / total);
-  const chosen = [];
-  const pool = [...pairs];
-  const pPool = [...probs];
-  for (let i = 0; i < count && pool.length > 0; i++) {
-    let r = Math.random();
-    let cum = 0;
-    for (let j = 0; j < pPool.length; j++) {
-      cum += pPool[j];
-      if (r <= cum) { chosen.push(pool[j].v); pool.splice(j, 1); pPool.splice(j, 1); break; }
-    }
-    if (chosen.length === i) { chosen.push(pool[0].v); pool.shift(); pPool.shift(); }
+// ==================== ALGOS ====================
+function wSample(arr, wts, cnt) {
+  const ps = arr.map((v, i) => ({ v, w: wts[i] || 0.01 }));
+  const tot = ps.reduce((s, p) => s + p.w, 0);
+  const pr = ps.map(p => p.w / tot);
+  const ch = [], pool = [...ps], pp = [...pr];
+  for (let i = 0; i < cnt && pool.length > 0; i++) {
+    let r = Math.random(), c = 0;
+    for (let j = 0; j < pp.length; j++) { c += pp[j]; if (r <= c) { ch.push(pool[j].v); pool.splice(j, 1); pp.splice(j, 1); break; } }
+    if (ch.length === i) { ch.push(pool[0].v); pool.shift(); pp.shift(); }
   }
-  return chosen;
+  return ch;
 }
 
-function shuffle(arr) {
+function shuf(arr) {
   const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
   return a;
 }
 
-function getAlgos(type) {
-  const hist = type === 'ssq' ? SSQ_HISTORY : DLT_HISTORY;
-  const allR = hist.map(h => h.r).flat();
-  const allB = hist.flatMap(h => Array.isArray(h.b) ? h.b : [h.b]);
-  const limit = type === 'ssq' ? 33 : 35;
-  const blueLimit = type === 'ssq' ? 16 : 12;
+function algos(type) {
+  const h = type === 'ssq' ? SSQ_HISTORY : DLT_HISTORY;
+  const lim = type === 'ssq' ? 33 : 35;
+  const blim = type === 'ssq' ? 16 : 12;
 
-  const rFreq = {}; for (let i = 1; i <= limit; i++) rFreq[i] = 0;
-  const bFreq = {}; for (let i = 1; i <= blueLimit; i++) bFreq[i] = 0;
-  const rMiss = {}; for (let i = 1; i <= limit; i++) rMiss[i] = 0;
-  const bMiss = {}; for (let i = 1; i <= blueLimit; i++) bMiss[i] = 0;
+  const rf = {}, rm = {}, bf = {}, bm = {};
+  for (let i = 1; i <= lim; i++) { rf[i] = 0; rm[i] = 0; }
+  for (let i = 1; i <= blim; i++) { bf[i] = 0; bm[i] = 0; }
 
-  hist.forEach((h, hi) => {
-    h.r.forEach(n => { rFreq[n]++; rMiss[n] = 0; });
-    (Array.isArray(h.b) ? h.b : [h.b]).forEach(n => { bFreq[n]++; bMiss[n] = 0; });
-    for (let i = 1; i <= limit; i++) if (rFreq[i] === 0) rMiss[i]++;
-    for (let i = 1; i <= blueLimit; i++) if (bFreq[i] === 0) bMiss[i]++;
+  h.forEach(item => {
+    item.r.forEach(n => { rf[n]++; rm[n] = 0; });
+    (Array.isArray(item.b) ? item.b : [item.b]).forEach(n => { bf[n]++; bm[n] = 0; });
+    for (let i = 1; i <= lim; i++) if (rf[i] === 0) rm[i]++;
+    for (let i = 1; i <= blim; i++) if (bf[i] === 0) bm[i]++;
   });
 
-  const rVals = Object.keys(rFreq).map(Number);
-  const bVals = Object.keys(bFreq).map(Number);
-  const rWeights = rVals.map(n => (rFreq[n] || 0) + (rMiss[n] || 0) * 1.5);
-  const bWeights = bVals.map(n => (bFreq[n] || 0) + (bMiss[n] || 0) * 1.5);
+  const rv = Object.keys(rf).map(Number);
+  const bv = Object.keys(bf).map(Number);
+  const rw = rv.map(n => (rf[n] || 0) + (rm[n] || 0) * 1.5);
+  const bw = bv.map(n => (bf[n] || 0) + (bm[n] || 0) * 1.5);
 
   return {
     hotCold(type) {
-      const reds = weightedSample(rVals, rWeights, type === 'ssq' ? 6 : 5);
+      const reds = wSample(rv, rw, type === 'ssq' ? 6 : 5);
       let blue;
       if (type === 'ssq') {
-        blue = [weightedSample(bVals, bWeights, 1)[0]];
+        blue = [wSample(bv, bw, 1)[0]];
       } else {
-        const blue1 = weightedSample(bVals, bWeights, 1)[0];
-        const remainingB = bVals.filter(n => n !== blue1);
-        const remainingW = bWeights.map((w, i) => bVals[i] === blue1 ? 0 : w);
-        const blue2 = weightedSample(remainingB, remainingW, 1)[0];
-        blue = [blue1, blue2].sort((a, b) => a - b);
+        const b1 = wSample(bv, bw, 1)[0];
+        const rem = bv.filter(n => n !== b1);
+        const rw2 = bw.map((w, i) => bv[i] === b1 ? 0 : w);
+        const b2 = wSample(rem, rw2, 1)[0];
+        blue = [b1, b2].sort((a, b) => a - b);
       }
       return { reds, blue };
     },
     oddEven(type) {
-      const targetOdd = type === 'ssq' ? 4 : 3;
+      const target = type === 'ssq' ? 4 : 3;
+      const odds = rv.filter(n => n % 2 === 1);
+      const evens = rv.filter(n => n % 2 === 0);
       const reds = [];
-      const odds = rVals.filter(n => n % 2 === 1);
-      const evens = rVals.filter(n => n % 2 === 0);
-      const shuffledOdds = shuffle(odds);
-      const shuffledEvens = shuffle(evens);
+      const so = shuf(odds), se = shuf(evens);
       let added = 0;
       while (reds.length < (type === 'ssq' ? 6 : 5)) {
-        if (added < targetOdd && shuffledOdds.length) reds.push(shuffledOdds.shift());
-        else if (shuffledEvens.length) reds.push(shuffledEvens.shift());
-        else if (shuffledOdds.length) reds.push(shuffledOdds.shift());
+        if (added < target && so.length) reds.push(so.shift());
+        else if (se.length) reds.push(se.shift());
+        else if (so.length) reds.push(so.shift());
         added++;
       }
       reds.sort((a, b) => a - b);
-      const blue = type === 'ssq'
-        ? [Math.floor(Math.random() * blueLimit) + 1]
-        : shuffle([1, 2]).map(() => Math.floor(Math.random() * blueLimit) + 1).sort((a, b) => a - b);
+      const blue = type === 'ssq' ? [Math.floor(Math.random() * blim) + 1] : shuf([1, 2]).map(() => Math.floor(Math.random() * blim) + 1).sort((a, b) => a - b);
       return { reds, blue };
     },
     zone(type) {
       const zones = type === 'ssq' ? 3 : 5;
-      const perZone = type === 'ssq' ? 2 : 1;
-      const range = type === 'ssq' ? 33 : 35;
+      const per = type === 'ssq' ? 2 : 1;
       const reds = [];
       for (let z = 0; z < zones; z++) {
-        const start = Math.floor(z * range / zones) + 1;
-        const end = Math.floor((z + 1) * range / zones);
-        const zoneNums = [];
-        for (let n = start; n <= end; n++) zoneNums.push(n);
-        const zoneFreq = zoneNums.map(n => rFreq[n] || 0);
-        const picked = weightedSample(zoneNums, zoneFreq, perZone);
-        reds.push(...picked);
+        const s = Math.floor(z * lim / zones) + 1;
+        const e = Math.floor((z + 1) * lim / zones);
+        const zn = []; for (let n = s; n <= e; n++) zn.push(n);
+        const zw = zn.map(n => rf[n] || 0);
+        reds.push(...wSample(zn, zw, per));
       }
       reds.sort((a, b) => a - b);
-      const blue = type === 'ssq'
-        ? [Math.floor(Math.random() * blueLimit) + 1]
-        : shuffle([1, 2]).map(() => Math.floor(Math.random() * blueLimit) + 1).sort((a, b) => a - b);
+      const blue = type === 'ssq' ? [Math.floor(Math.random() * blim) + 1] : shuf([1, 2]).map(() => Math.floor(Math.random() * blim) + 1).sort((a, b) => a - b);
       return { reds, blue };
     },
     tail(type) {
-      const tails = {};
-      for (let i = 0; i <= 9; i++) tails[i] = 0;
-      allR.forEach(n => { tails[n % 10]++; });
-      const tailWeights = Object.entries(tails).map(([t, f]) => ({ t: +t, f }));
-      tailWeights.sort((a, b) => b.f - a.f);
-      const topTails = tailWeights.slice(0, 5).map(x => x.t);
+      const tails = {}; for (let i = 0; i <= 9; i++) tails[i] = 0;
+      h.forEach(item => item.r.forEach(n => { tails[n % 10]++; }));
+      const top = Object.entries(tails).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([t]) => +t);
       const reds = [];
       while (reds.length < (type === 'ssq' ? 6 : 5)) {
-        const t = topTails[Math.floor(Math.random() * topTails.length)];
-        const candidates = rVals.filter(n => n % 10 === t && !reds.includes(n));
-        if (candidates.length) reds.push(candidates[Math.floor(Math.random() * candidates.length)]);
-        else {
-          const c2 = rVals.filter(n => !reds.includes(n));
-          if (c2.length) reds.push(c2[Math.floor(Math.random() * c2.length)]);
-        }
-        if (reds.length === reds.length) break;
+        const t = top[Math.floor(Math.random() * top.length)];
+        const cands = rv.filter(n => n % 10 === t && !reds.includes(n));
+        if (cands.length) reds.push(cands[Math.floor(Math.random() * cands.length)]);
+        else { const c2 = rv.filter(n => !reds.includes(n)); if (c2.length) reds.push(c2[Math.floor(Math.random() * c2.length)]); }
       }
       reds.sort((a, b) => a - b);
-      const blue = type === 'ssq'
-        ? [Math.floor(Math.random() * blueLimit) + 1]
-        : shuffle([1, 2]).map(() => Math.floor(Math.random() * blueLimit) + 1).sort((a, b) => a - b);
+      const blue = type === 'ssq' ? [Math.floor(Math.random() * blim) + 1] : shuf([1, 2]).map(() => Math.floor(Math.random() * blim) + 1).sort((a, b) => a - b);
       return { reds, blue };
     },
     monteCarlo(type) {
-      const trials = 1000;
-      let best = null, bestScore = -1;
-      const range = type === 'ssq' ? 33 : 35;
-      const blueRange = type === 'ssq' ? 16 : 12;
-      for (let t = 0; t < trials; t++) {
-        const reds = shuffle(Array.from({ length: range }, (_, i) => i + 1)).slice(0, type === 'ssq' ? 6 : 5);
-        reds.sort((a, b) => a - b);
-        let score = reds.reduce((s, n) => s + (rFreq[n] || 0) + (rMiss[n] || 0), 0);
-        const blue = type === 'ssq'
-          ? [Math.floor(Math.random() * blueRange) + 1]
-          : shuffle([1, 2]).map(() => Math.floor(Math.random() * blueRange) + 1).sort((a, b) => a - b);
-        if (score > bestScore) { bestScore = score; best = { reds, blue }; }
+      let best = null, bestS = -1;
+      for (let t = 0; t < 1000; t++) {
+        const reds = shuf(Array.from({ length: lim }, (_, i) => i + 1)).slice(0, type === 'ssq' ? 6 : 5).sort((a, b) => a - b);
+        const sc = reds.reduce((s, n) => s + (rf[n] || 0) + (rm[n] || 0), 0);
+        const blue = type === 'ssq' ? [Math.floor(Math.random() * blim) + 1] : shuf([1, 2]).map(() => Math.floor(Math.random() * blim) + 1).sort((a, b) => a - b);
+        if (sc > bestS) { bestS = sc; best = { reds, blue }; }
       }
       return best || { reds: [1, 2, 3, 4, 5, 6], blue: [1] };
     }
   };
 }
 
-// ==================== 生成 ====================
-function generate() {
-  if (selectedAlgos.size === 0) {
-    resultsArea.innerHTML = `<div class="rempty"><div class="rempty-icon">⚠️</div><div>请至少选择一个算法</div></div>`;
+// ==================== GENERATE ====================
+function gen() {
+  const area = document.getElementById('rArea');
+  if (sel.size === 0) {
+    area.innerHTML = `<div class="r-empty"><div class="r-empty-icon">⚠️</div><div>请至少选择一个算法</div></div>`;
     return;
   }
 
-  const algos = getAlgos(currentType);
-  const algoNames = {
-    'hot-cold': '冷热号',
-    'odd-even': '奇偶',
-    'zone': '区间',
-    'tail': '尾数',
-    'monte-carlo': '蒙特卡洛'
-  };
-  const algoKeyMap = {
-    'hot-cold': 'hotCold',
-    'odd-even': 'oddEven',
-    'zone': 'zone',
-    'tail': 'tail',
-    'monte-carlo': 'monteCarlo'
-  };
+  const ag = algos(cur);
+  const names = { 'hot-cold': '冷热号', 'odd-even': '奇偶', 'zone': '区间', 'tail': '尾数', 'monte-carlo': '蒙特卡洛' };
+  const keyMap = { 'hot-cold': 'hotCold', 'odd-even': 'oddEven', 'zone': 'zone', 'tail': 'tail', 'monte-carlo': 'monteCarlo' };
 
   const results = [];
-  for (const algo of selectedAlgos) {
-    const key = algoKeyMap[algo];
-    if (key && algos[key]) {
-      results.push({
-        algo,
-        name: algoNames[algo] || algo,
-        nums: algos[key](currentType)
-      });
-    }
+  for (const a of sel) {
+    const k = keyMap[a];
+    if (k && ag[k]) results.push({ a, name: names[a] || a, nums: ag[k](cur) });
   }
 
-  resultsArea.innerHTML = results.map((r, i) => {
-    const redsHtml = r.nums.reds.map((n, idx) =>
-      `<span class="ball ball-r ball-anim" style="animation-delay:${idx * 0.06}s">${n}</span>`
-    ).join('');
-    const blueHtml = r.nums.blue.map((n, idx) =>
-      `<span class="ball ball-b ball-anim" style="animation-delay:${(r.nums.reds.length + idx) * 0.06}s">${n}</span>`
-    ).join('');
-    const label = currentType === 'ssq' ? '红球' : '前区';
-    const blueLabel = currentType === 'ssq' ? '蓝球' : '后区';
-    const sep = currentType === 'ssq' ? '<span class="r-label">+</span>' : '<span class="r-label">·</span>';
-
-    return `<div class="result-card" style="animation-delay:${i * 0.12}s">
-      <div class="r-header">
-        <span class="r-tag">第${i + 1}注</span>
-        <span class="r-algo-names">${r.name}</span>
+  area.innerHTML = results.map((r, i) => {
+    const rh = r.nums.reds.map((n, idx) => `<span class="ball ball-r ball-a" style="animation-delay:${idx * 0.05}s">${n}</span>`).join('');
+    const bh = r.nums.blue.map((n, idx) => `<span class="ball ball-b ball-a" style="animation-delay:${(r.nums.reds.length + idx) * 0.05}s">${n}</span>`).join('');
+    const sep = cur === 'ssq' ? '<span class="r-sep">+</span>' : '<span class="r-sep">·</span>';
+    return `<div class="r-card" style="animation-delay:${i * 0.1}s">
+      <div class="r-head">
+        <span class="r-num">第${i + 1}注</span>
+        <span class="r-algo">${r.name}</span>
       </div>
-      <div class="r-nums">
-        ${redsHtml}${sep}${blueHtml}
-      </div>
+      <div class="r-balls">${rh}${sep}${bh}</div>
     </div>`;
   }).join('');
 }
 
-// 启动
 init();
 </script>
 </body>
