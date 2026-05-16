@@ -605,19 +605,22 @@ function algoHotCold(history, type) {
 }
 
 function getAlgos(type) {
+  const hist = type === 'ssq' ? SSQ_HISTORY : DLT_HISTORY;
   const bluePool = Array.from({ length: type === 'ssq' ? 16 : 12 }, (_, i) => i + 1);
-  const allB = type === 'ssq' ? SSQ_HISTORY.flatMap(h => [h.b]) : DLT_HISTORY.flatMap(h => h.b);
+  const allB = hist.flatMap(h => Array.isArray(h.b) ? h.b : [h.b]);
   const bFreq = {};
   allB.forEach(n => bFreq[n] = (bFreq[n] || 0) + 1);
   const bLast = {};
-  (type === 'ssq' ? SSQ_HISTORY : DLT_HISTORY).forEach((h, i) => h.b.forEach(n => bLast[n] = i));
+  hist.forEach((h, i) => (Array.isArray(h.b) ? h.b : [h.b]).forEach(n => bLast[n] = i));
   const bWeights = bluePool.map(n => {
     const f = bFreq[n] || 0;
-    const miss = (bLast[n] !== undefined ? (type === 'ssq' ? SSQ_HISTORY : DLT_HISTORY).length - bLast[n] : (type === 'ssq' ? SSQ_HISTORY : DLT_HISTORY).length);
+    const miss = bLast[n] !== undefined ? hist.length - bLast[n] : hist.length;
     return f * 2 + miss;
   });
-  const getBlue = () => weightedSample(bluePool, bWeights, type === 'ssq' ? 1 : 2);
-
+  const getBlue = () => {
+    const picked = weightedSample(bluePool, bWeights, type === 'ssq' ? 1 : 2);
+    return type === 'ssq' ? picked[0] : picked;
+  };
   return { getBlue };
 }
 
