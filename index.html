@@ -549,11 +549,11 @@ function weightedSample(pool, weights, n) {
 // ==================== 算法 ====================
 function algoHotCold(history, type) {
   const bluePool = Array.from({ length: type === 'ssq' ? 16 : 12 }, (_, i) => i + 1);
-  const allB = history.flatMap(h => h.b);
+  const allB = history.flatMap(h => Array.isArray(h.b) ? h.b : [h.b]);
   const bFreq = {};
   allB.forEach(n => bFreq[n] = (bFreq[n] || 0) + 1);
   const bLast = {};
-  history.forEach((h, i) => h.b.forEach(n => bLast[n] = i));
+  history.forEach((h, i) => (Array.isArray(h.b) ? h.b : [h.b]).forEach(n => bLast[n] = i));
   const bWeights = bluePool.map(n => {
     const f = bFreq[n] || 0;
     const miss = bLast[n] !== undefined ? history.length - bLast[n] : history.length;
@@ -573,7 +573,7 @@ function algoHotCold(history, type) {
       const miss = last[n] !== undefined ? history.length - last[n] : history.length;
       return f * 2 + miss;
     });
-    return { reds: weightedSample(pool, weights, 6), blue };
+    return { reds: weightedSample(pool, weights, 6), blue: type === 'ssq' ? blue[0] : blue };
   } else {
     const allF = history.flatMap(h => h.f);
     const freq = {};
