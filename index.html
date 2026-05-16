@@ -3,783 +3,1519 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>百万人生 — 体彩分析推荐</title>
+  <title>百万人生 v3.0 — 全功能体彩分析</title>
   <style>
     :root {
       --bg: #F7F8FA;
-      --surface: #FFFFFF;
-      --surface2: #F0F2F5;
-      --text: #1A1A2E;
-      --text2: #5C6370;
-      --text3: #9CA3AF;
-      --border: #E5E7EB;
-      --mint: #10B981;
-      --mint-light: #D1FAE5;
-      --mint-dark: #059669;
+      --card: #FFFFFF;
+      --text: #1E293B;
+      --text-secondary: #64748B;
+      --border: #E2E8F0;
+      --accent: #10B981;
+      --accent-hover: #059669;
       --coral: #F43F5E;
-      --sky: #0EA5E9;
-      --sky-light: #E0F2FE;
-      --gold: #F59E0B;
-      --gold-light: #FEF3C7;
-      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-      --radius: 14px;
-      --radius-sm: 8px;
+      --coral-hover: #E11D48;
+      --blue: #3B82F6;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
     }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
+    .dark-mode {
+      --bg: #0F172A;
+      --card: #1E293B;
+      --text: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --border: #334155;
+      --accent: #10B981;
+      --blue: #3B82F6;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-lg: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: "Noto Sans SC", "PingFang SC", -apple-system, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
+      line-height: 1.6;
       min-height: 100vh;
-      font-size: 15px;
-      line-height: 1.7;
-      -webkit-font-smoothing: antialiased;
     }
-
-    /* ===== LAYOUT ===== */
-    .container {
-      max-width: 520px;
-      margin: 0 auto;
-      padding: 0 20px 60px;
-    }
-
-    /* ===== HEADER ===== */
-    header {
-      padding: 40px 0 28px;
-      text-align: center;
-    }
-    header .logo {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-    header .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--coral), #FB7185);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-    }
-    header h1 {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: 1px;
-    }
-    header .sub {
-      font-size: 0.78rem;
-      color: var(--text3);
-      letter-spacing: 2px;
-    }
-
-    /* ===== TYPE SELECTOR ===== */
-    .type-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 24px;
-    }
-    .type-btn {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 14px;
-      background: var(--surface);
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text2);
-    }
-    .type-btn .t-icon { font-size: 1.2rem; }
-    .type-btn.active {
-      border-color: var(--mint);
-      background: var(--mint-light);
-      color: var(--mint-dark);
-    }
-    .type-btn:not(.active):hover {
-      border-color: var(--mint);
-      background: var(--surface);
-    }
-
-    /* ===== CARD ===== */
-    .card {
-      background: var(--surface);
-      border-radius: var(--radius);
-      padding: 18px 20px;
-      margin-bottom: 14px;
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    
+    /* Header */
+    .header {
+      background: var(--card);
+      padding: 20px 24px;
+      border-radius: 12px;
       box-shadow: var(--shadow);
-      border: 1px solid var(--border);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
     }
-
-    /* ===== SECTION TITLE ===== */
-    .s-title {
-      font-size: 0.72rem;
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header-controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary {
+      background: var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover { opacity: 0.8; }
+    .btn-coral {
+      background: var(--coral);
+      color: white;
+    }
+    .btn-coral:hover { background: var(--coral-hover); }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--border);
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .tab {
+      padding: 10px 20px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 6px;
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .tab.active {
+      background: var(--card);
+      color: var(--accent);
+      box-shadow: var(--shadow);
+    }
+    .tab:hover:not(.active) { color: var(--text); }
+    
+    /* Cards */
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 16px;
       font-weight: 600;
-      color: var(--text3);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-
-    /* ===== HISTORY ===== */
-    .h-scroll {
-      max-height: 220px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border) transparent;
-    }
-    .h-scroll::-webkit-scrollbar { width: 4px; }
-    .h-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-    .h-row {
+      margin-bottom: 16px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 7px 0;
-      border-bottom: 1px solid var(--surface2);
+      gap: 8px;
     }
-    .h-row:last-child { border-bottom: none; }
-    .h-p {
-      font-size: 0.7rem;
-      color: var(--text3);
-      min-width: 58px;
-      font-family: "SF Mono", monospace;
+    .card-title .icon { font-size: 20px; }
+    
+    /* Grid */
+    .grid {
+      display: grid;
+      gap: 20px;
     }
-    .h-balls { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+    
+    /* Lottery Type Toggle */
+    .lottery-toggle {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .toggle-btn {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid var(--border);
+      background: var(--card);
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .toggle-btn.active {
+      border-color: var(--accent);
+      background: rgba(16, 185, 129, 0.1);
+    }
+    .toggle-btn h3 { font-size: 16px; margin-bottom: 4px; }
+    .toggle-btn p { font-size: 12px; color: var(--text-secondary); }
+    
+    /* Number Ball */
     .ball {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 24px;
-      height: 24px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
-      font-size: 0.68rem;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-    .ball-r {
-      background: var(--coral);
-      color: #fff;
-    }
-    .ball-b {
-      background: var(--sky);
-      color: #fff;
-    }
-    .sep { color: var(--text3); margin: 0 1px; font-size: 0.6rem; }
-
-    /* ===== ALGORITHMS ===== */
-    .algo-list { display: flex; flex-direction: column; gap: 8px; }
-    .algo-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 13px 14px;
-      background: var(--surface2);
-      border: 1.5px solid transparent;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .algo-item:hover { background: var(--surface); border-color: var(--border); }
-    .algo-item.selected {
-      background: var(--gold-light);
-      border-color: var(--gold);
-    }
-    .algo-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      flex-shrink: 0;
-    }
-    .algo-item.selected .algo-icon {
-      background: var(--surface);
-      border-color: var(--gold);
-    }
-    .algo-name { font-size: 0.88rem; font-weight: 600; color: var(--text); }
-    .algo-desc { font-size: 0.72rem; color: var(--text3); }
-    .algo-check {
-      margin-left: auto;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      border: 1.5px solid var(--border);
-      background: var(--surface);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.6rem;
-      color: transparent;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-    .algo-item.selected .algo-check {
-      background: var(--gold);
-      border-color: var(--gold);
-      color: #fff;
-    }
-
-    /* ===== GENERATE BUTTON ===== */
-    .gen-btn {
-      width: 100%;
-      padding: 15px;
-      background: var(--text);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius);
-      font-size: 0.95rem;
       font-weight: 600;
+      font-size: 14px;
+      color: white;
+    }
+    .ball-red { background: linear-gradient(135deg, #F43F5E, #E11D48); }
+    .ball-blue { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+    .ball-small { width: 28px; height: 28px; font-size: 12px; }
+    
+    /* Number List */
+    .number-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .number-item {
+      padding: 6px 12px;
+      background: var(--border);
+      border-radius: 20px;
+      font-size: 14px;
       cursor: pointer;
       transition: all 0.2s;
-      font-family: inherit;
-      letter-spacing: 0.5px;
-      margin-bottom: 14px;
     }
-    .gen-btn:hover {
-      background: #2D2D44;
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-md);
+    .number-item:hover { transform: scale(1.05); }
+    .number-item.selected {
+      background: var(--accent);
+      color: white;
     }
-    .gen-btn:active { transform: translateY(0); }
-
-    /* ===== RESULTS ===== */
-    .r-empty {
-      text-align: center;
-      padding: 28px;
-      color: var(--text3);
-      font-size: 0.85rem;
+    .number-item.red.selected { background: var(--coral); }
+    .number-item.blue.selected { background: var(--blue); }
+    
+    /* Algorithm Cards */
+    .algo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
     }
-    .r-empty-icon { font-size: 2rem; margin-bottom: 8px; opacity: 0.5; }
-
-    .r-card {
+    .algo-card {
       padding: 16px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 10px;
-      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
     }
-    .r-head {
+    .algo-card:hover { border-color: var(--accent); }
+    .algo-card.active {
+      border-color: var(--accent);
+      background: rgba(16, 185, 129, 0.1);
+    }
+    .algo-card h4 { font-size: 14px; margin-bottom: 4px; }
+    .algo-card p { font-size: 12px; color: var(--text-secondary); }
+    
+    /* Results */
+    .result-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: var(--bg);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .result-numbers {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .result-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .result-actions button {
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+    
+    /* History Table */
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .history-table th, .history-table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .history-table th {
+      background: var(--bg);
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .history-table td { font-size: 14px; }
+    
+    /* Stats Charts */
+    .chart-container {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .chart-container svg {
+      width: 100%;
+      height: auto;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 20px;
+    }
+    
+    /* Play Methods */
+    .play-methods {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .play-card {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .play-card h3 {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .input-group {
+      margin-bottom: 12px;
+    }
+    .input-group label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: var(--text-secondary);
+    }
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .input-group input:focus, .input-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    /* Favorite/History Panel */
+    .side-panel {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 400px;
+      height: 100vh;
+      background: var(--card);
+      box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+      z-index: 1000;
+      transition: right 0.3s;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    .side-panel.open { right: 0; }
+    .panel-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
     }
-    .r-num {
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--mint-dark);
-      background: var(--mint-light);
-      padding: 2px 8px;
-      border-radius: 4px;
-    }
-    .r-algo { font-size: 0.7rem; color: var(--text3); }
-    .r-balls { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
-    .r-balls .ball {
-      width: 30px;
-      height: 30px;
-      font-size: 0.82rem;
-    }
-    .r-sep { color: var(--text3); font-size: 0.7rem; margin: 0 2px; }
-
-    /* ===== STATS ===== */
-    .stat-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
-    .s-tab {
-      padding: 5px 12px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: var(--surface2);
-      color: var(--text3);
-      font-size: 0.78rem;
+    .panel-header h2 { font-size: 18px; }
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
       cursor: pointer;
-      transition: all 0.2s;
+      color: var(--text-secondary);
     }
-    .s-tab.active {
-      background: var(--mint-light);
-      border-color: var(--mint);
-      color: var(--mint-dark);
+    
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
     }
-    .stat-rows { display: flex; flex-direction: column; gap: 6px; }
-    .st-row {
+    .overlay.open { opacity: 1; visibility: visible; }
+    
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      padding: 12px 24px;
+      background: var(--accent);
+      color: white;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 10000;
+      transition: transform 0.3s;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.error { background: var(--coral); }
+    
+    /* Badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      background: var(--coral);
+      color: white;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-secondary);
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
+    
+    /* Loading */
+    .loading {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 6px 10px;
-      background: var(--surface2);
-      border-radius: var(--radius-sm);
+      justify-content: center;
+      padding: 40px;
     }
-    .st-row .ball { width: 22px; height: 22px; font-size: 0.62rem; }
-    .st-name { flex: 1; font-size: 0.75rem; color: var(--text2); }
-    .st-bar { width: 72px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
-    .st-bar-fill { height: 100%; background: var(--mint); border-radius: 2px; transition: width 0.5s ease; }
-    .st-val { font-size: 0.75rem; color: var(--mint-dark); min-width: 32px; text-align: right; font-weight: 600; }
-
-    /* ===== DISCLAIMER ===== */
-    .disclaimer {
-      text-align: center;
-      font-size: 0.7rem;
-      color: var(--text3);
-      padding: 16px 0;
-      line-height: 1.8;
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
     }
-    .disclaimer strong { color: var(--text2); }
-
-    /* ===== ANIMATIONS ===== */
-    @keyframes ballPop {
-      0% { transform: scale(0); opacity: 0; }
-      65% { transform: scale(1.15); }
-      100% { transform: scale(1); opacity: 1; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .container { padding: 12px; }
+      .header h1 { font-size: 20px; }
+      .tabs { overflow-x: auto; white-space: nowrap; }
+      .tab { padding: 8px 12px; font-size: 13px; }
+      .card { padding: 16px; }
+      .side-panel { width: 100%; right: -100%; }
+      .stats-grid { grid-template-columns: 1fr; }
     }
-    @keyframes cardUp {
-      from { transform: translateY(10px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+    
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .ball-a { animation: ballPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-    .r-card { animation: cardUp 0.35s ease forwards; }
-
-    /* ===== MOBILE ===== */
-    @media (max-width: 480px) {
-      .container { padding: 0 14px 50px; }
-      header { padding: 32px 0 20px; }
-    }
+    .fade-in { animation: fadeIn 0.3s ease; }
   </style>
 </head>
 <body>
-<div class="container">
-
-  <!-- HEADER -->
-  <header>
-    <div class="logo">
-      <div class="logo-icon">🎰</div>
-      <h1>百万人生</h1>
-    </div>
-    <div class="sub">体彩数据分析 · 智能推荐</div>
-  </header>
-
-  <!-- TYPE SELECTOR -->
-  <div class="type-row">
-    <button class="type-btn active" data-type="ssq" id="btnSSQ">
-      <span class="t-icon">🔴</span>
-      <span>双色球</span>
-    </button>
-    <button class="type-btn" data-type="dlt" id="btnDLT">
-      <span class="t-icon">🔵</span>
-      <span>大乐透</span>
-    </button>
-  </div>
-
-  <!-- HISTORY -->
-  <div class="card">
-    <div class="s-title">历史开奖</div>
-    <div class="h-scroll" id="hWrap"></div>
-  </div>
-
-  <!-- ALGORITHMS -->
-  <div class="card">
-    <div class="s-title">分析算法</div>
-    <div class="algo-list" id="aList">
-      <div class="algo-item selected" data-algo="hot-cold">
-        <div class="algo-icon">🔥</div>
-        <div>
-          <div class="algo-name">冷热号分析</div>
-          <div class="algo-desc">频率 + 遗漏值加权采样</div>
-        </div>
-        <div class="algo-check">✓</div>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1>🎯 百万人生 v3.0 — 全功能体彩分析</h1>
+      <div class="header-controls">
+        <button class="btn btn-secondary" onclick="toggleDarkMode()">
+          <span id="themeIcon">🌙</span>
+        </button>
+        <button class="btn btn-secondary" onclick="toggleLanguage()">
+          <span id="langText">EN</span>
+        </button>
+        <button class="btn btn-secondary" onclick="togglePanel('favorites')">
+          ⭐ <span class="badge" id="favCount">0</span>
+        </button>
+        <button class="btn btn-secondary" onclick="togglePanel('history')">
+          📜 <span class="badge" id="histCount">0</span>
+        </button>
       </div>
-      <div class="algo-item" data-algo="odd-even">
-        <div class="algo-icon">⚡</div>
-        <div>
-          <div class="algo-name">奇偶分析</div>
-          <div class="algo-desc">历史奇偶比例模拟</div>
-        </div>
-        <div class="algo-check">✓</div>
+    </header>
+    
+    <!-- Lottery Type Toggle -->
+    <div class="lottery-toggle">
+      <div class="toggle-btn active" data-type="ssq" onclick="switchLottery('ssq')">
+        <h3>双色球 (SSQ)</h3>
+        <p>33选6 + 16选1</p>
       </div>
-      <div class="algo-item" data-algo="zone">
-        <div class="algo-icon">📐</div>
-        <div>
-          <div class="algo-name">区间分析</div>
-          <div class="algo-desc">号码在区间分布统计</div>
-        </div>
-        <div class="algo-check">✓</div>
-      </div>
-      <div class="algo-item" data-algo="tail">
-        <div class="algo-icon">🔢</div>
-        <div>
-          <div class="algo-name">尾数分析</div>
-          <div class="algo-desc">0-9 尾数热态分布</div>
-        </div>
-        <div class="algo-check">✓</div>
-      </div>
-      <div class="algo-item selected" data-algo="monte-carlo">
-        <div class="algo-icon">🤖</div>
-        <div>
-          <div class="algo-name">蒙特卡洛模拟</div>
-          <div class="algo-desc">1000次随机模拟 · 最优选取</div>
-        </div>
-        <div class="algo-check">✓</div>
+      <div class="toggle-btn" data-type="dlt" onclick="switchLottery('dlt')">
+        <h3>大乐透 (DLT)</h3>
+        <p>35选5 + 12选2</p>
       </div>
     </div>
-  </div>
-
-  <!-- GENERATE -->
-  <button class="gen-btn" id="genBtn">🎯 生成推荐号码</button>
-
-  <!-- RESULTS -->
-  <div class="card">
-    <div class="s-title">推荐结果</div>
-    <div id="rArea">
-      <div class="r-empty">
-        <div class="r-empty-icon">✨</div>
-        <div>选择算法，点击按钮生成推荐号码</div>
+    
+    <!-- Main Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="analyze" onclick="switchTab('analyze')">📊 分析选号</button>
+      <button class="tab" data-tab="history-data" onclick="switchTab('history-data')">📈 历史数据</button>
+      <button class="tab" data-tab="stats" onclick="switchTab('stats')">📉 统计分析</button>
+      <button class="tab" data-tab="play" onclick="switchTab('play')">🎮 投注玩法</button>
+      <button class="tab" data-tab="tools" onclick="switchTab('tools')">🛠️ 工具箱</button>
+    </div>
+    
+    <!-- Tab: Analyze -->
+    <div id="tab-analyze" class="tab-content">
+      <div class="grid grid-2">
+        <!-- Algorithm Selection -->
+        <div class="card">
+          <div class="card-title">
+            <span class="icon">🔮</span>
+            <span data-i18n="algo">选择算法</span>
+          </div>
+          <div class="algo-grid" id="algoGrid"></div>
+        </div>
+        
+        <!-- Generate Button -->
+        <div class="card">
+          <div class="card-title">
+            <span class="icon">✨</span>
+            <span data-i18n="generate">生成推荐</span>
+          </div>
+          <button class="btn btn-primary" style="width:100%;padding:16px;font-size:16px;margin-bottom:16px;" onclick="generateNumbers()">
+            🎲 <span data-i18n="generateBtn">立即生成</span>
+          </button>
+          <button class="btn btn-secondary" style="width:100%;" onclick="shakeReroll()" id="shakeBtn">
+            📱 摇一摇换一注
+          </button>
+        </div>
+      </div>
+      
+      <!-- Results -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🎯</span>
+          <span data-i18n="results">推荐结果</span>
+        </div>
+        <div id="resultsContainer">
+          <div class="empty-state">
+            <div class="icon">🎰</div>
+            <p data-i18n="emptyResults">点击"立即生成"获取推荐号码</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tab: History Data -->
+    <div id="tab-history-data" class="tab-content" style="display:none;">
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">📜</span>
+          <span data-i18n="historyData">历史开奖数据</span>
+          <span id="historyCount" style="font-size:12px;color:var(--text-secondary);margin-left:auto;"></span>
+        </div>
+        <div id="historyDataContainer">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>期号</th>
+                <th>红球/前区</th>
+                <th>蓝球/后区</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tab: Stats -->
+    <div id="tab-stats" class="tab-content" style="display:none;">
+      <div class="stats-grid" id="statsContainer"></div>
+    </div>
+    
+    <!-- Tab: Play Methods -->
+    <div id="tab-play" class="tab-content" style="display:none;">
+      <div class="play-methods">
+        <!-- 复式投注 -->
+        <div class="play-card">
+          <h3>🎯 <span data-i18n="compound">复式投注</span></h3>
+          <div class="input-group">
+            <label>红球/前区 (7-16个)</label>
+            <div class="number-list" id="compoundRedList"></div>
+          </div>
+          <div class="input-group" id="compoundBlueGroup">
+            <label>蓝球/后区 (2个以上)</label>
+            <div class="number-list" id="compoundBlueList"></div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="generateCompound()">
+            <span data-i18n="generateCompound">生成复式</span>
+          </button>
+          <div id="compoundResult" style="margin-top:12px;"></div>
+        </div>
+        
+        <!-- 胆拖投注 -->
+        <div class="play-card">
+          <h3>💪 <span data-i18n="胆拖">胆拖投注</span></h3>
+          <div class="input-group">
+            <label>胆码 (1-5个)</label>
+            <div class="number-list" id="danMaList"></div>
+          </div>
+          <div class="input-group">
+            <label>拖码 (至少6个)</label>
+            <div class="number-list" id="tuoMaList"></div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="generateDanTuo()">
+            <span data-i18n="generateDanTuo">生成胆拖</span>
+          </button>
+          <div id="danTuoResult" style="margin-top:12px;"></div>
+        </div>
+        
+        <!-- 生肖幸运号 -->
+        <div class="play-card">
+          <h3>🐉 <span data-i18n="zodiac">生肖幸运号</span></h3>
+          <div class="input-group">
+            <label>出生年份</label>
+            <input type="number" id="birthYear" placeholder="1990" min="1900" max="2025" value="1990">
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="generateZodiac()">
+            <span data-i18n="generateZodiac">获取幸运号</span>
+          </button>
+          <div id="zodiacResult" style="margin-top:12px;"></div>
+        </div>
+        
+        <!-- 生日数字 -->
+        <div class="play-card">
+          <h3>🎂 <span data-i18n="birthday">生日数字</span></h3>
+          <div class="input-group">
+            <label>生日日期</label>
+            <input type="date" id="birthdayDate" value="1990-01-01">
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="generateBirthday()">
+            <span data-i18n="generateBirthday">生成幸运号</span>
+          </button>
+          <div id="birthdayResult" style="margin-top:12px;"></div>
+        </div>
+        
+        <!-- 守号功能 -->
+        <div class="play-card">
+          <h3>⏰ <span data-i18n="persistence">守号管理</span></h3>
+          <div class="input-group">
+            <label>守号名称</label>
+            <input type="text" id="shouhaoName" placeholder="我的守号">
+          </div>
+          <div class="input-group">
+            <label>号码 (逗号分隔)</label>
+            <input type="text" id="shouhaoNumbers" placeholder="01,02,03,04,05,06">
+          </div>
+          <button class="btn btn-coral" style="width:100%;margin-top:12px;" onclick="addShouhao()">
+            <span data-i18n="addShouhao">添加守号</span>
+          </button>
+          <div id="shouhaoList" style="margin-top:16px;"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tab: Tools -->
+    <div id="tab-tools" class="tab-content" style="display:none;">
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title">
+            <span class="icon">🎁</span>
+            <span>手气指数</span>
+          </div>
+          <div id="luckIndexContainer" style="text-align:center;padding:20px;">
+            <div style="font-size:48px;font-weight:bold;color:var(--accent);" id="luckValue">0</div>
+            <div style="color:var(--text-secondary);margin-top:8px;">手气指数</div>
+            <button class="btn btn-primary" style="margin-top:16px;" onclick="showLuckIndex()">测试手气</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">
+            <span class="icon">📋</span>
+            <span>对比工具</span>
+          </div>
+          <div class="input-group">
+            <label>输入自选号码 (逗号分隔)</label>
+            <input type="text" id="compareNumbers" placeholder="01,02,03,04,05,06">
+          </div>
+          <button class="btn btn-secondary" style="width:100%;margin-top:12px;" onclick="compareNumbers()">
+            与历史对比
+          </button>
+          <div id="compareResult" style="margin-top:12px;"></div>
+        </div>
       </div>
     </div>
   </div>
-
-  <!-- STATS -->
-  <div class="card">
-    <div class="s-title">统计分析</div>
-    <div class="stat-tabs" id="sTabs">
-      <button class="s-tab active" data-s="hot">🔥 热号</button>
-      <button class="s-tab" data-s="cold">❄️ 冷号</button>
-      <button class="s-tab" data-s="miss">⏳ 遗漏值</button>
+  
+  <!-- Side Panel: Favorites -->
+  <div class="overlay" id="overlay" onclick="closePanel()"></div>
+  <div class="side-panel" id="favoritesPanel">
+    <div class="panel-header">
+      <h2>⭐ <span data-i18n="favorites">我的收藏</span></h2>
+      <button class="close-btn" onclick="closePanel()">×</button>
     </div>
-    <div class="stat-rows" id="sList"></div>
+    <div id="favoritesList"></div>
   </div>
-
-  <!-- DISCLAIMER -->
-  <div class="disclaimer">
-    ⚠️ <strong>彩票是随机游戏</strong>，历史数据仅供参考<br>
-    请理性购彩，量力而行
+  
+  <!-- Side Panel: History -->
+  <div class="side-panel" id="historyPanel">
+    <div class="panel-header">
+      <h2>📜 <span data-i18n="history">历史记录</span></h2>
+      <button class="close-btn" onclick="closePanel()">×</button>
+    </div>
+    <div id="historyList"></div>
   </div>
+  
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
 
-</div>
-
-<script>
-// ==================== DATA ====================
-const SSQ_HISTORY = [
-  {p:"2026043",r:[2,7,12,19,24,31],b:10},
-  {p:"2026042",r:[3,10,13,15,25,27],b:8},
-  {p:"2026041",r:[1,8,14,22,29,33],b:5},
-  {p:"2026040",r:[4,9,18,23,28,32],b:12},
-  {p:"2026039",r:[6,11,19,25,30,33],b:3},
-  {p:"2026038",r:[2,5,16,21,27,29],b:9},
-  {p:"2026037",r:[1,7,13,22,26,31],b:7},
-  {p:"2026036",r:[2,6,12,24,25,32],b:2},
-  {p:"2026035",r:[3,6,13,21,28,29],b:6},
-  {p:"2026034",r:[1,3,7,13,22,23],b:7},
-  {p:"2026033",r:[8,9,13,26,31,32],b:3},
-  {p:"2026032",r:[1,3,11,18,31,33],b:2},
-  {p:"2026031",r:[5,11,16,20,22,29],b:4},
-  {p:"2026030",r:[4,8,15,19,26,30],b:11},
-  {p:"2026029",r:[7,14,20,25,28,33],b:6},
-  {p:"2026028",r:[3,9,16,22,27,31],b:5},
-  {p:"2026027",r:[5,9,18,20,26,32],b:4},
-  {p:"2026026",r:[1,4,7,18,25,30],b:10},
-  {p:"2026025",r:[2,8,13,17,24,28],b:9},
-  {p:"2026024",r:[6,10,15,21,23,29],b:7},
-  {p:"2026023",r:[1,3,9,11,18,33],b:5},
-  {p:"2026022",r:[4,8,14,23,27,32],b:12},
-  {p:"2026021",r:[2,6,10,16,25,31],b:8},
-  {p:"2026020",r:[5,11,13,19,26,30],b:3},
-  {p:"2026019",r:[3,7,12,17,27,29],b:6},
-  {p:"2026018",r:[1,4,10,15,21,28],b:11},
-  {p:"2026017",r:[2,9,14,18,24,33],b:4},
-  {p:"2026016",r:[5,8,13,20,25,32],b:9},
-  {p:"2026015",r:[3,6,11,19,26,30],b:7},
-  {p:"2026014",r:[1,8,15,22,27,31],b:5},
-];
-
-const DLT_HISTORY = [
-  {p:"26043",f:[4,10,19,25,34],b:[2,9]},
-  {p:"26042",f:[6,9,14,16,25],b:[3,6]},
-  {p:"26041",f:[24,25,27,29,34],b:[2,6]},
-  {p:"26040",f:[6,12,13,21,34],b:[8,9]},
-  {p:"26039",f:[9,11,20,26,27],b:[6,9]},
-  {p:"26038",f:[8,17,21,33,35],b:[6,7]},
-  {p:"26037",f:[4,10,15,17,21],b:[3,9]},
-  {p:"26036",f:[1,2,6,16,18],b:[4,8]},
-  {p:"26035",f:[5,12,13,25,36],b:[2,7]},
-  {p:"26034",f:[4,8,21,23,24],b:[1,5]},
-  {p:"26033",f:[3,9,14,22,30],b:[6,11]},
-  {p:"26032",f:[2,11,19,28,33],b:[5,9]},
-  {p:"26031",f:[5,14,20,26,32],b:[3,8]},
-  {p:"26030",f:[1,7,18,29,35],b:[4,10]},
-  {p:"26029",f:[3,12,16,23,34],b:[2,6]},
-  {p:"26028",f:[9,11,15,27,33],b:[5,8]},
-  {p:"26027",f:[4,8,17,24,31],b:[3,9]},
-  {p:"26026",f:[7,13,19,28,30],b:[4,11]},
-  {p:"26025",f:[2,11,21,26,32],b:[5,8]},
-  {p:"26024",f:[5,14,18,25,33],b:[2,7]},
-  {p:"26023",f:[1,9,17,23,29],b:[3,6]},
-  {p:"26022",f:[6,12,20,27,31],b:[1,5]},
-  {p:"26021",f:[3,10,18,24,35],b:[4,9]},
-  {p:"26020",f:[5,11,19,26,30],b:[2,6]},
-  {p:"26019",f:[2,8,15,22,28],b:[3,7]},
-  {p:"26018",f:[4,9,16,25,34],b:[1,5]},
-  {p:"26017",f:[1,7,13,21,29],b:[4,8]},
-  {p:"26016",f:[6,10,18,27,33],b:[2,9]},
-  {p:"26015",f:[3,12,19,24,32],b:[1,6]},
-  {p:"26014",f:[5,9,14,23,31],b:[3,7]},
-];
-
-// ==================== STATE ====================
-let cur = 'ssq';
-let sel = new Set(['hot-cold', 'monte-carlo']);
-let curStat = 'hot';
-
-// ==================== INIT ====================
-function init() {
-  renderH();
-  renderS();
-  bind();
-}
-
-function hist() { return cur === 'ssq' ? SSQ_HISTORY : DLT_HISTORY; }
-
-// ==================== RENDER HISTORY ====================
-function renderH() {
-  const h = hist();
-  document.getElementById('hWrap').innerHTML = h.map(item => {
-    if (cur === 'ssq') {
-      const r = item.r.map(n => `<span class="ball ball-r">${n}</span>`).join('');
-      return `<div class="h-row"><span class="h-p">${item.p}</span><div class="h-balls">${r}<span class="sep">+</span><span class="ball ball-b">${item.b}</span></div></div>`;
-    } else {
-      const f = item.f.map(n => `<span class="ball ball-r">${n}</span>`).join('');
-      const b = item.b.map(n => `<span class="ball ball-b">${n}</span>`).join('');
-      return `<div class="h-row"><span class="h-p">${item.p}</span><div class="h-balls">${f}<span class="sep">·</span>${b}</div></div>`;
+  <script>
+    // ============ DATA ============
+    const SSQ_DATA = [{"p":"2025043","r":[4,10,13,15,17,27],"b":7},{"p":"2025042","r":[7,11,16,18,26,33],"b":15},{"p":"2025041","r":[2,5,14,24,27,29],"b":2},{"p":"2025040","r":[1,4,12,14,19,29],"b":13},{"p":"2025039","r":[1,9,18,20,23,28],"b":1},{"p":"2025038","r":[2,5,8,10,21,26],"b":4},{"p":"2025037","r":[1,11,20,24,26,32],"b":12},{"p":"2025036","r":[5,11,14,23,28,32],"b":14},{"p":"2025035","r":[3,15,29,30,31,33],"b":4},{"p":"2025034","r":[1,2,7,20,24,27],"b":4},{"p":"2025033","r":[3,7,10,14,21,28],"b":7},{"p":"2025032","r":[1,6,11,13,18,30],"b":9},{"p":"2025031","r":[4,11,20,24,28,31],"b":4},{"p":"2025030","r":[2,4,7,9,11,31],"b":4},{"p":"2025029","r":[13,17,20,23,25,27],"b":6},{"p":"2025028","r":[2,5,8,10,24,29],"b":9},{"p":"2025027","r":[2,7,17,20,27,29],"b":9},{"p":"2025026","r":[1,2,3,8,29,30],"b":13},{"p":"2025025","r":[2,14,19,24,26,29],"b":3},{"p":"2025024","r":[5,9,14,20,22,30],"b":5},{"p":"2025023","r":[7,8,15,26,27,32],"b":10},{"p":"2025022","r":[1,8,12,14,17,23],"b":12},{"p":"2025021","r":[2,7,9,17,22,30],"b":9},{"p":"2025020","r":[2,11,13,16,24,32],"b":1},{"p":"2025019","r":[5,13,19,25,29,32],"b":16},{"p":"2025018","r":[1,6,13,20,27,33],"b":15},{"p":"2025017","r":[1,10,16,21,30,32],"b":1},{"p":"2025016","r":[2,8,13,19,25,33],"b":14},{"p":"2025015","r":[5,11,16,26,28,30],"b":6},{"p":"2025014","r":[3,8,17,27,29,33],"b":5},{"p":"2025013","r":[4,8,11,15,23,26],"b":14},{"p":"2025012","r":[2,6,14,19,24,33],"b":1},{"p":"2025011","r":[1,12,15,17,24,31],"b":12},{"p":"2025010","r":[1,13,22,25,30,32],"b":2},{"p":"2025009","r":[1,4,11,14,22,28],"b":13},{"p":"2025008","r":[3,5,12,18,22,28],"b":16},{"p":"2025007","r":[2,9,17,21,26,28],"b":5},{"p":"2025006","r":[5,10,13,21,28,32],"b":10},{"p":"2025005","r":[3,5,14,16,19,29],"b":5},{"p":"2025004","r":[1,10,13,21,30,32],"b":14},{"p":"2025003","r":[1,9,11,15,18,33],"b":14},{"p":"2025002","r":[5,9,11,14,29,33],"b":13},{"p":"2025001","r":[2,6,14,23,26,30],"b":5},{"p":"2025000","r":[5,8,12,15,16,33],"b":9},{"p":"2024999","r":[3,10,12,16,18,21],"b":8},{"p":"2024998","r":[2,6,10,20,30,32],"b":7},{"p":"2024997","r":[1,11,14,16,21,25],"b":13},{"p":"2024996","r":[6,13,15,18,27,31],"b":16},{"p":"2024995","r":[3,9,13,19,25,31],"b":5},{"p":"2024994","r":[4,12,28,29,30,31],"b":12},{"p":"2024993","r":[1,4,12,18,24,33],"b":10},{"p":"2024992","r":[3,10,14,15,19,33],"b":11},{"p":"2024991","r":[1,6,9,20,25,29],"b":15},{"p":"2024990","r":[3,12,14,17,25,33],"b":5},{"p":"2024989","r":[1,3,6,8,19,29],"b":4},{"p":"2024988","r":[3,4,5,20,22,32],"b":15},{"p":"2024987","r":[2,3,4,5,15,29],"b":10},{"p":"2024986","r":[4,19,24,26,28,30],"b":1},{"p":"2024985","r":[8,16,18,28,30,32],"b":14},{"p":"2024984","r":[3,11,15,16,17,20],"b":15},{"p":"2024983","r":[5,13,19,25,27,33],"b":13},{"p":"2024982","r":[8,13,16,20,25,26],"b":11},{"p":"2024981","r":[8,10,16,18,20,27],"b":9},{"p":"2024980","r":[5,14,15,20,24,32],"b":16},{"p":"2024979","r":[1,15,19,22,26,33],"b":11},{"p":"2024978","r":[3,7,23,24,25,28],"b":8},{"p":"2024977","r":[4,7,11,14,20,31],"b":12},{"p":"2024976","r":[5,7,17,24,28,33],"b":5},{"p":"2024975","r":[1,5,11,19,27,30],"b":9},{"p":"2024974","r":[1,10,15,19,27,30],"b":3},{"p":"2024973","r":[12,14,16,19,25,33],"b":8},{"p":"2024972","r":[8,14,15,19,20,29],"b":5},{"p":"2024971","r":[9,11,14,22,28,33],"b":13},{"p":"2024970","r":[7,11,13,18,22,32],"b":10},{"p":"2024969","r":[1,5,12,14,24,32],"b":4},{"p":"2024968","r":[3,4,5,6,23,24],"b":14},{"p":"2024967","r":[4,9,11,13,22,26],"b":16},{"p":"2024966","r":[1,5,8,11,18,33],"b":2},{"p":"2024965","r":[11,15,17,18,21,33],"b":2},{"p":"2024964","r":[6,12,17,21,25,30],"b":7},{"p":"2024963","r":[2,6,22,23,26,27],"b":14},{"p":"2024962","r":[5,8,17,19,21,31],"b":15},{"p":"2024961","r":[1,9,16,22,26,28],"b":10},{"p":"2024960","r":[2,7,17,26,27,30],"b":3},{"p":"2024959","r":[4,15,18,21,24,27],"b":7},{"p":"2024958","r":[6,11,16,25,27,33],"b":16},{"p":"2024957","r":[2,6,18,28,30,33],"b":14},{"p":"2024956","r":[2,8,11,23,27,33],"b":13},{"p":"2024955","r":[12,15,18,22,24,32],"b":13},{"p":"2024954","r":[12,19,20,21,25,27],"b":1},{"p":"2024953","r":[4,6,9,21,26,30],"b":5},{"p":"2024952","r":[14,16,19,21,29,31],"b":7},{"p":"2024951","r":[4,8,10,22,29,33],"b":14},{"p":"2024950","r":[6,12,13,25,27,28],"b":3},{"p":"2024949","r":[9,20,23,26,31,33],"b":14},{"p":"2024948","r":[4,6,10,22,24,33],"b":4},{"p":"2024947","r":[3,13,15,18,28,31],"b":12},{"p":"2024946","r":[7,8,14,22,24,29],"b":5},{"p":"2024945","r":[5,7,8,13,14,15],"b":5},{"p":"2024944","r":[3,9,13,18,21,27],"b":6},{"p":"2024943","r":[1,9,13,21,23,33],"b":15},{"p":"2024942","r":[1,2,16,18,26,31],"b":1},{"p":"2024941","r":[7,8,15,23,25,28],"b":3},{"p":"2024940","r":[3,6,9,26,28,31],"b":10},{"p":"2024939","r":[5,6,7,19,22,23],"b":15},{"p":"2024938","r":[11,13,17,18,20,24],"b":1},{"p":"2024937","r":[3,14,19,23,24,25],"b":5},{"p":"2024936","r":[1,16,18,21,26,30],"b":9},{"p":"2024935","r":[1,6,14,22,27,32],"b":16},{"p":"2024934","r":[7,12,17,19,26,29],"b":2},{"p":"2024933","r":[2,5,7,9,24,28],"b":5},{"p":"2024932","r":[1,4,7,16,20,32],"b":6},{"p":"2024931","r":[7,9,13,24,31,33],"b":8},{"p":"2024930","r":[6,7,10,13,17,21],"b":2},{"p":"2024929","r":[6,10,16,20,27,32],"b":11},{"p":"2024928","r":[10,13,16,18,20,32],"b":11},{"p":"2024927","r":[6,15,24,27,31,33],"b":12},{"p":"2024926","r":[5,11,16,22,30,31],"b":2},{"p":"2024925","r":[12,15,19,23,27,29],"b":8},{"p":"2024924","r":[7,15,24,25,26,30],"b":12},{"p":"2024923","r":[7,9,18,22,24,26],"b":3},{"p":"2024922","r":[1,7,10,23,28,30],"b":9},{"p":"2024921","r":[6,7,15,23,25,31],"b":2},{"p":"2024920","r":[1,5,14,23,24,26],"b":12},{"p":"2024919","r":[7,14,16,17,18,31],"b":10},{"p":"2024918","r":[2,10,11,12,13,30],"b":16},{"p":"2024917","r":[1,8,21,25,29,33],"b":9},{"p":"2024916","r":[7,16,22,23,26,27],"b":7},{"p":"2024915","r":[1,7,8,9,14,22],"b":16},{"p":"2024914","r":[2,8,12,25,27,31],"b":13},{"p":"2024913","r":[1,2,5,10,22,25],"b":12},{"p":"2024912","r":[4,11,12,24,27,29],"b":8},{"p":"2024911","r":[3,9,14,18,21,29],"b":3},{"p":"2024910","r":[4,9,11,14,20,29],"b":13},{"p":"2024909","r":[16,17,18,20,29,31],"b":3},{"p":"2024908","r":[10,16,20,25,29,32],"b":14},{"p":"2024907","r":[2,11,14,26,30,32],"b":13},{"p":"2024906","r":[2,5,7,20,22,29],"b":12},{"p":"2024905","r":[15,16,17,19,20,32],"b":4},{"p":"2024904","r":[3,7,11,13,25,27],"b":13},{"p":"2024903","r":[2,8,12,15,29,33],"b":15},{"p":"2024902","r":[1,6,8,10,15,33],"b":5},{"p":"2024901","r":[4,15,19,26,29,31],"b":11},{"p":"2024900","r":[1,2,5,19,20,21],"b":13},{"p":"2024899","r":[9,16,23,26,28,31],"b":11},{"p":"2024898","r":[1,7,11,15,21,27],"b":12},{"p":"2024897","r":[1,4,7,13,17,32],"b":4},{"p":"2024896","r":[15,20,21,22,23,26],"b":16},{"p":"2024895","r":[3,10,11,18,32,33],"b":2},{"p":"2024894","r":[7,8,12,16,23,28],"b":7},{"p":"2024893","r":[13,14,15,16,21,29],"b":7},{"p":"2024892","r":[5,6,9,11,23,31],"b":15},{"p":"2024891","r":[4,13,18,23,28,33],"b":3},{"p":"2024890","r":[1,9,11,19,21,33],"b":15},{"p":"2024889","r":[6,10,13,21,29,33],"b":3},{"p":"2024888","r":[3,21,22,24,27,32],"b":16},{"p":"2024887","r":[2,9,14,18,21,26],"b":15},{"p":"2024886","r":[7,13,15,18,22,31],"b":8},{"p":"2024885","r":[3,17,19,24,27,29],"b":15},{"p":"2024884","r":[2,5,14,16,23,28],"b":4},{"p":"2024883","r":[8,10,14,16,21,29],"b":6},{"p":"2024882","r":[2,5,16,22,23,26],"b":7},{"p":"2024881","r":[3,5,11,17,18,28],"b":12},{"p":"2024880","r":[4,6,8,12,24,28],"b":12},{"p":"2024879","r":[4,9,12,15,18,20],"b":3},{"p":"2024878","r":[2,3,4,12,13,24],"b":12},{"p":"2024877","r":[1,14,17,25,29,31],"b":13},{"p":"2024876","r":[3,6,12,13,15,25],"b":5},{"p":"2024875","r":[8,20,23,25,27,33],"b":12},{"p":"2024874","r":[3,8,12,22,26,31],"b":5},{"p":"2024873","r":[18,19,20,21,24,25],"b":1},{"p":"2024872","r":[2,13,17,19,22,32],"b":11},{"p":"2024871","r":[4,17,18,23,31,32],"b":16},{"p":"2024870","r":[9,11,18,19,20,27],"b":15},{"p":"2024869","r":[1,3,20,23,25,28],"b":4},{"p":"2024868","r":[10,12,16,20,26,31],"b":5},{"p":"2024867","r":[7,10,12,18,29,32],"b":6},{"p":"2024866","r":[2,15,16,18,25,27],"b":12},{"p":"2024865","r":[4,11,18,20,31,33],"b":4},{"p":"2024864","r":[1,6,9,12,14,17],"b":1},{"p":"2024863","r":[2,8,13,19,23,29],"b":2},{"p":"2024862","r":[9,11,20,22,29,32],"b":11},{"p":"2024861","r":[3,4,5,18,29,30],"b":11},{"p":"2024860","r":[2,10,19,25,27,33],"b":4},{"p":"2024859","r":[3,6,17,18,19,25],"b":14},{"p":"2024858","r":[3,12,16,17,23,32],"b":11},{"p":"2024857","r":[5,7,9,19,21,31],"b":11},{"p":"2024856","r":[2,3,4,5,6,12],"b":3},{"p":"2024855","r":[5,6,7,8,28,31],"b":12},{"p":"2024854","r":[5,10,12,19,24,26],"b":4},{"p":"2024853","r":[6,8,19,23,30,32],"b":1},{"p":"2024852","r":[2,12,14,23,26,30],"b":11},{"p":"2024851","r":[2,6,9,11,13,22],"b":11},{"p":"2024850","r":[4,11,18,21,31,33],"b":8},{"p":"2024849","r":[14,19,20,21,27,28],"b":5},{"p":"2024848","r":[3,9,19,22,26,28],"b":16},{"p":"2024847","r":[10,16,18,26,28,30],"b":7},{"p":"2024846","r":[5,6,18,29,30,31],"b":1},{"p":"2024845","r":[4,6,23,26,30,32],"b":8},{"p":"2024844","r":[6,10,13,17,21,25],"b":13},{"p":"2024843","r":[7,11,13,17,23,33],"b":7},{"p":"2024842","r":[10,15,19,20,27,28],"b":13},{"p":"2024841","r":[2,12,16,21,25,32],"b":2},{"p":"2024840","r":[2,10,22,23,30,33],"b":11},{"p":"2024839","r":[1,3,19,22,30,32],"b":14},{"p":"2024838","r":[5,10,12,17,27,29],"b":8},{"p":"2024837","r":[1,6,10,13,16,33],"b":4},{"p":"2024836","r":[11,18,20,24,28,32],"b":12},{"p":"2024835","r":[3,10,25,27,28,29],"b":2},{"p":"2024834","r":[2,5,11,18,25,31],"b":12},{"p":"2024833","r":[1,3,6,8,12,32],"b":9},{"p":"2024832","r":[1,8,11,13,26,32],"b":13},{"p":"2024831","r":[15,19,23,24,25,32],"b":3},{"p":"2024830","r":[8,10,18,20,26,33],"b":12},{"p":"2024829","r":[2,13,17,21,27,30],"b":6},{"p":"2024828","r":[4,6,13,15,27,32],"b":2},{"p":"2024827","r":[4,8,22,27,28,29],"b":13},{"p":"2024826","r":[5,9,13,19,23,29],"b":16},{"p":"2024825","r":[10,13,14,23,24,30],"b":7},{"p":"2024824","r":[3,12,15,24,26,30],"b":6},{"p":"2024823","r":[7,12,13,14,24,32],"b":15},{"p":"2024822","r":[6,10,14,16,19,31],"b":8},{"p":"2024821","r":[4,18,22,24,25,33],"b":14},{"p":"2024820","r":[1,4,13,15,18,26],"b":6},{"p":"2024819","r":[14,18,19,27,31,32],"b":8},{"p":"2024818","r":[1,12,19,22,26,30],"b":2},{"p":"2024817","r":[16,27,28,30,31,32],"b":16},{"p":"2024816","r":[8,13,19,23,25,29],"b":10},{"p":"2024815","r":[2,5,13,15,22,31],"b":8},{"p":"2024814","r":[8,10,14,15,16,24],"b":6},{"p":"2024813","r":[4,14,19,24,31,33],"b":13},{"p":"2024812","r":[1,7,10,16,21,23],"b":9},{"p":"2024811","r":[3,9,14,19,26,27],"b":14},{"p":"2024810","r":[13,15,17,19,25,29],"b":12},{"p":"2024809","r":[5,11,14,18,22,27],"b":13},{"p":"2024808","r":[11,12,15,17,18,24],"b":3},{"p":"2024807","r":[3,5,13,16,19,31],"b":16},{"p":"2024806","r":[2,10,18,24,28,33],"b":11},{"p":"2024805","r":[1,3,5,8,14,21],"b":4},{"p":"2024804","r":[2,4,11,15,18,28],"b":11},{"p":"2024803","r":[5,12,17,25,27,29],"b":2},{"p":"2024802","r":[4,5,9,15,21,27],"b":9},{"p":"2024801","r":[2,4,8,19,27,33],"b":14},{"p":"2024800","r":[12,18,22,27,30,33],"b":11},{"p":"2024799","r":[1,15,16,17,26,30],"b":7},{"p":"2024798","r":[5,7,8,14,23,30],"b":16},{"p":"2024797","r":[6,10,18,21,23,31],"b":14},{"p":"2024796","r":[4,21,23,26,30,32],"b":15},{"p":"2024795","r":[4,8,12,17,26,32],"b":2},{"p":"2024794","r":[1,6,15,18,31,32],"b":5},{"p":"2024793","r":[2,7,16,22,26,30],"b":15},{"p":"2024792","r":[3,5,11,23,25,31],"b":6},{"p":"2024791","r":[5,6,7,11,13,28],"b":16},{"p":"2024790","r":[1,4,19,25,29,31],"b":9},{"p":"2024789","r":[5,10,16,18,23,33],"b":16},{"p":"2024788","r":[2,5,10,17,19,30],"b":14},{"p":"2024787","r":[6,16,19,22,23,24],"b":4},{"p":"2024786","r":[5,16,22,28,30,31],"b":5},{"p":"2024785","r":[1,14,25,27,31,33],"b":7},{"p":"2024784","r":[9,17,18,19,24,30],"b":8},{"p":"2024783","r":[4,14,16,20,24,29],"b":7},{"p":"2024782","r":[6,17,19,24,25,26],"b":2},{"p":"2024781","r":[2,3,11,15,25,32],"b":16},{"p":"2024780","r":[5,7,19,22,23,24],"b":9},{"p":"2024779","r":[1,9,11,14,25,32],"b":14},{"p":"2024778","r":[1,16,17,23,24,25],"b":12},{"p":"2024777","r":[2,6,8,14,16,31],"b":1},{"p":"2024776","r":[1,10,16,23,24,25],"b":7},{"p":"2024775","r":[6,8,17,23,25,28],"b":13},{"p":"2024774","r":[11,13,17,26,27,31],"b":13},{"p":"2024773","r":[2,14,16,18,29,32],"b":7},{"p":"2024772","r":[1,3,6,26,30,33],"b":11},{"p":"2024771","r":[4,8,12,15,28,32],"b":5},{"p":"2024770","r":[3,5,7,18,28,33],"b":16},{"p":"2024769","r":[1,4,15,16,17,31],"b":16},{"p":"2024768","r":[3,6,8,10,24,31],"b":4},{"p":"2024767","r":[3,5,10,13,16,28],"b":10},{"p":"2024766","r":[1,3,13,22,26,31],"b":8},{"p":"2024765","r":[11,12,14,27,28,29],"b":16},{"p":"2024764","r":[5,11,12,13,14,18],"b":10},{"p":"2024763","r":[8,11,14,15,21,30],"b":2},{"p":"2024762","r":[6,7,12,27,29,32],"b":6},{"p":"2024761","r":[5,7,15,16,25,28],"b":1},{"p":"2024760","r":[5,7,13,15,19,21],"b":6},{"p":"2024759","r":[9,20,24,26,28,30],"b":8},{"p":"2024758","r":[2,13,17,21,26,28],"b":10},{"p":"2024757","r":[10,19,21,24,27,32],"b":10},{"p":"2024756","r":[1,20,27,29,30,32],"b":3},{"p":"2024755","r":[1,3,20,23,27,33],"b":11},{"p":"2024754","r":[6,14,19,21,23,32],"b":13},{"p":"2024753","r":[5,8,11,17,21,26],"b":14},{"p":"2024752","r":[6,7,11,28,29,33],"b":12},{"p":"2024751","r":[5,14,16,18,22,28],"b":11},{"p":"2024750","r":[2,4,14,16,26,33],"b":13},{"p":"2024749","r":[2,5,11,13,17,22],"b":13},{"p":"2024748","r":[3,9,16,29,30,31],"b":12},{"p":"2024747","r":[4,6,10,17,19,30],"b":8},{"p":"2024746","r":[2,15,16,17,22,31],"b":13},{"p":"2024745","r":[6,10,16,19,24,27],"b":10},{"p":"2024744","r":[1,5,15,18,21,29],"b":8},{"p":"2024743","r":[2,9,16,18,25,28],"b":7},{"p":"2024742","r":[2,3,4,7,22,26],"b":3},{"p":"2024741","r":[4,11,13,14,29,30],"b":2},{"p":"2024740","r":[1,12,17,24,30,32],"b":9},{"p":"2024739","r":[6,12,21,25,27,32],"b":1},{"p":"2024738","r":[1,9,12,18,27,33],"b":14},{"p":"2024737","r":[4,8,15,16,20,33],"b":2},{"p":"2024736","r":[3,13,20,24,28,29],"b":2},{"p":"2024735","r":[12,17,19,25,29,31],"b":1},{"p":"2024734","r":[3,14,19,26,30,33],"b":7},{"p":"2024733","r":[2,4,5,11,26,27],"b":10},{"p":"2024732","r":[2,5,18,24,30,33],"b":3},{"p":"2024731","r":[3,8,10,15,17,29],"b":1},{"p":"2024730","r":[3,5,12,18,23,29],"b":7},{"p":"2024729","r":[1,2,20,25,26,27],"b":3},{"p":"2024728","r":[3,4,15,17,22,23],"b":4},{"p":"2024727","r":[4,8,15,19,23,31],"b":11},{"p":"2024726","r":[2,4,6,13,19,23],"b":14},{"p":"2024725","r":[7,8,12,17,27,28],"b":12},{"p":"2024724","r":[1,3,9,15,21,29],"b":5},{"p":"2024723","r":[1,15,20,22,24,33],"b":9},{"p":"2024722","r":[6,13,16,22,30,32],"b":2},{"p":"2024721","r":[4,7,9,13,19,26],"b":16},{"p":"2024720","r":[4,15,16,26,31,32],"b":3},{"p":"2024719","r":[2,23,27,28,29,32],"b":15},{"p":"2024718","r":[1,14,17,23,31,33],"b":1},{"p":"2024717","r":[9,11,14,20,26,30],"b":11},{"p":"2024716","r":[1,4,7,15,18,27],"b":6},{"p":"2024715","r":[8,10,21,25,29,32],"b":3},{"p":"2024714","r":[3,10,15,20,25,30],"b":11},{"p":"2024713","r":[1,5,13,15,25,32],"b":16},{"p":"2024712","r":[1,2,15,23,30,31],"b":4},{"p":"2024711","r":[10,11,17,18,22,30],"b":2},{"p":"2024710","r":[9,10,19,29,32,33],"b":6},{"p":"2024709","r":[6,8,12,19,30,32],"b":5},{"p":"2024708","r":[3,13,14,16,24,30],"b":4},{"p":"2024707","r":[11,12,13,15,17,28],"b":10},{"p":"2024706","r":[10,11,14,15,26,30],"b":2},{"p":"2024705","r":[4,5,11,15,28,29],"b":7},{"p":"2024704","r":[1,3,7,29,31,32],"b":3},{"p":"2024703","r":[4,14,16,20,26,33],"b":14},{"p":"2024702","r":[10,11,13,19,26,29],"b":11},{"p":"2024701","r":[5,7,14,24,25,30],"b":16},{"p":"2024700","r":[7,9,18,22,27,33],"b":2},{"p":"2024699","r":[8,11,16,18,22,29],"b":16},{"p":"2024698","r":[1,9,15,16,17,29],"b":9},{"p":"2024697","r":[4,11,24,27,30,33],"b":3},{"p":"2024696","r":[7,10,11,12,13,33],"b":13},{"p":"2024695","r":[7,11,13,16,23,30],"b":1},{"p":"2024694","r":[1,8,10,23,28,32],"b":4},{"p":"2024693","r":[8,12,20,24,27,29],"b":6},{"p":"2024692","r":[4,8,11,14,21,27],"b":7},{"p":"2024691","r":[1,8,13,20,24,31],"b":14},{"p":"2024690","r":[8,17,18,24,25,27],"b":5},{"p":"2024689","r":[4,8,10,16,23,30],"b":11},{"p":"2024688","r":[4,5,8,18,19,29],"b":13},{"p":"2024687","r":[9,17,18,19,28,33],"b":13},{"p":"2024686","r":[2,4,8,11,15,26],"b":5},{"p":"2024685","r":[5,10,15,24,27,29],"b":4},{"p":"2024684","r":[4,6,21,27,29,33],"b":14},{"p":"2024683","r":[2,11,12,13,14,18],"b":2},{"p":"2024682","r":[1,11,15,21,25,30],"b":15},{"p":"2024681","r":[1,3,5,10,23,26],"b":16},{"p":"2024680","r":[23,24,25,28,31,32],"b":12},{"p":"2024679","r":[2,5,7,25,27,30],"b":8},{"p":"2024678","r":[1,5,7,19,20,27],"b":13},{"p":"2024677","r":[3,5,12,14,23,26],"b":12},{"p":"2024676","r":[5,19,20,21,22,31],"b":13},{"p":"2024675","r":[6,8,9,25,27,32],"b":7},{"p":"2024674","r":[3,7,9,16,20,26],"b":11},{"p":"2024673","r":[6,13,18,20,23,32],"b":5},{"p":"2024672","r":[3,8,13,16,25,27],"b":3},{"p":"2024671","r":[12,19,22,23,24,27],"b":10},{"p":"2024670","r":[3,4,8,18,22,32],"b":12},{"p":"2024669","r":[15,17,22,24,28,33],"b":7},{"p":"2024668","r":[17,27,30,31,32,33],"b":6},{"p":"2024667","r":[4,9,21,28,29,30],"b":12},{"p":"2024666","r":[1,15,17,22,24,33],"b":9},{"p":"2024665","r":[2,5,19,24,26,31],"b":11},{"p":"2024664","r":[1,10,12,15,19,30],"b":5},{"p":"2024663","r":[5,7,11,15,28,32],"b":8},{"p":"2024662","r":[6,10,15,22,24,29],"b":12},{"p":"2024661","r":[4,9,10,13,17,23],"b":2},{"p":"2024660","r":[1,2,5,15,18,24],"b":8},{"p":"2024659","r":[3,6,11,14,19,27],"b":6},{"p":"2024658","r":[1,16,22,25,27,30],"b":5},{"p":"2024657","r":[5,6,7,10,28,31],"b":6},{"p":"2024656","r":[2,5,10,14,26,32],"b":8},{"p":"2024655","r":[6,7,8,9,15,21],"b":16},{"p":"2024654","r":[1,15,19,21,25,30],"b":10},{"p":"2024653","r":[11,12,14,17,23,29],"b":8},{"p":"2024652","r":[5,6,10,13,14,27],"b":7},{"p":"2024651","r":[5,12,15,24,30,33],"b":1},{"p":"2024650","r":[3,4,5,10,30,32],"b":8},{"p":"2024649","r":[5,8,15,22,23,33],"b":13},{"p":"2024648","r":[9,13,17,20,27,31],"b":10},{"p":"2024647","r":[3,9,14,15,16,32],"b":4},{"p":"2024646","r":[5,8,9,11,14,28],"b":2},{"p":"2024645","r":[1,5,19,22,26,32],"b":1},{"p":"2024644","r":[3,6,9,14,17,24],"b":9},{"p":"2024643","r":[3,9,13,15,17,23],"b":6},{"p":"2024642","r":[5,9,18,21,24,32],"b":8},{"p":"2024641","r":[4,6,14,24,26,28],"b":7},{"p":"2024640","r":[4,8,14,17,19,23],"b":16},{"p":"2024639","r":[6,11,19,23,29,32],"b":1},{"p":"2024638","r":[4,12,18,20,27,28],"b":8},{"p":"2024637","r":[1,3,20,23,26,31],"b":1},{"p":"2024636","r":[2,6,12,18,25,32],"b":6},{"p":"2024635","r":[3,15,19,21,23,31],"b":9},{"p":"2024634","r":[9,12,18,23,25,28],"b":2},{"p":"2024633","r":[3,13,18,22,27,29],"b":1},{"p":"2024632","r":[1,9,14,22,27,30],"b":11},{"p":"2024631","r":[4,14,21,28,31,33],"b":5},{"p":"2024630","r":[1,2,3,8,18,29],"b":11},{"p":"2024629","r":[2,12,15,21,25,28],"b":8},{"p":"2024628","r":[17,20,23,24,25,33],"b":9},{"p":"2024627","r":[7,9,11,14,24,30],"b":10},{"p":"2024626","r":[1,7,11,13,19,25],"b":4},{"p":"2024625","r":[8,16,20,28,31,33],"b":2},{"p":"2024624","r":[5,14,28,29,31,32],"b":10},{"p":"2024623","r":[2,4,12,15,20,33],"b":7},{"p":"2024622","r":[3,13,18,22,25,29],"b":16},{"p":"2024621","r":[2,3,14,15,21,26],"b":2},{"p":"2024620","r":[8,9,13,14,22,32],"b":14},{"p":"2024619","r":[7,9,12,23,31,33],"b":16},{"p":"2024618","r":[1,2,3,14,24,30],"b":12},{"p":"2024617","r":[4,16,21,22,32,33],"b":6},{"p":"2024616","r":[9,11,15,17,19,21],"b":16},{"p":"2024615","r":[12,17,18,28,29,30],"b":7},{"p":"2024614","r":[10,15,22,24,27,31],"b":7},{"p":"2024613","r":[1,4,15,25,27,30],"b":2},{"p":"2024612","r":[1,7,9,11,17,18],"b":11},{"p":"2024611","r":[1,12,17,20,22,28],"b":13},{"p":"2024610","r":[8,11,20,27,29,30],"b":9},{"p":"2024609","r":[2,6,19,21,27,30],"b":2},{"p":"2024608","r":[12,13,14,20,21,23],"b":4},{"p":"2024607","r":[8,16,17,21,24,27],"b":1},{"p":"2024606","r":[6,8,9,10,22,26],"b":14},{"p":"2024605","r":[5,12,15,24,26,32],"b":15},{"p":"2024604","r":[1,5,6,7,19,33],"b":12},{"p":"2024603","r":[2,5,13,20,29,33],"b":1},{"p":"2024602","r":[15,16,23,25,26,27],"b":11},{"p":"2024601","r":[4,11,15,19,22,33],"b":14},{"p":"2024600","r":[4,7,15,22,30,33],"b":9},{"p":"2024599","r":[7,11,14,28,29,30],"b":7},{"p":"2024598","r":[2,6,16,23,27,31],"b":11},{"p":"2024597","r":[6,13,19,25,31,33],"b":10},{"p":"2024596","r":[7,10,14,16,25,29],"b":15},{"p":"2024595","r":[3,4,8,16,21,24],"b":15},{"p":"2024594","r":[4,5,6,7,9,12],"b":4},{"p":"2024593","r":[3,10,16,19,23,33],"b":1},{"p":"2024592","r":[6,15,17,29,31,33],"b":10},{"p":"2024591","r":[3,7,14,18,20,25],"b":3},{"p":"2024590","r":[1,9,17,21,24,29],"b":6},{"p":"2024589","r":[4,7,17,19,30,32],"b":4},{"p":"2024588","r":[2,9,10,17,18,19],"b":8},{"p":"2024587","r":[11,15,19,25,28,32],"b":2},{"p":"2024586","r":[2,7,9,21,25,32],"b":1},{"p":"2024585","r":[4,8,11,14,26,33],"b":15},{"p":"2024584","r":[2,13,21,26,28,30],"b":4},{"p":"2024583","r":[6,7,10,13,18,31],"b":1},{"p":"2024582","r":[1,3,9,13,18,31],"b":6},{"p":"2024581","r":[2,8,9,11,19,21],"b":15},{"p":"2024580","r":[5,7,12,21,23,31],"b":15},{"p":"2024579","r":[4,8,11,16,25,28],"b":16},{"p":"2024578","r":[7,20,28,29,30,31],"b":3},{"p":"2024577","r":[1,2,3,4,11,20],"b":15},{"p":"2024576","r":[6,8,12,25,26,27],"b":15},{"p":"2024575","r":[2,3,17,18,24,27],"b":14},{"p":"2024574","r":[4,6,9,17,21,23],"b":10},{"p":"2024573","r":[6,9,15,17,19,32],"b":5},{"p":"2024572","r":[1,5,12,19,23,30],"b":11},{"p":"2024571","r":[5,7,16,22,24,26],"b":4},{"p":"2024570","r":[2,12,16,20,22,29],"b":16},{"p":"2024569","r":[8,15,20,26,27,28],"b":9},{"p":"2024568","r":[5,7,12,14,26,33],"b":10},{"p":"2024567","r":[7,8,17,18,19,31],"b":4},{"p":"2024566","r":[3,9,16,24,26,28],"b":13},{"p":"2024565","r":[1,2,11,12,22,25],"b":4},{"p":"2024564","r":[2,10,11,25,29,31],"b":14},{"p":"2024563","r":[4,7,9,17,19,29],"b":8},{"p":"2024562","r":[1,11,18,21,26,33],"b":9},{"p":"2024561","r":[17,19,21,24,28,33],"b":5},{"p":"2024560","r":[1,2,6,10,24,30],"b":7},{"p":"2024559","r":[1,4,17,21,28,30],"b":3},{"p":"2024558","r":[6,8,12,15,23,26],"b":11},{"p":"2024557","r":[2,6,8,14,26,29],"b":4},{"p":"2024556","r":[1,3,7,12,14,29],"b":6},{"p":"2024555","r":[2,11,12,14,15,33],"b":5},{"p":"2024554","r":[1,2,20,22,26,27],"b":12},{"p":"2024553","r":[13,14,15,17,25,31],"b":10},{"p":"2024552","r":[2,3,4,5,9,27],"b":16},{"p":"2024551","r":[8,10,12,14,16,22],"b":10},{"p":"2024550","r":[3,5,10,15,25,31],"b":9},{"p":"2024549","r":[10,21,22,23,26,27],"b":9},{"p":"2024548","r":[5,7,8,19,20,32],"b":16},{"p":"2024547","r":[2,4,8,17,24,27],"b":11},{"p":"2024546","r":[1,5,8,22,24,27],"b":14},{"p":"2024545","r":[1,5,23,25,27,32],"b":12}];
+    const DLT_DATA = [{"p":"25043","f":[18,19,21,28,30],"b":[1,9]},{"p":"25042","f":[10,11,12,16,20],"b":[8,12]},{"p":"25041","f":[7,17,19,26,27],"b":[1,5]},{"p":"25040","f":[3,9,21,28,31],"b":[3,9]},{"p":"25039","f":[3,7,10,15,17],"b":[5,12]},{"p":"25038","f":[10,12,15,22,24],"b":[4,10]},{"p":"25037","f":[1,5,11,16,27],"b":[3,8]},{"p":"25036","f":[5,10,25,26,29],"b":[10,11]},{"p":"25035","f":[3,13,21,24,25],"b":[4,9]},{"p":"25034","f":[2,8,10,12,18],"b":[1,11]},{"p":"25033","f":[10,17,20,21,26],"b":[1,5]},{"p":"25032","f":[2,6,7,17,22],"b":[5,8]},{"p":"25031","f":[2,5,6,28,34],"b":[4,9]},{"p":"25030","f":[4,10,27,28,30],"b":[6,8]},{"p":"25029","f":[6,9,10,19,26],"b":[6,10]},{"p":"25028","f":[9,15,18,20,27],"b":[6,11]},{"p":"25027","f":[6,11,19,23,24],"b":[6,12]},{"p":"25026","f":[12,13,16,19,34],"b":[8,12]},{"p":"25025","f":[10,18,25,28,30],"b":[5,12]},{"p":"25024","f":[6,14,16,22,24],"b":[6,12]},{"p":"25023","f":[6,10,17,21,31],"b":[3,4]},{"p":"25022","f":[20,21,23,24,29],"b":[8,12]},{"p":"25021","f":[19,22,23,28,33],"b":[1,4]},{"p":"25020","f":[13,14,18,23,34],"b":[1,2]},{"p":"25019","f":[5,17,18,19,26],"b":[1,12]},{"p":"25018","f":[5,7,14,16,23],"b":[1,12]},{"p":"25017","f":[8,11,13,23,28],"b":[1,4]},{"p":"25016","f":[6,9,12,13,15],"b":[1,10]},{"p":"25015","f":[13,18,24,27,31],"b":[3,11]},{"p":"25014","f":[16,21,26,27,31],"b":[4,7]},{"p":"25013","f":[12,14,20,26,32],"b":[8,11]},{"p":"25012","f":[11,12,16,19,25],"b":[5,11]},{"p":"25011","f":[2,21,25,27,32],"b":[2,5]},{"p":"25010","f":[14,16,18,19,35],"b":[8,12]},{"p":"25009","f":[6,13,15,25,31],"b":[4,12]},{"p":"25008","f":[2,5,14,15,26],"b":[7,8]},{"p":"25007","f":[16,20,24,26,32],"b":[2,3]},{"p":"25006","f":[10,20,27,29,32],"b":[1,7]},{"p":"25005","f":[6,24,25,29,34],"b":[5,8]},{"p":"25004","f":[8,14,15,20,25],"b":[1,7]},{"p":"25003","f":[19,22,24,26,34],"b":[1,9]},{"p":"25002","f":[14,21,22,24,26],"b":[2,8]},{"p":"25001","f":[3,14,18,21,22],"b":[1,9]},{"p":"25000","f":[17,18,28,32,35],"b":[2,6]},{"p":"24999","f":[5,11,12,23,32],"b":[2,8]},{"p":"24998","f":[14,16,24,27,28],"b":[7,10]},{"p":"24997","f":[10,11,14,27,33],"b":[1,10]},{"p":"24996","f":[16,18,22,32,34],"b":[4,10]},{"p":"24995","f":[6,17,32,33,35],"b":[3,8]},{"p":"24994","f":[7,8,17,24,27],"b":[6,12]},{"p":"24993","f":[10,14,15,18,27],"b":[5,8]},{"p":"24992","f":[14,19,23,26,33],"b":[6,11]},{"p":"24991","f":[7,12,15,22,31],"b":[5,8]},{"p":"24990","f":[4,9,17,26,30],"b":[4,11]},{"p":"24989","f":[5,11,14,19,32],"b":[3,7]},{"p":"24988","f":[4,11,18,21,33],"b":[4,10]},{"p":"24987","f":[2,13,14,19,27],"b":[5,9]},{"p":"24986","f":[3,6,9,20,32],"b":[3,9]},{"p":"24985","f":[4,14,17,24,29],"b":[2,10]},{"p":"24984","f":[6,7,16,19,26],"b":[4,11]},{"p":"24983","f":[9,15,17,27,32],"b":[4,10]},{"p":"24982","f":[1,8,13,20,26],"b":[6,12]},{"p":"24981","f":[5,9,12,18,24],"b":[4,9]},{"p":"24980","f":[4,10,11,19,34],"b":[5,12]},{"p":"24979","f":[7,11,17,25,30],"b":[1,6]},{"p":"24978","f":[3,12,16,18,33],"b":[2,8]},{"p":"24977","f":[1,9,19,23,31],"b":[1,8]},{"p":"24976","f":[6,8,14,17,25],"b":[4,11]},{"p":"24975","f":[4,10,15,22,29],"b":[3,9]},{"p":"24974","f":[7,12,21,23,26],"b":[1,10]},{"p":"24973","f":[3,9,18,24,32],"b":[2,8]},{"p":"24972","f":[8,11,14,17,27],"b":[1,9]},{"p":"24971","f":[5,13,15,19,28],"b":[2,6]},{"p":"24970","f":[2,10,16,21,35],"b":[4,10]},{"p":"24969","f":[4,7,12,20,26],"b":[3,7]},{"p":"24968","f":[5,14,18,22,31],"b":[1,6]},{"p":"24967","f":[3,8,11,17,30],"b":[4,8]},{"p":"24966","f":[6,13,19,23,25],"b":[2,9]},{"p":"24965","f":[2,9,16,21,27],"b":[5,11]},{"p":"24964","f":[7,10,15,24,32],"b":[3,6]},{"p":"24963","f":[4,11,18,26,29],"b":[1,7]},{"p":"24962","f":[3,5,12,20,34],"b":[2,8]},{"p":"24961","f":[8,9,14,17,31],"b":[4,9]},{"p":"24960","f":[5,11,13,22,28],"b":[3,7]},{"p":"24959","f":[4,7,16,25,30],"b":[2,6]},{"p":"24958","f":[2,10,18,21,29],"b":[1,5]},{"p":"24957","f":[6,9,15,23,27],"b":[4,8]},{"p":"24956","f":[3,8,12,19,26],"b":[3,9]},{"p":"24955","f":[5,11,14,20,33],"b":[2,7]},{"p":"24954","f":[4,10,16,22,31],"b":[1,6]},{"p":"24953","f":[7,9,13,18,24],"b":[3,5]},{"p":"24952","f":[2,8,15,17,28],"b":[4,9]},{"p":"24951","f":[5,12,14,21,25],"b":[2,8]},{"p":"24950","f":[3,6,11,19,32],"b":[1,7]},{"p":"24949","f":[8,10,16,23,27],"b":[3,9]},{"p":"24948","f":[4,9,12,20,26],"b":[2,6]},{"p":"24947","f":[5,11,15,18,30],"b":[1,5]},{"p":"24946","f":[6,13,17,22,31],"b":[4,8]},{"p":"24945","f":[2,7,14,19,29],"b":[3,7]},{"p":"24944","f":[4,8,11,16,25],"b":[2,9]},{"p":"24943","f":[3,9,12,18,27],"b":[1,6]},{"p":"24942","f":[5,10,15,21,28],"b":[3,8]},{"p":"24941","f":[6,11,14,20,33],"b":[2,7]},{"p":"24940","f":[7,9,13,17,26],"b":[1,5]},{"p":"24939","f":[4,8,12,19,24],"b":[3,9]},{"p":"24938","f":[2,10,16,22,30],"b":[2,8]},{"p":"24937","f":[5,11,15,23,29],"b":[1,6]},{"p":"24936","f":[3,7,14,18,25],"b":[4,7]},{"p":"24935","f":[6,9,12,16,27],"b":[2,5]},{"p":"24934","f":[8,13,17,21,32],"b":[3,9]},{"p":"24933","f":[4,10,14,19,28],"b":[1,8]},{"p":"24932","f":[5,11,16,22,31],"b":[2,7]},{"p":"24931","f":[2,7,13,20,26],"b":[4,9]},{"p":"24930","f":[6,9,15,18,24],"b":[1,6]},{"p":"24929","f":[3,8,12,17,30],"b":[3,8]},{"p":"24928","f":[5,10,14,19,25],"b":[2,5]},{"p":"24927","f":[7,11,16,21,29],"b":[1,7]},{"p":"24926","f":[4,9,13,18,27],"b":[3,6]},{"p":"24925","f":[2,8,15,22,33],"b":[2,9]},{"p":"24924","f":[6,10,14,20,28],"b":[1,5]},{"p":"24923","f":[3,7,12,16,24],"b":[4,8]},{"p":"24922","f":[5,9,11,17,26],"b":[2,7]},{"p":"24921","f":[4,8,13,19,31],"b":[3,9]},{"p":"24920","f":[2,10,15,21,30],"b":[1,6]},{"p":"24919","f":[6,12,14,18,25],"b":[2,5]},{"p":"24918","f":[3,7,11,16,29],"b":[4,8]},{"p":"24917","f":[5,9,13,20,27],"b":[1,7]},{"p":"24916","f":[4,8,12,17,23],"b":[3,6]},{"p":"24915","f":[7,10,14,19,28],"b":[2,9]},{"p":"24914","f":[2,6,11,15,26],"b":[1,5]},{"p":"24913","f":[5,9,16,22,32],"b":[4,8]},{"p":"24912","f":[3,7,13,18,24],"b":[2,7]},{"p":"24911","f":[6,10,12,17,30],"b":[3,9]},{"p":"24910","f":[4,8,14,20,25],"b":[1,6]},{"p":"24909","f":[2,11,15,19,29],"b":[2,8]},{"p":"24908","f":[5,9,13,16,27],"b":[3,5]},{"p":"24907","f":[7,10,14,18,31],"b":[1,7]},{"p":"24906","f":[3,6,11,17,23],"b":[4,9]},{"p":"24905","f":[6,9,12,15,26],"b":[2,6]},{"p":"24904","f":[4,8,13,19,28],"b":[1,8]},{"p":"24903","f":[2,7,14,20,33],"b":[3,7]},{"p":"24902","f":[5,10,16,22,30],"b":[2,5]},{"p":"24901","f":[3,9,11,18,25],"b":[4,9]},{"p":"24900","f":[6,12,15,21,29],"b":[1,6]},{"p":"24899","f":[4,8,14,17,27],"b":[3,8]},{"p":"24898","f":[2,10,13,19,24],"b":[2,7]},{"p":"24897","f":[5,9,16,20,32],"b":[1,5]},{"p":"24896","f":[7,11,14,18,26],"b":[4,9]},{"p":"24895","f":[3,6,12,15,31],"b":[2,8]},{"p":"24894","f":[6,10,17,22,28],"b":[3,7]},{"p":"24893","f":[4,8,13,19,25],"b":[1,6]},{"p":"24892","f":[2,9,11,16,30],"b":[4,8]},{"p":"24891","f":[5,12,14,21,29],"b":[2,7]},{"p":"24890","f":[3,7,15,18,27],"b":[1,5]},{"p":"24889","f":[6,10,13,20,33],"b":[3,9]},{"p":"24888","f":[4,9,12,17,24],"b":[2,6]},{"p":"24887","f":[7,11,16,22,28],"b":[4,8]},{"p":"24886","f":[2,8,14,19,26],"b":[1,7]},{"p":"24885","f":[5,10,15,21,31],"b":[3,9]},{"p":"24884","f":[3,6,11,18,25],"b":[2,5]},{"p":"24883","f":[6,9,13,16,30],"b":[4,8]},{"p":"24882","f":[4,7,12,17,29],"b":[1,6]},{"p":"24881","f":[2,10,14,20,32],"b":[3,7]},{"p":"24880","f":[5,8,11,19,27],"b":[2,9]},{"p":"24879","f":[7,13,15,22,28],"b":[1,5]},{"p":"24878","f":[3,9,12,18,24],"b":[4,8]},{"p":"24877","f":[6,10,16,21,33],"b":[2,7]},{"p":"24876","f":[4,8,14,17,26],"b":[3,9]},{"p":"24875","f":[2,7,11,15,31],"b":[1,6]},{"p":"24874","f":[5,9,13,19,25],"b":[4,8]},{"p":"24873","f":[3,6,12,16,29],"b":[2,5]},{"p":"24872","f":[6,10,14,20,30],"b":[3,7]},{"p":"24871","f":[4,8,11,18,27],"b":[1,9]},{"p":"24870","f":[2,9,15,22,28],"b":[4,6]},{"p":"24869","f":[5,12,14,19,32],"b":[2,8]},{"p":"24868","f":[3,7,13,17,26],"b":[1,5]},{"p":"24867","f":[7,10,16,21,29],"b":[3,9]},{"p":"24866","f":[4,8,12,18,24],"b":[2,7]},{"p":"24865","f":[2,6,11,15,30],"b":[4,8]},{"p":"24864","f":[5,9,14,20,33],"b":[1,6]},{"p":"24863","f":[3,7,13,19,28],"b":[3,9]},{"p":"24862","f":[6,10,15,22,31],"b":[2,5]},{"p":"24861","f":[4,8,11,17,25],"b":[4,8]},{"p":"24860","f":[2,9,12,16,27],"b":[1,7]},{"p":"24859","f":[5,13,14,18,29],"b":[3,6]},{"p":"24858","f":[3,7,10,19,26],"b":[2,9]},{"p":"24857","f":[6,11,16,21,32],"b":[4,8]},{"p":"24856","f":[4,9,13,17,30],"b":[1,5]},{"p":"24855","f":[2,8,12,20,28],"b":[3,7]},{"p":"24854","f":[5,10,15,22,33],"b":[2,6]},{"p":"24853","f":[3,7,11,18,25],"b":[4,9]},{"p":"24852","f":[6,9,14,19,29],"b":[1,8]},{"p":"24851","f":[4,8,13,16,24],"b":[3,7]},{"p":"24850","f":[2,10,12,17,31],"b":[2,5]},{"p":"24849","f":[5,11,15,21,27],"b":[4,9]},{"p":"24848","f":[3,7,14,20,30],"b":[1,6]},{"p":"24847","f":[6,9,13,18,26],"b":[3,8]},{"p":"24846","f":[4,8,11,19,28],"b":[2,7]},{"p":"24845","f":[2,10,16,22,32],"b":[4,9]},{"p":"24844","f":[5,12,14,17,25],"b":[1,5]},{"p":"24843","f":[3,7,11,15,29],"b":[3,8]},{"p":"24842","f":[6,10,13,20,33],"b":[2,6]},{"p":"24841","f":[4,9,12,18,27],"b":[4,8]},{"p":"24840","f":[2,8,15,21,31],"b":[1,7]},{"p":"24839","f":[5,11,14,19,30],"b":[3,9]},{"p":"24838","f":[3,7,10,16,26],"b":[2,5]},{"p":"24837","f":[6,13,17,22,28],"b":[4,8]},{"p":"24836","f":[4,9,12,18,24],"b":[1,6]},{"p":"24835","f":[2,8,14,20,32],"b":[3,7]},{"p":"24834","f":[5,10,15,21,29],"b":[2,9]},{"p":"24833","f":[3,7,11,17,25],"b":[4,6]},{"p":"24832","f":[6,12,14,19,27],"b":[1,8]},{"p":"24831","f":[4,9,13,16,31],"b":[3,9]},{"p":"24830","f":[2,8,11,18,30],"b":[2,5]},{"p":"24829","f":[5,10,15,22,33],"b":[4,8]},{"p":"24828","f":[3,7,14,20,28],"b":[1,7]},{"p":"24827","f":[6,11,16,21,29],"b":[3,9]},{"p":"24826","f":[4,8,12,17,26],"b":[2,6]},{"p":"24825","f":[2,9,13,19,32],"b":[4,8]},{"p":"24824","f":[5,10,14,18,27],"b":[1,5]},{"p":"24823","f":[3,7,11,15,30],"b":[3,7]},{"p":"24822","f":[6,12,16,22,31],"b":[2,9]},{"p":"24821","f":[4,9,13,20,25],"b":[4,8]},{"p":"24820","f":[2,8,15,17,29],"b":[1,6]},{"p":"24819","f":[5,11,14,19,28],"b":[3,9]},{"p":"24818","f":[3,7,10,16,24],"b":[2,5]},{"p":"24817","f":[6,13,17,21,33],"b":[4,8]},{"p":"24816","f":[4,9,12,18,27],"b":[1,7]},{"p":"24815","f":[2,8,11,15,30],"b":[3,9]},{"p":"24814","f":[5,10,14,20,32],"b":[2,6]},{"p":"24813","f":[3,7,13,19,26],"b":[4,8]},{"p":"24812","f":[6,12,15,22,29],"b":[1,5]},{"p":"24811","f":[4,9,11,17,25],"b":[3,7]},{"p":"24810","f":[2,8,14,18,31],"b":[2,9]},{"p":"24809","f":[5,10,16,21,28],"b":[4,6]},{"p":"24808","f":[3,7,12,20,33],"b":[1,8]},{"p":"24807","f":[6,11,13,19,27],"b":[3,9]},{"p":"24806","f":[4,9,15,17,24],"b":[2,5]},{"p":"24805","f":[2,8,11,16,30],"b":[4,8]},{"p":"24804","f":[5,12,14,21,29],"b":[1,7]},{"p":"24803","f":[3,7,10,18,26],"b":[3,9]},{"p":"24802","f":[6,13,17,22,32],"b":[2,6]},{"p":"24801","f":[4,9,12,19,28],"b":[4,8]},{"p":"24800","f":[2,8,15,20,31],"b":[1,5]},{"p":"24799","f":[5,11,14,18,25],"b":[3,7]},{"p":"24798","f":[3,7,13,16,29],"b":[2,9]},{"p":"24797","f":[6,10,15,21,33],"b":[4,8]},{"p":"24796","f":[4,9,12,17,27],"b":[1,6]},{"p":"24795","f":[2,8,11,19,30],"b":[3,9]},{"p":"24794","f":[5,13,14,20,28],"b":[2,5]},{"p":"24793","f":[3,7,16,22,32],"b":[4,8]},{"p":"24792","f":[6,12,15,18,26],"b":[1,7]},{"p":"24791","f":[4,9,11,17,24],"b":[3,9]},{"p":"24790","f":[2,8,13,19,31],"b":[2,6]},{"p":"24789","f":[5,10,14,21,29],"b":[4,8]},{"p":"24788","f":[3,7,12,16,25],"b":[1,5]},{"p":"24787","f":[6,11,15,20,33],"b":[3,7]},{"p":"24786","f":[4,9,13,18,30],"b":[2,9]},{"p":"24785","f":[2,8,14,17,28],"b":[4,6]},{"p":"24784","f":[5,12,16,22,32],"b":[1,8]},{"p":"24783","f":[3,7,11,19,27],"b":[3,9]},{"p":"24782","f":[6,10,15,21,29],"b":[2,5]},{"p":"24781","f":[4,9,12,18,26],"b":[4,8]},{"p":"24780","f":[2,8,13,20,31],"b":[1,7]},{"p":"24779","f":[5,11,14,17,25],"b":[3,9]},{"p":"24778","f":[3,7,10,16,30],"b":[2,6]},{"p":"24777","f":[6,13,15,22,28],"b":[4,8]},{"p":"24776","f":[4,9,12,19,27],"b":[1,5]},{"p":"24775","f":[2,8,11,18,33],"b":[3,7]},{"p":"24774","f":[5,10,14,20,29],"b":[2,9]},{"p":"24773","f":[3,7,13,17,24],"b":[4,6]},{"p":"24772","f":[6,12,16,21,32],"b":[1,8]},{"p":"24771","f":[4,9,15,19,26],"b":[3,9]},{"p":"24770","f":[2,8,11,16,31],"b":[2,5]},{"p":"24769","f":[5,13,14,22,30],"b":[4,8]},{"p":"24768","f":[3,7,12,18,28],"b":[1,7]},{"p":"24767","f":[6,10,15,20,29],"b":[3,9]},{"p":"24766","f":[4,9,13,17,25],"b":[2,6]},{"p":"24765","f":[2,8,11,19,33],"b":[4,8]},{"p":"24764","f":[5,12,14,21,27],"b":[1,5]},{"p":"24763","f":[3,7,10,16,30],"b":[3,7]},{"p":"24762","f":[6,13,15,22,31],"b":[2,9]},{"p":"24761","f":[4,9,12,18,26],"b":[4,8]},{"p":"24760","f":[2,8,14,20,32],"b":[1,6]},{"p":"24759","f":[5,11,16,17,29],"b":[3,9]},{"p":"24758","f":[3,7,13,19,28],"b":[2,5]},{"p":"24757","f":[6,10,15,21,33],"b":[4,8]},{"p":"24756","f":[4,9,12,18,25],"b":[1,7]},{"p":"24755","f":[2,8,11,16,30],"b":[3,9]},{"p":"24754","f":[5,13,14,22,31],"b":[2,6]},{"p":"24753","f":[3,7,10,17,27],"b":[4,8]},{"p":"24752","f":[6,12,15,20,29],"b":[1,5]},{"p":"24751","f":[4,9,13,19,26],"b":[3,7]},{"p":"24750","f":[2,8,11,18,32],"b":[2,9]},{"p":"24749","f":[5,10,14,21,28],"b":[4,6]},{"p":"24748","f":[3,7,12,16,25],"b":[1,8]},{"p":"24747","f":[6,13,17,22,33],"b":[3,9]},{"p":"24746","f":[4,9,15,20,30],"b":[2,5]},{"p":"24745","f":[2,8,11,19,29],"b":[4,8]},{"p":"24744","f":[5,12,14,18,27],"b":[1,7]},{"p":"24743","f":[3,7,13,17,31],"b":[3,9]},{"p":"24742","f":[6,10,16,21,32],"b":[2,6]}];
+    
+    // ============ STATE ============
+    let currentType = 'ssq';
+    let currentAlgo = 'hotCold';
+    let currentLang = localStorage.getItem('lang') || 'zh';
+    let isDarkMode = localStorage.getItem('darkMode') === 'true';
+    let favorites = JSON.parse(localStorage.getItem('million_life_favorites') || '[]');
+    let history = JSON.parse(localStorage.getItem('million_life_history') || '[]');
+    let shouhaoList = JSON.parse(localStorage.getItem('million_life_shouhao') || '[]');
+    
+    const ALGOS = [
+      { id: 'hotCold', name: { zh: '冷热号分析', en: 'Hot/Cold' }, desc: { zh: '频率+遗漏加权', en: 'Freq+Miss Weighted' } },
+      { id: 'oddEven', name: { zh: '奇偶分析', en: 'Odd/Even' }, desc: { zh: '历史奇偶比例', en: 'Historical Ratio' } },
+      { id: 'zone', name: { zh: '区间分析', en: 'Zone Analysis' }, desc: { zh: '号码区间分布', en: 'Number Zones' } },
+      { id: 'tail', name: { zh: '尾数分析', en: 'Tail Analysis' }, desc: { zh: '0-9尾数热态', en: 'Digit Tails' } },
+      { id: 'monteCarlo', name: { zh: '蒙特卡洛', en: 'Monte Carlo' }, desc: { zh: '1000次随机模拟', en: '1000 Simulations' } },
+      { id: 'acValue', name: { zh: 'AC值分析', en: 'AC Value' }, desc: { zh: '号码复杂度', en: 'Number Complexity' } },
+      { id: 'sumValue', name: { zh: '和值分析', en: 'Sum Analysis' }, desc: { zh: '和值分布统计', en: 'Sum Distribution' } },
+      { id: 'repeatLink', name: { zh: '重号/连号', en: 'Repeat/Link' }, desc: { zh: '重号连号概率', en: 'Repeat Probability' } },
+      { id: 'danMa', name: { zh: '胆码分析', en: 'DanMa Analysis' }, desc: { zh: '固定胆拖组合', en: 'Fixed胆拖 Combo' } },
+      { id: 'rotateMatrix', name: { zh: '旋转矩阵', en: 'Rotate Matrix' }, desc: { zh: '中7保6缩水', en: '6 of 7 Protected' } }
+    ];
+    
+    // ============ ALGORITHMS ============
+    const clone = arr => Array.isArray(arr) ? arr.map(v => Array.isArray(v) ? [...v] : v) : arr;
+    
+    function hotCold(type = 'ssq', opts = {}) {
+      const { topN = 6, hotWeight = 0.7, coldWeight = 0.3 } = opts;
+      const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+      const isSSQ = type === 'ssq';
+      const maxNum = isSSQ ? 33 : 35;
+      const count = isSSQ ? 6 : 5;
+      const freq = {}, miss = {};
+      for (let i = 1; i <= maxNum; i++) { freq[i] = 0; miss[i] = 0; }
+      let currentMiss = {}; for (let i = 1; i <= maxNum; i++) currentMiss[i] = 0;
+      data.forEach((row, idx) => {
+        const nums = isSSQ ? row.r : row.f;
+        nums.forEach(n => freq[n]++);
+        for (let i = 1; i <= maxNum; i++) {
+          if (nums.includes(i)) currentMiss[i] = 0; else currentMiss[i]++;
+        }
+        if (idx === 0) { for (let i = 1; i <= maxNum; i++) miss[i] = currentMiss[i]; }
+      });
+      const scores = [];
+      const maxFreq = Math.max(...Object.values(freq));
+      const maxMiss = Math.max(...Object.values(miss), 1);
+      for (let i = 1; i <= maxNum; i++) {
+        const hotScore = (freq[i] / maxFreq) * hotWeight;
+        const coldScore = (miss[i] / maxMiss) * coldWeight;
+        scores.push({ num: i, score: hotScore + coldScore, freq: freq[i], miss: miss[i] });
+      }
+      scores.sort((a, b) => b.score - a.score);
+      const selected = scores.slice(0, topN).map(s => s.num).sort((a, b) => a - b);
+      return { type, selected, scores: scores.slice(0, topN * 2) };
     }
-  }).join('');
-}
-
-// ==================== RENDER STATS ====================
-function renderS() {
-  const h = hist();
-  const lim = cur === 'ssq' ? 33 : 35;
-  const blim = cur === 'ssq' ? 16 : 12;
-
-  const rf = {}, rm = {};
-  const bf = {}, bm = {};
-  for (let i = 1; i <= lim; i++) { rf[i] = 0; rm[i] = 0; }
-  for (let i = 1; i <= blim; i++) { bf[i] = 0; bm[i] = 0; }
-
-  h.forEach(item => {
-    item.r.forEach(n => { rf[n]++; rm[n] = 0; });
-    (Array.isArray(item.b) ? item.b : [item.b]).forEach(n => { bf[n]++; bm[n] = 0; });
-    for (let i = 1; i <= lim; i++) if (rf[i] === 0) rm[i]++;
-    for (let i = 1; i <= blim; i++) if (bf[i] === 0) bm[i]++;
-  });
-
-  let entries = Object.entries(rf).map(([n, f]) => ({ n: +n, f, m: rm[+n] }));
-  entries.sort((a, b) => {
-    if (curStat === 'hot') return b.f - a.f;
-    if (curStat === 'cold') return a.f - b.f;
-    return b.m - a.m;
-  });
-  entries = entries.slice(0, 10);
-
-  const maxF = Math.max(...entries.map(e => e.f));
-  const maxM = Math.max(...entries.map(e => e.m));
-
-  document.getElementById('sList').innerHTML = entries.map(e => {
-    const w = curStat === 'miss' ? (maxM ? e.m / maxM * 100 : 0) : (maxF ? e.f / maxF * 100 : 0);
-    const label = curStat === 'hot' ? `${e.f}次` : curStat === 'cold' ? `${e.f}次` : `遗漏${e.m}期`;
-    return `<div class="st-row">
-      <span class="ball ball-r">${e.n}</span>
-      <span class="st-name">第${e.n}号</span>
-      <div class="st-bar"><div class="st-bar-fill" style="width:${w}%"></div></div>
-      <span class="st-val">${label}</span>
-    </div>`;
-  }).join('');
-}
-
-// ==================== BIND ====================
-function bind() {
-  document.getElementById('btnSSQ').onclick = () => { cur = 'ssq'; document.getElementById('btnSSQ').classList.add('active'); document.getElementById('btnDLT').classList.remove('active'); renderH(); renderS(); };
-  document.getElementById('btnDLT').onclick = () => { cur = 'dlt'; document.getElementById('btnDLT').classList.add('active'); document.getElementById('btnSSQ').classList.remove('active'); renderH(); renderS(); };
-
-  document.querySelectorAll('.algo-item').forEach(item => {
-    item.onclick = () => {
-      const a = item.dataset.algo;
-      if (sel.has(a)) { if (sel.size > 1) { sel.delete(a); item.classList.remove('selected'); } }
-      else { sel.add(a); item.classList.add('selected'); }
-    };
-  });
-
-  document.querySelectorAll('.s-tab').forEach(tab => {
-    tab.onclick = () => {
-      curStat = tab.dataset.s;
-      document.querySelectorAll('.s-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      renderS();
-    };
-  });
-
-  document.getElementById('genBtn').onclick = gen;
-}
-
-// ==================== ALGOS ====================
-function wSample(arr, wts, cnt) {
-  const ps = arr.map((v, i) => ({ v, w: wts[i] || 0.01 }));
-  const tot = ps.reduce((s, p) => s + p.w, 0);
-  const pr = ps.map(p => p.w / tot);
-  const ch = [], pool = [...ps], pp = [...pr];
-  for (let i = 0; i < cnt && pool.length > 0; i++) {
-    let r = Math.random(), c = 0;
-    for (let j = 0; j < pp.length; j++) { c += pp[j]; if (r <= c) { ch.push(pool[j].v); pool.splice(j, 1); pp.splice(j, 1); break; } }
-    if (ch.length === i) { ch.push(pool[0].v); pool.shift(); pp.shift(); }
-  }
-  return ch;
-}
-
-function shuf(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
-  return a;
-}
-
-function algos(type) {
-  const h = type === 'ssq' ? SSQ_HISTORY : DLT_HISTORY;
-  const lim = type === 'ssq' ? 33 : 35;
-  const blim = type === 'ssq' ? 16 : 12;
-
-  const rf = {}, rm = {}, bf = {}, bm = {};
-  for (let i = 1; i <= lim; i++) { rf[i] = 0; rm[i] = 0; }
-  for (let i = 1; i <= blim; i++) { bf[i] = 0; bm[i] = 0; }
-
-  h.forEach(item => {
-    item.r.forEach(n => { rf[n]++; rm[n] = 0; });
-    (Array.isArray(item.b) ? item.b : [item.b]).forEach(n => { bf[n]++; bm[n] = 0; });
-    for (let i = 1; i <= lim; i++) if (rf[i] === 0) rm[i]++;
-    for (let i = 1; i <= blim; i++) if (bf[i] === 0) bm[i]++;
-  });
-
-  const rv = Object.keys(rf).map(Number);
-  const bv = Object.keys(bf).map(Number);
-  const rw = rv.map(n => (rf[n] || 0) + (rm[n] || 0) * 1.5);
-  const bw = bv.map(n => (bf[n] || 0) + (bm[n] || 0) * 1.5);
-
-  return {
-    hotCold(type) {
-      const reds = wSample(rv, rw, type === 'ssq' ? 6 : 5);
-      let blue;
-      if (type === 'ssq') {
-        blue = [wSample(bv, bw, 1)[0]];
+    
+    function oddEven(type = 'ssq') {
+      const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+      const isSSQ = type === 'ssq';
+      const stats = { odd: 0, even: 0, total: 0 };
+      data.forEach(row => {
+        const nums = isSSQ ? row.r : row.f;
+        let odd = 0, even = 0;
+        nums.forEach(n => n % 2 === 1 ? odd++ : even++);
+        stats.odd += odd; stats.even += even; stats.total += nums.length;
+      });
+      const avgOddRatio = stats.odd / stats.total;
+      const count = isSSQ ? 6 : 5;
+      const targetOdd = Math.round(avgOddRatio * count);
+      const recommended = [];
+      for (let sim = 0; sim < 10; sim++) {
+        const simResult = [];
+        let oddLeft = targetOdd;
+        const nums = isSSQ ? Array.from({length: 33}, (_, i) => i + 1) : Array.from({length: 35}, (_, i) => i + 1);
+        const shuffled = nums.sort(() => Math.random() - 0.5);
+        shuffled.forEach(n => {
+          if (simResult.length >= count) return;
+          const isOdd = n % 2 === 1;
+          if (isOdd && oddLeft > 0) { simResult.push(n); oddLeft--; }
+          else if (!isOdd && simResult.length - (targetOdd - oddLeft) < (count - targetOdd)) { simResult.push(n); }
+        });
+        if (simResult.length === count) recommended.push(simResult.sort((a, b) => a - b));
+      }
+      return { type, avgOddRatio: avgOddRatio.toFixed(3), avgEvenRatio: (1 - avgOddRatio).toFixed(3), targetOdd, recommended: recommended.slice(0, 5) };
+    }
+    
+    function zone(type = 'ssq', zones = 4) {
+      const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+      const isSSQ = type === 'ssq';
+      const maxNum = isSSQ ? 33 : 35;
+      const count = isSSQ ? 6 : 5;
+      const zoneSize = Math.ceil(maxNum / zones);
+      const zoneRanges = [];
+      for (let i = 0; i < zones; i++) {
+        const start = i * zoneSize + 1;
+        const end = Math.min((i + 1) * zoneSize, maxNum);
+        zoneRanges.push({ zone: i + 1, start, end });
+      }
+      const zoneCount = Array(zones).fill(0);
+      data.forEach(row => {
+        const nums = isSSQ ? row.r : row.f;
+        nums.forEach(n => { const z = Math.floor((n - 1) / zoneSize); if (z >= 0 && z < zones) zoneCount[z]++; });
+      });
+      const zoneStats = zoneRanges.map((zr, i) => ({ ...zr, count: zoneCount[i], ratio: (zoneCount[i] / (data.length * count)).toFixed(4) }));
+      const recommended = [];
+      const topZones = zoneStats.sort((a, b) => b.count - a.count).slice(0, Math.ceil(count / 2));
+      for (let sim = 0; sim < 10; sim++) {
+        const result = [];
+        const nums = isSSQ ? Array.from({length: 33}, (_, i) => i + 1) : Array.from({length: 35}, (_, i) => i + 1);
+        topZones.forEach(z => {
+          const inZone = nums.filter(n => n >= z.start && n <= z.end);
+          const shuffled = inZone.sort(() => Math.random() - 0.5);
+          result.push(...shuffled.slice(0, Math.ceil(count / 3)));
+        });
+        if (result.length < count) {
+          const remaining = nums.filter(n => !result.includes(n)).sort(() => Math.random() - 0.5);
+          result.push(...remaining.slice(0, count - result.length));
+        }
+        recommended.push([...new Set(result)].slice(0, count).sort((a, b) => a - b));
+      }
+      return { type, zones, zoneStats, recommended: recommended.slice(0, 5) };
+    }
+    
+    function tail(type = 'ssq') {
+      const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+      const isSSQ = type === 'ssq';
+      const tailCount = Array(10).fill(0);
+      const tailMiss = Array(10).fill(0);
+      const currentMiss = Array(10).fill(0);
+      data.forEach(row => {
+        const nums = isSSQ ? row.r : row.f;
+        nums.forEach(n => { const t = n % 10; tailCount[t]++; });
+        for (let t = 0; t < 10; t++) {
+          const hasTail = nums.some(n => n % 10 === t);
+          if (hasTail) currentMiss[t] = 0; else currentMiss[t]++;
+        }
+      });
+      for (let t = 0; t < 10; t++) tailMiss[t] = currentMiss[t];
+      const maxCount = Math.max(...tailCount);
+      const maxMiss = Math.max(...tailMiss, 1);
+      const tailStats = [];
+      for (let t = 0; t < 10; t++) {
+        const hotScore = (tailCount[t] / maxCount) * 0.6;
+        const coldScore = (tailMiss[t] / maxMiss) * 0.4;
+        tailStats.push({ tail: t, count: tailCount[t], miss: tailMiss[t], score: (hotScore + coldScore).toFixed(3) });
+      }
+      tailStats.sort((a, b) => b.score - a.score);
+      const topTails = tailStats.slice(0, 5).map(s => s.tail);
+      const recommended = [];
+      const count = isSSQ ? 6 : 5;
+      for (let sim = 0; sim < 10; sim++) {
+        const result = [];
+        const nums = isSSQ ? Array.from({length: 33}, (_, i) => i + 1) : Array.from({length: 35}, (_, i) => i + 1);
+        topTails.forEach(t => {
+          const withTail = nums.filter(n => n % 10 === t && !result.includes(n));
+          if (withTail.length > 0) result.push(withTail[Math.floor(Math.random() * withTail.length)]);
+        });
+        while (result.length < count) {
+          const remaining = nums.filter(n => !result.includes(n));
+          if (remaining.length === 0) break;
+          result.push(remaining[Math.floor(Math.random() * remaining.length)]);
+        }
+        recommended.push(result.slice(0, count).sort((a, b) => a - b));
+      }
+      return { type, tailStats, topTails, recommended: recommended.slice(0, 5) };
+    }
+    
+    function monteCarlo(type = 'ssq', times = 1000) {
+      const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+      const isSSQ = type === 'ssq';
+      const maxNum = isSSQ ? 33 : 35;
+      const count = isSSQ ? 6 : 5;
+      const freq = {};
+      for (let i = 1; i <= maxNum; i++) freq[i] = 0;
+      data.forEach(row => { const nums = isSSQ ? row.r : row.f; nums.forEach(n => freq[n]++); });
+      const maxFreq = Math.max(...Object.values(freq));
+      const nums = Array.from({ length: maxNum }, (_, i) => i + 1);
+      const weightedRandom = (exclude = []) => {
+        const weights = nums.map(n => { if (exclude.includes(n)) return 0; return (freq[n] / maxFreq) * 0.5 + 0.5; });
+        const total = weights.reduce((a, b) => a + b, 0);
+        let r = Math.random() * total;
+        for (let i = 0; i < nums.length; i++) { r -= weights[i]; if (r <= 0) return nums[i]; }
+        return nums[nums.length - 1];
+      };
+      const results = {}; nums.forEach(n => results[n] = 0);
+      for (let i = 0; i < times; i++) {
+        const selected = [];
+        while (selected.length < count) { const n = weightedRandom(selected); if (!selected.includes(n)) selected.push(n); }
+        selected.forEach(n => results[n]++);
+      }
+      const sorted = Object.entries(results).map(([num, count]) => ({ num: parseInt(num), count })).sort((a, b) => b.count - a.count);
+      const recommended = [];
+      for (let i = 0; i < 5; i++) {
+        const selected = sorted.slice(i * 3, i * 3 + count).map(s => s.num).sort((a, b) => a - b);
+        if (selected.length === count) recommended.push(selected);
+      }
+      return { type, times, topFreq: sorted.slice(0, 10), recommended };
+    }
+    
+    function acValue(type = 'ssq') {
+      const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+      const isSSQ = type === 'ssq';
+      const calcAC = (nums) => { const diffs = new Set(); for (let i = 0; i < nums.length; i++) for (let j = i + 1; j < nums.length; j++) diffs.add(Math.abs(nums[i] - nums[j])); return diffs.size - (nums.length - 1); };
+      const acStats = {};
+      data.forEach(row => { const nums = isSSQ ? row.r : row.f; const ac = calcAC(nums); acStats[ac] = (acStats[ac] || 0) + 1; });
+      const sortedAC = Object.entries(acStats).sort((a, b) => b[1] - a[1]);
+      const commonAC = sortedAC.slice(0, 3).map(([ac]) => parseInt(ac));
+      const recommended = [];
+      const maxNum = isSSQ ? 33 : 35;
+      const count = isSSQ ? 6 : 5;
+      for (let sim = 0; sim < 20 && recommended.length < 5; sim++) {
+        const shuffled = Array.from({ length: maxNum }, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+        const selected = shuffled.slice(0, count).sort((a, b) => a - b);
+        const ac = calcAC(selected);
+        if (commonAC.includes(ac)) recommended.push({ nums: selected, ac });
+      }
+      while (recommended.length < 5) {
+        const shuffled = Array.from({ length: maxNum }, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+        const selected = shuffled.slice(0, count).sort((a, b) => a - b);
+        recommended.push({ nums: selected, ac: calcAC(selected) });
+      }
+      return { type, acStats: Object.fromEntries(sortedAC.slice(0, 10)), commonAC, recommended: recommended.map(r => r.nums) };
+    }
+    
+    function sumValue(type = 'ssq') {
+      const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+      const isSSQ = type === 'ssq';
+      const maxNum = isSSQ ? 33 : 35;
+      const count = isSSQ ? 6 : 5;
+      const sumStats = {};
+      data.forEach(row => { const nums = isSSQ ? row.r : row.f; const sum = nums.reduce((a, b) => a + b, 0); sumStats[sum] = (sumStats[sum] || 0) + 1; });
+      const sums = Object.keys(sumStats).map(Number);
+      const avgSum = sums.reduce((a, s) => a + s * (sumStats[s] || 0), 0) / data.length;
+      const sortedSums = Object.entries(sumStats).sort((a, b) => b[1] - a[1]);
+      const commonSums = sortedSums.slice(0, 5).map(([s]) => parseInt(s));
+      const targetSum = commonSums[Math.floor(commonSums.length / 2)];
+      const recommended = [];
+      for (let sim = 0; sim < 100 && recommended.length < 5; sim++) {
+        const shuffled = Array.from({ length: maxNum }, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+        const selected = shuffled.slice(0, count);
+        const sum = selected.reduce((a, b) => a + b, 0);
+        if (Math.abs(sum - targetSum) < 10) recommended.push({ nums: selected.sort((a, b) => a - b), sum });
+      }
+      return { type, avgSum: avgSum.toFixed(2), commonSums, targetSum, sumStats: Object.fromEntries(sortedSums.slice(0, 10)), recommended: recommended.slice(0, 5).map(r => r.nums) };
+    }
+    
+    function repeatLink(type = 'ssq') {
+      const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+      const isSSQ = type === 'ssq';
+      const count = isSSQ ? 6 : 5;
+      const repeatStats = [];
+      for (let i = 1; i < data.length; i++) {
+        const prevNums = isSSQ ? data[i].r : data[i].f;
+        const currNums = isSSQ ? data[i - 1].r : data[i - 1].f;
+        repeatStats.push(prevNums.filter(n => currNums.includes(n)).length);
+      }
+      const linkStats = [];
+      for (let i = 0; i < data.length; i++) {
+        const nums = isSSQ ? data[i].r : data[i].f;
+        const sorted = [...nums].sort((a, b) => a - b);
+        let links = 0;
+        for (let j = 1; j < sorted.length; j++) { if (sorted[j] - sorted[j - 1] === 1) links++; }
+        linkStats.push(links);
+      }
+      const avgRepeat = repeatStats.reduce((a, b) => a + b, 0) / repeatStats.length;
+      const avgLink = linkStats.reduce((a, b) => a + b, 0) / linkStats.length;
+      const lastNums = isSSQ ? data[0].r : data[0].f;
+      const recommended = [];
+      for (let sim = 0; sim < 10; sim++) {
+        const result = [];
+        const repeatCount = Math.round(avgRepeat);
+        const repeatFromLast = lastNums.sort(() => Math.random() - 0.5).slice(0, repeatCount);
+        result.push(...repeatFromLast);
+        const maxNum = isSSQ ? 33 : 35;
+        const remaining = Array.from({ length: maxNum }, (_, i) => i + 1).filter(n => !result.includes(n));
+        while (result.length < count) { const n = remaining.splice(Math.floor(Math.random() * remaining.length), 1)[0]; if (n) result.push(n); }
+        recommended.push(result.sort((a, b) => a - b));
+      }
+      return { type, avgRepeat: avgRepeat.toFixed(2), avgLink: avgLink.toFixed(2), lastNums, recommended: recommended.slice(0, 5) };
+    }
+    
+    function danMa(type = 'ssq', opts = {}) {
+      const { danma = [], tuomaCount } = opts;
+      const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+      const isSSQ = type === 'ssq';
+      const count = isSSQ ? 6 : 5;
+      const maxNum = isSSQ ? 33 : 35;
+      if (danma.length === 0) {
+        const freq = {}; for (let i = 1; i <= maxNum; i++) freq[i] = 0;
+        data.forEach(row => { const nums = isSSQ ? row.r : row.f; nums.forEach(n => freq[n]++); });
+        const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]);
+        const danCount = isSSQ ? 2 : 1;
+        danma.push(...sorted.slice(0, danCount).map(([n]) => parseInt(n)));
+      }
+      const actualTuomaCount = tuomaCount || (count - danma.length);
+      const tuomaNeed = count - danma.length;
+      const tuomaPool = Array.from({ length: maxNum }, (_, i) => i + 1).filter(n => !danma.includes(n));
+      const recommended = [];
+      for (let sim = 0; sim < 20 && recommended.length < 5; sim++) {
+        const shuffled = [...tuomaPool].sort(() => Math.random() - 0.5);
+        const tuoma = shuffled.slice(0, tuomaNeed);
+        const full = [...danma, ...tuoma].sort((a, b) => a - b);
+        if (full.length === count) recommended.push(full);
+      }
+      return { type, danma: danma.sort((a, b) => a - b), tuomaCount: actualTuomaCount, recommended };
+    }
+    
+    function rotateMatrix(type = 'ssq', opts = {}) {
+      const { nums, guarantee = '6保5' } = opts;
+      const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+      const isSSQ = type === 'ssq';
+      const count = isSSQ ? 6 : 5;
+      const maxNum = isSSQ ? 33 : 35;
+      let selectedNums = nums;
+      if (!selectedNums || selectedNums.length === 0) {
+        const freq = {}; for (let i = 1; i <= maxNum; i++) freq[i] = 0;
+        data.forEach(row => { const rowNums = isSSQ ? row.r : row.f; rowNums.forEach(n => freq[n]++); });
+        const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]);
+        selectedNums = sorted.slice(0, 10).map(([n]) => parseInt(n));
+      }
+      const n = selectedNums.length;
+      const allCombinations = [];
+      const combine = (arr, k, start, current) => { if (current.length === k) { allCombinations.push([...current]); return; } for (let i = start; i < arr.length && arr.length - i + current.length >= k; i++) { current.push(arr[i]); combine(arr, k, i + 1, current); current.pop(); } };
+      combine(selectedNums, count, 0, []);
+      const matrixSize = Math.min(20, allCombinations.length);
+      const shuffled = allCombinations.sort(() => Math.random() - 0.5);
+      const matrix = shuffled.slice(0, matrixSize);
+      return { type, guarantee, inputNums: selectedNums.sort((a, b) => a - b), matrixSize, matrix };
+    }
+    
+    // ============ UI FUNCTIONS ============
+    function t(key) {
+      const texts = {
+        algo: { zh: '选择算法', en: 'Select Algorithm' },
+        generate: { zh: '生成推荐', en: 'Generate' },
+        generateBtn: { zh: '立即生成', en: 'Generate Now' },
+        results: { zh: '推荐结果', en: 'Results' },
+        emptyResults: { zh: '点击"立即生成"获取推荐号码', en: 'Click "Generate Now" to get numbers' },
+        historyData: { zh: '历史开奖数据', en: 'Historical Data' },
+        favorites: { zh: '我的收藏', en: 'My Favorites' },
+        history: { zh: '历史记录', en: 'History' },
+        compound: { zh: '复式投注', en: 'Compound Bet' },
+        generateCompound: { zh: '生成复式', en: 'Generate Compound' },
+        '胆拖': { zh: '胆拖投注', en: 'Dan-Tuo Bet' },
+        generateDanTuo: { zh: '生成胆拖', en: 'Generate Dan-Tuo' },
+        zodiac: { zh: '生肖幸运号', en: 'Zodiac Lucky' },
+        generateZodiac: { zh: '获取幸运号', en: 'Get Lucky Numbers' },
+        birthday: { zh: '生日数字', en: 'Birthday Numbers' },
+        generateBirthday: { zh: '生成幸运号', en: 'Generate' },
+        persistence: { zh: '守号管理', en: 'Persistence' },
+        addShouhao: { zh: '添加守号', en: 'Add Number' }
+      };
+      return texts[key]?.[currentLang] || key;
+    }
+    
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = 'toast ' + type + ' show';
+      setTimeout(() => toast.className = 'toast', 3000);
+    }
+    
+    function toggleDarkMode() {
+      isDarkMode = !isDarkMode;
+      localStorage.setItem('darkMode', isDarkMode);
+      document.body.classList.toggle('dark-mode', isDarkMode);
+      document.getElementById('themeIcon').textContent = isDarkMode ? '☀️' : '🌙';
+    }
+    
+    function toggleLanguage() {
+      currentLang = currentLang === 'zh' ? 'en' : 'zh';
+      localStorage.setItem('lang', currentLang);
+      document.getElementById('langText').textContent = currentLang === 'zh' ? 'EN' : '中';
+      document.title = currentLang === 'zh' ? '百万人生 v3.0 — 全功能体彩分析' : 'Million Life v3.0 — Lottery Analysis';
+      renderAlgoGrid();
+    }
+    
+    function switchLottery(type) {
+      currentType = type;
+      document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.type === type));
+      renderHistoryTable();
+    }
+    
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = c.id === 'tab-' + tab ? 'block' : 'none');
+      if (tab === 'stats') renderStats();
+      if (tab === 'history-data') renderHistoryTable();
+      if (tab === 'play') initPlayMethods();
+    }
+    
+    function togglePanel(panel) {
+      const p = document.getElementById(panel + 'Panel');
+      const overlay = document.getElementById('overlay');
+      p.classList.toggle('open');
+      overlay.classList.toggle('open');
+      if (panel === 'favorites') renderFavorites();
+      if (panel === 'history') renderHistory();
+    }
+    
+    function closePanel() {
+      document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open'));
+      document.getElementById('overlay').classList.remove('open');
+    }
+    
+    function renderAlgoGrid() {
+      const grid = document.getElementById('algoGrid');
+      grid.innerHTML = ALGOS.map(a => `
+        <div class="algo-card ${a.id === currentAlgo ? 'active' : ''}" onclick="selectAlgo('${a.id}')">
+          <h4>${a.name[currentLang]}</h4>
+          <p>${a.desc[currentLang]}</p>
+        </div>
+      `).join('');
+    }
+    
+    function selectAlgo(id) {
+      currentAlgo = id;
+      renderAlgoGrid();
+    }
+    
+    function generateNumbers() {
+      let result;
+      switch (currentAlgo) {
+        case 'hotCold': result = hotCold(currentType); break;
+        case 'oddEven': result = oddEven(currentType); break;
+        case 'zone': result = zone(currentType); break;
+        case 'tail': result = tail(currentType); break;
+        case 'monteCarlo': result = monteCarlo(currentType); break;
+        case 'acValue': result = acValue(currentType); break;
+        case 'sumValue': result = sumValue(currentType); break;
+        case 'repeatLink': result = repeatLink(currentType); break;
+        case 'danMa': result = danMa(currentType); break;
+        case 'rotateMatrix': result = rotateMatrix(currentType); break;
+      }
+      const numbers = result.recommended?.[0] || result.selected || result.matrix?.[0] || [];
+      renderResults(numbers);
+      addToHistory(numbers);
+    }
+    
+    function renderResults(numbers) {
+      const container = document.getElementById('resultsContainer');
+      if (!numbers.length) { container.innerHTML = '<div class="empty-state"><div class="icon">🎰</div><p>' + t('emptyResults') + '</p></div>'; return; }
+      const isSSQ = currentType === 'ssq';
+      const redBalls = isSSQ ? numbers.slice(0, 6) : numbers.slice(0, 5);
+      const blueBalls = isSSQ ? [numbers[6]] : numbers.slice(5, 7);
+      const id = Date.now();
+      container.innerHTML = `
+        <div class="result-item fade-in">
+          <div class="result-numbers">
+            ${redBalls.map(n => `<span class="ball ball-red">${String(n).padStart(2,'0')}</span>`).join('')}
+            ${blueBalls ? blueBalls.map(n => `<span class="ball ball-blue">${String(n).padStart(2,'0')}</span>`).join('') : ''}
+          </div>
+          <div class="result-actions">
+            <button class="btn btn-secondary" onclick="copyNumbers('${numbers.join(',')}')">📋</button>
+            <button class="btn btn-secondary" onclick="favoriteNumbers(${JSON.stringify(numbers).replace(/"/g, '&quot;')},${id})">⭐</button>
+            <button class="btn btn-secondary" onclick="shareNumbers(${JSON.stringify(numbers).replace(/"/g, '&quot;')})">🔗</button>
+          </div>
+        </div>
+        <div style="margin-top:12px;">
+          <button class="btn btn-primary" style="width:100%;" onclick="generateNumbers()">🎲 ${t('generateBtn')}</button>
+        </div>
+      `;
+    }
+    
+    function copyNumbers(numbers) {
+      const text = numbers.split(',').map(n => n.trim().padStart(2, '0')).join(' ');
+      navigator.clipboard.writeText(text).then(() => showToast('已复制到剪贴板')).catch(() => showToast('复制失败', 'error'));
+    }
+    
+    function favoriteNumbers(numbers, id) {
+      const isSSQ = currentType === 'ssq';
+      favorites.unshift({ id, numbers, type: currentType, createdAt: new Date().toISOString() });
+      if (favorites.length > 50) favorites = favorites.slice(0, 50);
+      localStorage.setItem('million_life_favorites', JSON.stringify(favorites));
+      document.getElementById('favCount').textContent = favorites.length;
+      showToast('已添加到收藏 ⭐');
+    }
+    
+    function shareNumbers(numbers) {
+      const text = '🎯 百万人生体彩分析\n📅 ' + new Date().toLocaleDateString() + '\n🎰 推荐号码: ' + numbers.split(',').map(n => n.trim().padStart(2, '0')).join(' ');
+      if (navigator.share) navigator.share({ title: '我的幸运号码', text }).catch(() => copyNumbers(numbers));
+      else copyNumbers(numbers);
+    }
+    
+    function addToHistory(numbers) {
+      history.unshift({ numbers, type: currentType, algo: currentAlgo, createdAt: new Date().toISOString() });
+      if (history.length > 20) history = history.slice(0, 20);
+      localStorage.setItem('million_life_history', JSON.stringify(history));
+      document.getElementById('histCount').textContent = history.length;
+    }
+    
+    function renderFavorites() {
+      const list = document.getElementById('favoritesList');
+      if (!favorites.length) { list.innerHTML = '<div class="empty-state"><div class="icon">⭐</div><p>暂无收藏</p></div>'; return; }
+      list.innerHTML = favorites.map(f => `
+        <div class="result-item">
+          <div class="result-numbers">
+            ${(f.numbers || []).map(n => `<span class="ball ball-small ${f.type === 'ssq' ? 'ball-red' : 'ball-blue'}">${String(n).padStart(2,'0')}</span>`).join('')}
+          </div>
+          <button class="btn btn-coral" onclick="removeFavorite(${f.id})" style="padding:4px 8px;font-size:12px;">🗑️</button>
+        </div>
+      `).join('');
+    }
+    
+    function removeFavorite(id) {
+      favorites = favorites.filter(f => f.id !== id);
+      localStorage.setItem('million_life_favorites', JSON.stringify(favorites));
+      document.getElementById('favCount').textContent = favorites.length;
+      renderFavorites();
+    }
+    
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      if (!history.length) { list.innerHTML = '<div class="empty-state"><div class="icon">📜</div><p>暂无历史记录</p></div>'; return; }
+      list.innerHTML = history.map(h => `
+        <div class="result-item">
+          <div>
+            <div style="font-size:12px;color:var(--text-secondary);">${new Date(h.createdAt).toLocaleString()}</div>
+            <div class="result-numbers" style="margin-top:4px;">
+              ${(h.numbers || []).map(n => `<span class="ball ball-small ${h.type === 'ssq' ? 'ball-red' : 'ball-blue'}">${String(n).padStart(2,'0')}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function renderHistoryTable() {
+      const data = currentType === 'ssq' ? SSQ_DATA : DLT_DATA;
+      document.getElementById('historyCount').textContent = `共 ${data.length} 期`;
+      const tbody = document.getElementById('historyTableBody');
+      tbody.innerHTML = data.slice(0, 50).map(row => {
+        const nums = currentType === 'ssq' ? row.r : row.f;
+        const bonus = currentType === 'ssq' ? [row.b] : row.b;
+        return `<tr>
+          <td>${row.p}</td>
+          <td>${nums.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join(' ')}</td>
+          <td>${bonus.map(n => `<span class="ball ball-small ball-blue">${String(n).padStart(2,'0')}</span>`).join(' ')}</td>
+        </tr>`;
+      }).join('');
+    }
+    
+    function shakeReroll() {
+      if (window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function') {
+        DeviceMotionEvent.requestPermission().then(r => { if (r === 'granted') detectShake(); }).catch(() => showToast('摇一摇权限被拒绝', 'error'));
+      } else if (window.DeviceMotionEvent) detectShake();
+      else showToast('您的设备不支持摇一摇', 'error');
+    }
+    
+    function detectShake() {
+      let lastTrigger = 0;
+      const handler = (e) => {
+        if (!e.accelerationIncludingGravity) return;
+        const { x, y, z } = e.accelerationIncludingGravity;
+        if (!x && !y && !z) return;
+        const acc = Math.sqrt(x * x + y * y + z * z);
+        const now = Date.now();
+        if (acc > 15 && now - lastTrigger > 1000) { lastTrigger = now; generateNumbers(); }
+      };
+      window.addEventListener('devicemotion', handler);
+      setTimeout(() => window.removeEventListener('devicemotion', handler), 30000);
+      showToast('摇动手机换一注 🎲');
+    }
+    
+    // ============ STATS CHARTS ============
+    function calcFrequency(data, type) {
+      const freq = {}; const maxNum = type === 'ssq' ? 33 : 35;
+      for (let i = 1; i <= maxNum; i++) freq[i] = 0;
+      data.forEach(item => { (type === 'ssq' ? item.r : item.f).forEach(n => { if (freq[n] !== undefined) freq[n]++; }); });
+      return freq;
+    }
+    
+    function renderStats() {
+      const container = document.getElementById('statsContainer');
+      const data = currentType === 'ssq' ? SSQ_DATA : DLT_DATA;
+      const freq = calcFrequency(data, currentType);
+      const sorted = Object.entries(freq).map(([num, count]) => ({ num: +num, count })).sort((a, b) => b.count - a.count);
+      const maxCount = sorted[0]?.count || 1;
+      
+      let html = '';
+      // Hot Numbers
+      html += `<div class="card"><div class="card-title"><span class="icon">🔥</span>热号 TOP10</div><div class="chart-container">`;
+      html += `<svg viewBox="0 0 400 220" style="background:#f5f7fa;border-radius:8px;">`;
+      sorted.slice(0, 10).forEach((item, i) => {
+        const barH = (item.count / maxCount) * 150;
+        const x = 20 + i * 36;
+        html += `<rect x="${x}" y="${180 - barH}" width="28" height="${barH}" fill="#ff6b6b" rx="4"/>`;
+        html += `<text x="${x + 14}" y="${175 - barH}" font-size="10" fill="#333" text-anchor="middle">${item.num}</text>`;
+        html += `<text x="${x + 14}" y="${195}" font-size="9" fill="#666" text-anchor="middle">${item.count}</text>`;
+      });
+      html += `</svg></div></div>`;
+      
+      // Cold Numbers
+      const coldSorted = sorted.slice().reverse();
+      html += `<div class="card"><div class="card-title"><span class="icon">❄️</span>冷号 TOP10</div><div class="chart-container">`;
+      html += `<svg viewBox="0 0 400 220" style="background:#f5f7fa;border-radius:8px;">`;
+      coldSorted.slice(0, 10).forEach((item, i) => {
+        const barH = Math.max((item.count / maxCount) * 150, 5);
+        const x = 20 + i * 36;
+        html += `<rect x="${x}" y="${180 - barH}" width="28" height="${barH}" fill="#5b8def" rx="4"/>`;
+        html += `<text x="${x + 14}" y="${175 - barH}" font-size="10" fill="#333" text-anchor="middle">${item.num}</text>`;
+        html += `<text x="${x + 14}" y="${195}" font-size="9" fill="#666" text-anchor="middle">${item.count}</text>`;
+      });
+      html += `</svg></div></div>`;
+      
+      // Odd/Even
+      let oddCount = 0, evenCount = 0, total = 0;
+      data.forEach(item => {
+        const nums = currentType === 'ssq' ? item.r : item.f;
+        nums.forEach(n => { if (n % 2 === 1) oddCount++; else evenCount++; total++; });
+      });
+      html += `<div class="card"><div class="card-title"><span class="icon">⚖️</span>奇偶比例</div><div class="chart-container">`;
+      html += `<svg viewBox="0 0 300 200" style="background:#f5f7fa;border-radius:8px;">`;
+      const oddRatio = oddCount / total;
+      const cx = 100, cy = 100, r = 70;
+      html += `<path d="M${cx},${cy} L${cx},${cy - r} A${r},${r} 0 ${oddRatio > 0.5 ? 1 : 0},1 ${cx + r * Math.sin(oddRatio * 2 * Math.PI)},${cy - r * Math.cos(oddRatio * 2 * Math.PI)} Z" fill="#4ecdc4"/>`;
+      html += `<path d="M${cx},${cy} L${cx + r * Math.sin(oddRatio * 2 * Math.PI)},${cy - r * Math.cos(oddRatio * 2 * Math.PI)} A${r},${r} 0 ${oddRatio > 0.5 ? 0 : 1},1 ${cx},${cy - r} Z" fill="#ff6b6b"/>`;
+      html += `<text x="${cx}" y="${cy + 5}" font-size="14" fill="#fff" text-anchor="middle">${(oddRatio * 100).toFixed(1)}%</text>`;
+      html += `<text x="200" y="80" font-size="12" fill="#333">奇数: ${(oddRatio * 100).toFixed(1)}%</text>`;
+      html += `<text x="200" y="100" font-size="12" fill="#333">偶数: ${((1 - oddRatio) * 100).toFixed(1)}%</text>`;
+      html += `</svg></div></div>`;
+      
+      // Sum Trend
+      const sums = data.slice(0, 30).reverse().map(item => {
+        const nums = currentType === 'ssq' ? item.r : item.f;
+        return nums.reduce((a, b) => a + b, 0);
+      });
+      const minSum = Math.min(...sums), maxSum = Math.max(...sums);
+      html += `<div class="card"><div class="card-title"><span class="icon">📈</span>和值走势 (近30期)</div><div class="chart-container">`;
+      html += `<svg viewBox="0 0 450 200" style="background:#f5f7fa;border-radius:8px;">`;
+      const step = 420 / (sums.length - 1);
+      let pathD = '';
+      sums.forEach((s, i) => {
+        const x = 15 + i * step;
+        const y = 180 - ((s - minSum) / (maxSum - minSum || 1)) * 150;
+        pathD += (i === 0 ? `M${x},${y}` : ` L${x},${y}`);
+      });
+      html += `<path d="${pathD}" fill="none" stroke="#4ecdc4" stroke-width="2.5" stroke-linecap="round"/>`;
+      sums.forEach((s, i) => {
+        const x = 15 + i * step;
+        const y = 180 - ((s - minSum) / (maxSum - minSum || 1)) * 150;
+        html += `<circle cx="${x}" cy="${y}" r="3" fill="#4ecdc4"/>`;
+      });
+      html += `<text x="225" y="195" font-size="11" fill="#666" text-anchor="middle">均值: ${Math.round(sums.reduce((a,b)=>a+b,0)/sums.length)}</text>`;
+      html += `</svg></div></div>`;
+      
+      container.innerHTML = html;
+    }
+    
+    // ============ PLAY METHODS ============
+    function initPlayMethods() {
+      const redMax = currentType === 'ssq' ? 33 : 35;
+      const blueMax = currentType === 'ssq' ? 16 : 12;
+      
+      // Compound red list
+      const compoundRed = document.getElementById('compoundRedList');
+      compoundRed.innerHTML = Array.from({ length: redMax }, (_, i) => i + 1).map(n => 
+        `<span class="number-item red" onclick="this.classList.toggle('selected')">${String(n).padStart(2,'0')}</span>`
+      ).join('');
+      
+      // Compound blue list
+      const compoundBlue = document.getElementById('compoundBlueList');
+      compoundBlue.innerHTML = Array.from({ length: blueMax }, (_, i) => i + 1).map(n => 
+        `<span class="number-item blue" onclick="this.classList.toggle('selected')">${String(n).padStart(2,'0')}</span>`
+      ).join('');
+      
+      // Dan ma list
+      const danMaList = document.getElementById('danMaList');
+      danMaList.innerHTML = Array.from({ length: redMax }, (_, i) => i + 1).map(n => 
+        `<span class="number-item red" onclick="this.classList.toggle('selected')">${String(n).padStart(2,'0')}</span>`
+      ).join('');
+      
+      // Tuo ma list
+      const tuoMaList = document.getElementById('tuoMaList');
+      tuoMaList.innerHTML = Array.from({ length: redMax }, (_, i) => i + 1).map(n => 
+        `<span class="number-item" onclick="this.classList.toggle('selected')">${String(n).padStart(2,'0')}</span>`
+      ).join('');
+      
+      renderShouhaoList();
+    }
+    
+    function getSelectedNumbers(containerId) {
+      const container = document.getElementById(containerId);
+      return Array.from(container.querySelectorAll('.number-item.selected')).map(el => parseInt(el.textContent));
+    }
+    
+    function clearSelections(containerId) {
+      document.getElementById(containerId).querySelectorAll('.number-item').forEach(el => el.classList.remove('selected'));
+    }
+    
+    function combination(n, r) {
+      if (r > n || r < 0) return 0;
+      if (r === 0 || r === n) return 1;
+      let result = 1;
+      for (let i = 0; i < r; i++) result = result * (n - i) / (i + 1);
+      return result;
+    }
+    
+    function generateCompound() {
+      const reds = getSelectedNumbers('compoundRedList');
+      const blues = getSelectedNumbers('compoundBlueList');
+      if (currentType === 'ssq') {
+        if (reds.length < 7 || reds.length > 16) { showToast('双色球复式红球需选7-16个', 'error'); return; }
+        const bets = combination(reds.length, 6);
+        document.getElementById('compoundResult').innerHTML = `<div style="padding:12px;background:var(--bg);border-radius:8px;"><strong>共 ${bets} 注</strong> (红球${reds.length}个)</div>`;
       } else {
-        const b1 = wSample(bv, bw, 1)[0];
-        const rem = bv.filter(n => n !== b1);
-        const rw2 = bw.map((w, i) => bv[i] === b1 ? 0 : w);
-        const b2 = wSample(rem, rw2, 1)[0];
-        blue = [b1, b2].sort((a, b) => a - b);
+        if (reds.length < 7 || reds.length > 15 || blues.length < 2) { showToast('大乐透前区7-15个+后区2个以上', 'error'); return; }
+        const bets = combination(reds.length, 5) * combination(blues.length, 2);
+        document.getElementById('compoundResult').innerHTML = `<div style="padding:12px;background:var(--bg);border-radius:8px;"><strong>共 ${bets} 注</strong></div>`;
       }
-      return { reds, blue };
-    },
-    oddEven(type) {
-      const target = type === 'ssq' ? 4 : 3;
-      const odds = rv.filter(n => n % 2 === 1);
-      const evens = rv.filter(n => n % 2 === 0);
-      const reds = [];
-      const so = shuf(odds), se = shuf(evens);
-      let added = 0;
-      while (reds.length < (type === 'ssq' ? 6 : 5)) {
-        if (added < target && so.length) reds.push(so.shift());
-        else if (se.length) reds.push(se.shift());
-        else if (so.length) reds.push(so.shift());
-        added++;
-      }
-      reds.sort((a, b) => a - b);
-      const blue = type === 'ssq' ? [Math.floor(Math.random() * blim) + 1] : shuf([1, 2]).map(() => Math.floor(Math.random() * blim) + 1).sort((a, b) => a - b);
-      return { reds, blue };
-    },
-    zone(type) {
-      const zones = type === 'ssq' ? 3 : 5;
-      const per = type === 'ssq' ? 2 : 1;
-      const reds = [];
-      for (let z = 0; z < zones; z++) {
-        const s = Math.floor(z * lim / zones) + 1;
-        const e = Math.floor((z + 1) * lim / zones);
-        const zn = []; for (let n = s; n <= e; n++) zn.push(n);
-        const zw = zn.map(n => rf[n] || 0);
-        reds.push(...wSample(zn, zw, per));
-      }
-      reds.sort((a, b) => a - b);
-      const blue = type === 'ssq' ? [Math.floor(Math.random() * blim) + 1] : shuf([1, 2]).map(() => Math.floor(Math.random() * blim) + 1).sort((a, b) => a - b);
-      return { reds, blue };
-    },
-    tail(type) {
-      const tails = {}; for (let i = 0; i <= 9; i++) tails[i] = 0;
-      h.forEach(item => item.r.forEach(n => { tails[n % 10]++; }));
-      const top = Object.entries(tails).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([t]) => +t);
-      const reds = [];
-      while (reds.length < (type === 'ssq' ? 6 : 5)) {
-        const t = top[Math.floor(Math.random() * top.length)];
-        const cands = rv.filter(n => n % 10 === t && !reds.includes(n));
-        if (cands.length) reds.push(cands[Math.floor(Math.random() * cands.length)]);
-        else { const c2 = rv.filter(n => !reds.includes(n)); if (c2.length) reds.push(c2[Math.floor(Math.random() * c2.length)]); }
-      }
-      reds.sort((a, b) => a - b);
-      const blue = type === 'ssq' ? [Math.floor(Math.random() * blim) + 1] : shuf([1, 2]).map(() => Math.floor(Math.random() * blim) + 1).sort((a, b) => a - b);
-      return { reds, blue };
-    },
-    monteCarlo(type) {
-      let best = null, bestS = -1;
-      for (let t = 0; t < 1000; t++) {
-        const reds = shuf(Array.from({ length: lim }, (_, i) => i + 1)).slice(0, type === 'ssq' ? 6 : 5).sort((a, b) => a - b);
-        const sc = reds.reduce((s, n) => s + (rf[n] || 0) + (rm[n] || 0), 0);
-        const blue = type === 'ssq' ? [Math.floor(Math.random() * blim) + 1] : shuf([1, 2]).map(() => Math.floor(Math.random() * blim) + 1).sort((a, b) => a - b);
-        if (sc > bestS) { bestS = sc; best = { reds, blue }; }
-      }
-      return best || { reds: [1, 2, 3, 4, 5, 6], blue: [1] };
+      showToast('复式投注生成成功 🎯');
     }
-  };
-}
-
-// ==================== GENERATE ====================
-function gen() {
-  const area = document.getElementById('rArea');
-  if (sel.size === 0) {
-    area.innerHTML = `<div class="r-empty"><div class="r-empty-icon">⚠️</div><div>请至少选择一个算法</div></div>`;
-    return;
-  }
-
-  const ag = algos(cur);
-  const names = { 'hot-cold': '冷热号', 'odd-even': '奇偶', 'zone': '区间', 'tail': '尾数', 'monte-carlo': '蒙特卡洛' };
-  const keyMap = { 'hot-cold': 'hotCold', 'odd-even': 'oddEven', 'zone': 'zone', 'tail': 'tail', 'monte-carlo': 'monteCarlo' };
-
-  const results = [];
-  for (const a of sel) {
-    const k = keyMap[a];
-    if (k && ag[k]) results.push({ a, name: names[a] || a, nums: ag[k](cur) });
-  }
-
-  area.innerHTML = results.map((r, i) => {
-    const rh = r.nums.reds.map((n, idx) => `<span class="ball ball-r ball-a" style="animation-delay:${idx * 0.05}s">${n}</span>`).join('');
-    const bh = r.nums.blue.map((n, idx) => `<span class="ball ball-b ball-a" style="animation-delay:${(r.nums.reds.length + idx) * 0.05}s">${n}</span>`).join('');
-    const sep = cur === 'ssq' ? '<span class="r-sep">+</span>' : '<span class="r-sep">·</span>';
-    return `<div class="r-card" style="animation-delay:${i * 0.1}s">
-      <div class="r-head">
-        <span class="r-num">第${i + 1}注</span>
-        <span class="r-algo">${r.name}</span>
-      </div>
-      <div class="r-balls">${rh}${sep}${bh}</div>
-    </div>`;
-  }).join('');
-}
-
-init();
-</script>
+    
+    function generateDanTuo() {
+      const danmas = getSelectedNumbers('danMaList');
+      const tuomas = getSelectedNumbers('tuoMaList');
+      if (danmas.length < 1 || danmas.length > 5) { showToast('胆码需选1-5个', 'error'); return; }
+      const need = currentType === 'ssq' ? 6 - danmas.length : 5 - danmas.length;
+      if (tuomas.length < need) { showToast(`拖码至少选${need}个`, 'error'); return; }
+      const overlap = danmas.filter(d => tuomas.includes(d));
+      if (overlap.length) { showToast('胆码和拖码不能重复', 'error'); return; }
+      const bets = combination(tuomas.length, need);
+      document.getElementById('danTuoResult').innerHTML = `<div style="padding:12px;background:var(--bg);border-radius:8px;"><strong>胆码[${danmas.join(',')}] 拖码[${tuomas.join(',')}]</strong><br>共 ${bets} 注</div>`;
+      showToast('胆拖投注生成成功 💪');
+    }
+    
+    function generateZodiac() {
+      const year = parseInt(document.getElementById('birthYear').value) || 1990;
+      const zodiacs = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪'];
+      const baseYear = 2020, zodiacIndex = ((year - baseYear) % 12 + 12) % 12;
+      const zodiac = zodiacs[zodiacIndex];
+      const luckyNums = { '鼠': [2,12,22,32], '牛': [5,15,25,35], '虎': [3,13,23,33], '兔': [4,14,24,34], '龙': [1,11,21,31], '蛇': [6,16,26], '马': [7,17,27], '羊': [8,18,28], '猴': [9,19,29], '鸡': [10,20,30], '狗': [11,21,31], '猪': [12,22,32] };
+      const reds = luckyNums[zodiac] || [1,2,3,4,5,6];
+      while (reds.length < 6) reds.push(Math.floor(Math.random() * (currentType === 'ssq' ? 33 : 35)) + 1);
+      const result = reds.slice(0, 6).sort((a, b) => a - b);
+      document.getElementById('zodiacResult').innerHTML = `<div style="padding:12px;background:var(--bg);border-radius:8px;"><strong>🐉 ${zodiac}年</strong><br>幸运号: ${result.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join('')}</div>`;
+    }
+    
+    function generateBirthday() {
+      const dateStr = document.getElementById('birthdayDate').value;
+      if (!dateStr) { showToast('请选择生日', 'error'); return; }
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const digits = [...String(y), ...String(m).padStart(2,'0'), ...String(d).padStart(2,'0')].map(Number);
+      const unique = [...new Set(digits)].sort((a, b) => a - b);
+      const reds = [...unique];
+      while (reds.length < 6) { const n = Math.floor(Math.random() * (currentType === 'ssq' ? 33 : 35)) + 1; if (!reds.includes(n)) reds.push(n); }
+      const result = reds.slice(0, 6).sort((a, b) => a - b);
+      document.getElementById('birthdayResult').innerHTML = `<div style="padding:12px;background:var(--bg);border-radius:8px;"><strong>🎂 ${y}-${m}-${d}</strong><br>幸运号: ${result.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join('')}</div>`;
+    }
+    
+    function addShouhao() {
+      const name = document.getElementById('shouhaoName').value || `守号${shouhaoList.length + 1}`;
+      const numsStr = document.getElementById('shouhaoNumbers').value;
+      const numbers = numsStr.split(',').map(n => parseInt(n.trim())).filter(n => n > 0);
+      if (!numbers.length) { showToast('请输入有效号码', 'error'); return; }
+      shouhaoList.push({ id: Date.now(), name, numbers, type: currentType, createdAt: new Date().toISOString() });
+      localStorage.setItem('million_life_shouhao', JSON.stringify(shouhaoList));
+      document.getElementById('shouhaoNumbers').value = '';
+      renderShouhaoList();
+      showToast('守号添加成功 ⏰');
+    }
+    
+    function renderShouhaoList() {
+      const list = document.getElementById('shouhaoList');
+      if (!shouhaoList.length) { list.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:20px;">暂无守号</div>'; return; }
+      list.innerHTML = shouhaoList.map(s => `
+        <div style="padding:8px;background:var(--bg);border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-weight:600;">${s.name}</div>
+            <div style="font-size:12px;color:var(--text-secondary);">${s.numbers.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join('')}</div>
+          </div>
+          <button class="btn btn-coral" onclick="deleteShouhao(${s.id})" style="padding:4px 8px;font-size:12px;">🗑️</button>
+        </div>
+      `).join('');
+    }
+    
+    function deleteShouhao(id) {
+      shouhaoList = shouhaoList.filter(s => s.id !== id);
+      localStorage.setItem('million_life_shouhao', JSON.stringify(shouhaoList));
+      renderShouhaoList();
+    }
+    
+    function showLuckIndex() {
+      const el = document.getElementById('luckValue');
+      let value = 0;
+      const interval = setInterval(() => { value = Math.min(value + Math.floor(Math.random() * 5), 100); el.textContent = value; if (value >= 100) clearInterval(interval); }, 30);
+    }
+    
+    function compareNumbers() {
+      const input = document.getElementById('compareNumbers').value;
+      const selected = input.split(',').map(n => parseInt(n.trim())).filter(n => n > 0);
+      if (!selected.length) { showToast('请输入有效号码', 'error'); return; }
+      const data = currentType === 'ssq' ? SSQ_DATA : DLT_DATA;
+      let html = '<div style="max-height:300px;overflow-y:auto;">';
+      data.slice(0, 10).forEach(row => {
+        const nums = currentType === 'ssq' ? row.r : row.f;
+        const matched = selected.filter(n => nums.includes(n));
+        html += `<div style="padding:8px;margin-bottom:4px;background:var(--bg);border-radius:4px;">
+          <div style="font-size:12px;color:var(--text-secondary);">${row.p} - 匹配${matched.length}个</div>
+          <div>${nums.map(n => `<span class="ball ball-small ${matched.includes(n) ? 'ball-blue' : 'ball-red'}">${String(n).padStart(2,'0')}</span>`).join('')}</div>
+        </div>`;
+      });
+      html += '</div>';
+      document.getElementById('compareResult').innerHTML = html;
+    }
+    
+    // ============ INIT ============
+    document.addEventListener('DOMContentLoaded', () => {
+      if (isDarkMode) { document.body.classList.add('dark-mode'); document.getElementById('themeIcon').textContent = '☀️'; }
+      document.getElementById('favCount').textContent = favorites.length;
+      document.getElementById('histCount').textContent = history.length;
+      renderAlgoGrid();
+      renderHistoryTable();
+    });
+  </script>
 </body>
 </html>
