@@ -590,7 +590,7 @@ function algoHotCold(history, type) {
     const bFreq = {};
     allB.forEach(n => bFreq[n] = (bFreq[n] || 0) + 1);
     const bLast = {};
-    history.forEach((h, i) => h.b.forEach(n => bLast[n] = i));
+    history.forEach((h, i) => (Array.isArray(h.b) ? h.b : [h.b]).forEach(n => bLast[n] = i));
     const bPool = Array.from({ length: 12 }, (_, i) => i + 1);
     const bW = bPool.map(n => {
       const f = bFreq[n] || 0;
@@ -846,7 +846,7 @@ function renderStats() {
     const freqF = {}; allF.forEach(n => freqF[n] = (freqF[n] || 0) + 1);
     const freqB = {}; allB.forEach(n => freqB[n] = (freqB[n] || 0) + 1);
     const lastF = {}; history.forEach((h, i) => h.f.forEach(n => lastF[n] = i));
-    const lastB = {}; history.forEach((h, i) => h.b.forEach(n => lastB[n] = i));
+    const lastB = {};    history.forEach((h, i) => (Array.isArray(h.b) ? h.b : [h.b]).forEach(n => lastB[n] = i));
     const fPool = Array.from({ length: 35 }, (_, i) => i + 1);
     const bPool = Array.from({ length: 12 }, (_, i) => i + 1);
 
