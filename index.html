@@ -2078,7 +2078,7 @@
       if (!numbers.length) { container.innerHTML = '<div class="empty-state"><div class="icon">🎰</div><p>' + t('emptyResults') + '</p></div>'; return; }
       const isSSQ = currentType === 'ssq';
       const redBalls = isSSQ ? numbers.slice(0, 6) : numbers.slice(0, 5);
-      const blueBalls = isSSQ ? [numbers[6]] : numbers.slice(5, 7);
+      const blueBalls = isSSQ ? [(numbers[6] ?? Math.floor(Math.random() * 16) + 1)] : numbers.slice(5, 7);
       const id = Date.now();
       container.innerHTML = `
         <div class="result-item fade-in">
