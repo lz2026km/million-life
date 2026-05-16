@@ -415,6 +415,14 @@
     }
     .empty-state .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
     
+    /* Algo Result */
+    .algo-result {
+      padding: 12px;
+      background: var(--bg);
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    
     /* Loading */
     .loading {
       display: flex;
@@ -492,6 +500,9 @@
       <button class="tab" data-tab="stats" onclick="switchTab('stats')">📉 统计分析</button>
       <button class="tab" data-tab="play" onclick="switchTab('play')">🎮 投注玩法</button>
       <button class="tab" data-tab="tools" onclick="switchTab('tools')">🛠️ 工具箱</button>
+      <button class="tab" data-tab="advanced-algo" onclick="switchTab('advanced-algo')">🔮 高级算法</button>
+      <button class="tab" data-tab="batch" onclick="switchTab('batch')">📦 批量工具</button>
+      <button class="tab" data-tab="strategy" onclick="switchTab('strategy')">🎯 选号策略</button>
     </div>
     
     <!-- Tab: Analyze -->
@@ -538,6 +549,91 @@
     
     <!-- Tab: History Data -->
     <div id="tab-history-data" class="tab-content" style="display:none;">
+      <!-- 搜索功能 -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🔍</span>
+          <span>搜索历史数据</span>
+        </div>
+        <div class="grid grid-3" style="margin-bottom:16px;">
+          <div class="input-group">
+            <label>期号搜索</label>
+            <input type="text" id="searchPeriod" placeholder="如: 2025043">
+          </div>
+          <div class="input-group">
+            <label>彩票类型</label>
+            <select id="searchType">
+              <option value="ssq">双色球</option>
+              <option value="dlt">大乐透</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:flex-end;gap:8px;">
+            <button class="btn btn-primary" onclick="doSearchHistory()">搜索</button>
+            <button class="btn btn-secondary" onclick="clearSearch()">清空</button>
+          </div>
+        </div>
+        <div id="searchResult" style="display:none;" class="fade-in"></div>
+      </div>
+      
+      <!-- 数据统计 -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">📊</span>
+          <span>数据统计</span>
+          <button class="btn btn-secondary" style="margin-left:auto;" onclick="doGetDataStats()">刷新统计</button>
+        </div>
+        <div id="dataStatsContainer" class="grid grid-2"></div>
+      </div>
+      
+      <!-- 数据纠错 -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">✏️</span>
+          <span>数据纠错</span>
+        </div>
+        <div class="grid grid-3" style="margin-bottom:16px;">
+          <div class="input-group">
+            <label>期号</label>
+            <input type="text" id="correctPeriod" placeholder="如: 2025043">
+          </div>
+          <div class="input-group">
+            <label>红球/前区 (逗号分隔)</label>
+            <input type="text" id="correctRed" placeholder="如: 4,10,13,15,17,27">
+          </div>
+          <div class="input-group">
+            <label>蓝球/后区 (逗号分隔)</label>
+            <input type="text" id="correctBlue" placeholder="如: 7">
+          </div>
+        </div>
+        <button class="btn btn-coral" onclick="doSubmitCorrection()">提交纠错</button>
+        <div id="correctionResult" style="margin-top:12px;"></div>
+      </div>
+      
+      <!-- 导出CSV -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">📤</span>
+          <span>导出数据</span>
+        </div>
+        <div class="grid grid-3" style="margin-bottom:16px;">
+          <div class="input-group">
+            <label>彩票类型</label>
+            <select id="exportType">
+              <option value="ssq">双色球</option>
+              <option value="dlt">大乐透</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>文件名</label>
+            <input type="text" id="exportFilename" placeholder="lottery_data">
+          </div>
+          <div style="display:flex;align-items:flex-end;">
+            <button class="btn btn-primary" onclick="doExportCSV()">导出CSV</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 历史数据列表 -->
       <div class="card">
         <div class="card-title">
           <span class="icon">📜</span>
@@ -612,6 +708,49 @@
     
     <!-- Tab: Stats -->
     <div id="tab-stats" class="tab-content" style="display:none;">
+      <!-- 遗漏提醒 -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">🔔</span>
+          <span>遗漏提醒</span>
+        </div>
+        <div class="input-group">
+          <label>输入号码 (逗号分隔，如: 01,05,12,17,23,28)</label>
+          <input type="text" id="missAlertNumbers" placeholder="01,02,03,04,05,06">
+        </div>
+        <button class="btn btn-primary" style="margin-top:12px;" onclick="doCheckMissAlert()">检查遗漏</button>
+        <div id="missAlertResult" style="margin-top:16px;"></div>
+      </div>
+      
+      <!-- 推荐指数 -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">⭐</span>
+          <span>推荐指数</span>
+        </div>
+        <div class="input-group">
+          <label>输入号码 (逗号分隔，如: 01,05,12,17,23,28)</label>
+          <input type="text" id="recommendNumbers" placeholder="01,02,03,04,05,06">
+        </div>
+        <button class="btn btn-primary" style="margin-top:12px;" onclick="doCalculateRecommendIndex()">计算指数</button>
+        <div id="recommendIndexResult" style="margin-top:16px;"></div>
+      </div>
+      
+      <!-- 趋势线图 -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">📈</span>
+          <span>趋势线图</span>
+        </div>
+        <div class="input-group">
+          <label>输入号码 (1-33/35)</label>
+          <input type="number" id="trendLineNumber" placeholder="1" min="1" max="35">
+        </div>
+        <button class="btn btn-primary" style="margin-top:12px;" onclick="doDrawTrendLine()">绘制趋势</button>
+        <div id="trendLineResult" style="margin-top:16px;"></div>
+      </div>
+      
+      <!-- 原有统计分析图表 -->
       <div class="stats-grid" id="statsContainer"></div>
     </div>
     
@@ -697,8 +836,361 @@
       </div>
     </div>
     
+    <!-- Tab: Advanced Algorithms -->
+    <div id="tab-advanced-algo" class="tab-content" style="display:none;">
+      <div class="grid grid-2">
+        <!-- 邻号分析 -->
+        <div class="card">
+          <div class="card-title">
+            <span class="icon">🔗</span>
+            <span>邻号分析</span>
+          </div>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">分析上期号码的相邻数字出现频率，推荐可能出现的邻号组合</p>
+          <button class="btn btn-primary" style="width:100%;" onclick="runAdjacentAnalysis()">🔗 运行邻号分析</button>
+          <div id="adjacentResult" class="algo-result" style="margin-top:16px;"></div>
+        </div>
+        
+        <!-- 尾对分析 -->
+        <div class="card">
+          <div class="card-title">
+            <span class="icon">🔢</span>
+            <span>尾对分析</span>
+          </div>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">分析0-9尾数的组合频率，找出高频尾对组合</p>
+          <button class="btn btn-primary" style="width:100%;" onclick="runTailPairAnalysis()">🔢 运行尾对分析</button>
+          <div id="tailPairResult" class="algo-result" style="margin-top:16px;"></div>
+        </div>
+        
+        <!-- 波浪周期 -->
+        <div class="card">
+          <div class="card-title">
+            <span class="icon">🌊</span>
+            <span>波浪周期</span>
+          </div>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">分析号码的出现周期波动规律，找出波浪形态最佳的号码</p>
+          <button class="btn btn-primary" style="width:100%;" onclick="runWaveCycleAnalysis()">🌊 运行波浪周期</button>
+          <div id="waveCycleResult" class="algo-result" style="margin-top:16px;"></div>
+        </div>
+        
+        <!-- 位置分析 -->
+        <div class="card">
+          <div class="card-title">
+            <span class="icon">📍</span>
+            <span>位置分析</span>
+          </div>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">分析每个位置上最常出现的号码分布</p>
+          <button class="btn btn-primary" style="width:100%;" onclick="runPositionAnalysis()">📍 运行位置分析</button>
+          <div id="positionResult" class="algo-result" style="margin-top:16px;"></div>
+        </div>
+      </div>
+      
+      <!-- AC值与和值优化 -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">⚡</span>
+          <span>AC值与和值优化</span>
+        </div>
+        <div class="grid grid-2" style="margin-top:16px;">
+          <div>
+            <h4 style="margin-bottom:8px;">AC值优化</h4>
+            <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">通过号码复杂度(AC值)筛选，生成更具规律的组合</p>
+            <button class="btn btn-secondary" onclick="runACValueOpt()">⚡ 运行AC值优化</button>
+            <div id="acValueResult" class="algo-result" style="margin-top:12px;"></div>
+          </div>
+          <div>
+            <h4 style="margin-bottom:8px;">和值优化</h4>
+            <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">基于历史和值分布，推荐最可能出现的和值范围</p>
+            <button class="btn btn-secondary" onclick="runSumValueOpt()">⚡ 运行和值优化</button>
+            <div id="sumValueResult" class="algo-result" style="margin-top:12px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Batch Tools -->
+    <div id="tab-batch" class="tab-content" style="display:none;">
+      <div class="grid grid-2">
+        <!-- 批量生成号码 -->
+        <div class="card">
+          <div class="card-title">
+            <span class="icon">🎲</span>
+            <span>批量生成号码</span>
+          </div>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">快速生成多组号码，支持指定数量和条件筛选</p>
+          <div class="input-group">
+            <label>彩票类型</label>
+            <select id="batchGenType" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+              <option value="ssq">双色球</option>
+              <option value="dlt">大乐透</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>生成组数</label>
+            <input type="number" id="batchGenCount" placeholder="10" min="1" max="100" value="10" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+          </div>
+          <div class="input-group">
+            <label>每组注数</label>
+            <input type="number" id="batchGenMulti" placeholder="1" min="1" max="10" value="1" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="doBatchGenerate()">🎲 批量生成</button>
+          <div id="batchGenResult" style="margin-top:16px;max-height:300px;overflow-y:auto;"></div>
+        </div>
+
+        <!-- 缩水过滤 -->
+        <div class="card">
+          <div class="card-title">
+            <span class="icon">🔍</span>
+            <span>缩水过滤</span>
+          </div>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">根据和值、AC值等条件过滤号码组合</p>
+          <div class="input-group">
+            <label>彩票类型</label>
+            <select id="shrinkType" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+              <option value="ssq">双色球</option>
+              <option value="dlt">大乐透</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>最小和值</label>
+            <input type="number" id="shrinkMinSum" placeholder="60" min="0" value="60" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+          </div>
+          <div class="input-group">
+            <label>最大和值</label>
+            <input type="number" id="shrinkMaxSum" placeholder="130" min="0" value="130" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+          </div>
+          <div class="input-group">
+            <label>号码列表 (逗号分隔)</label>
+            <textarea id="shrinkNumbers" placeholder="01,02,03,04,05,06&#10;01,02,03,04,05,07&#10;..." rows="3" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);resize:vertical;"></textarea>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="doShrinkFilter()">🔍 执行过滤</button>
+          <div id="shrinkResult" style="margin-top:16px;max-height:250px;overflow-y:auto;"></div>
+        </div>
+
+        <!-- 号码分组 -->
+        <div class="card">
+          <div class="card-title">
+            <span class="icon">📊</span>
+            <span>号码分组</span>
+          </div>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">按区间、奇偶等规则对号码进行分组统计</p>
+          <div class="input-group">
+            <label>彩票类型</label>
+            <select id="groupType" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+              <option value="ssq">双色球</option>
+              <option value="dlt">大乐透</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>分组方式</label>
+            <select id="groupPattern" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+              <option value="range">按区间</option>
+              <option value="oddEven">按奇偶</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>号码列表 (逗号分隔)</label>
+            <textarea id="groupNumbers" placeholder="01,05,12,18,25,33" rows="2" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);resize:vertical;"></textarea>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="doGroupByPattern()">📊 分组统计</button>
+          <div id="groupResult" style="margin-top:16px;"></div>
+        </div>
+
+        <!-- 号码对比 -->
+        <div class="card">
+          <div class="card-title">
+            <span class="icon">⚖️</span>
+            <span>号码对比</span>
+          </div>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">对比两组号码的交集、并集等关系</p>
+          <div class="input-group">
+            <label>彩票类型</label>
+            <select id="compareType" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+              <option value="ssq">双色球</option>
+              <option value="dlt">大乐透</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>第一组号码 (逗号分隔)</label>
+            <textarea id="compareSet1" placeholder="01,05,12,18,25,33" rows="2" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);resize:vertical;"></textarea>
+          </div>
+          <div class="input-group">
+            <label>第二组号码 (逗号分隔)</label>
+            <textarea id="compareSet2" placeholder="01,03,12,20,25,30" rows="2" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);resize:vertical;"></textarea>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="doCompareTwoSets()">⚖️ 对比号码</button>
+          <div id="compareResult" style="margin-top:16px;"></div>
+        </div>
+
+        <!-- 预算管理 -->
+        <div class="card">
+          <div class="card-title">
+            <span class="icon">💰</span>
+            <span>预算管理</span>
+          </div>
+          <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">设置购彩预算，跟踪消费记录</p>
+          <div class="input-group">
+            <label>月度预算 (元)</label>
+            <input type="number" id="budgetMonthly" placeholder="200" min="0" value="200" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+          </div>
+          <div class="input-group">
+            <label>本次消费 (元)</label>
+            <input type="number" id="budgetSpent" placeholder="0" min="0" value="0" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+          </div>
+          <div class="grid grid-2" style="margin-top:12px;gap:8px;">
+            <button class="btn btn-primary" onclick="doSaveBudget()">💾 保存预算</button>
+            <button class="btn btn-secondary" onclick="doOptimizeBudget()">📈 优化建议</button>
+          </div>
+          <div id="budgetStatus" style="margin-top:16px;padding:12px;background:var(--bg);border-radius:8px;"></div>
+          <div id="budgetResult" style="margin-top:12px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Strategy Selection -->
+    <div id="tab-strategy" class="tab-content" style="display:none;">
+      <div class="play-methods">
+        <!-- 生肖选号 -->
+        <div class="play-card">
+          <h3>🐉 <span>生肖选号</span></h3>
+          <div class="input-group">
+            <label>出生年份</label>
+            <input type="number" id="strategyBirthYear" placeholder="1990" min="1900" max="2025" value="1990">
+          </div>
+          <div class="input-group">
+            <label>玩法类型</label>
+            <select id="strategyZodiacType" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+              <option value="ssq">双色球</option>
+              <option value="dlt">大乐透</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>生成注数</label>
+            <input type="number" id="strategyZodiacCount" placeholder="1" min="1" max="10" value="1">
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="runStrategyZodiac()">
+            🐉 生成生肖幸运号
+          </button>
+          <div id="strategyZodiacResult" style="margin-top:12px;"></div>
+        </div>
+
+        <!-- 五行选号 -->
+        <div class="play-card">
+          <h3>🈴 <span>五行选号</span></h3>
+          <div class="input-group">
+            <label>选择五行</label>
+            <select id="strategyWuxing" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+              <option value="">请选择五行</option>
+              <option value="金">金</option>
+              <option value="木">木</option>
+              <option value="水">水</option>
+              <option value="火">火</option>
+              <option value="土">土</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>八卦 (可选)</label>
+            <select id="strategyBagua" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+              <option value="">不指定八卦</option>
+              <option value="乾">乾</option>
+              <option value="兑">兑</option>
+              <option value="离">离</option>
+              <option value="震">震</option>
+              <option value="巽">巽</option>
+              <option value="坎">坎</option>
+              <option value="艮">艮</option>
+              <option value="坤">坤</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>玩法类型</label>
+            <select id="strategyWuxingType" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+              <option value="ssq">双色球</option>
+              <option value="dlt">大乐透</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>生成注数</label>
+            <input type="number" id="strategyWuxingCount" placeholder="1" min="1" max="10" value="1">
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="runStrategyWuxing()">
+            🈴 生成五行幸运号
+          </button>
+          <div id="strategyWuxingResult" style="margin-top:12px;"></div>
+        </div>
+
+        <!-- 生日选号 -->
+        <div class="play-card">
+          <h3>🎂 <span>生日选号</span></h3>
+          <div class="input-group">
+            <label>生日日期</label>
+            <input type="date" id="strategyBirthdayDate" value="1990-01-01">
+          </div>
+          <div class="input-group">
+            <label>玩法类型</label>
+            <select id="strategyBirthdayType" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+              <option value="ssq">双色球</option>
+              <option value="dlt">大乐透</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="runStrategyBirthday()">
+            🎂 生成生日幸运号
+          </button>
+          <div id="strategyBirthdayResult" style="margin-top:12px;"></div>
+        </div>
+
+        <!-- 守号管理 -->
+        <div class="play-card">
+          <h3>⏰ <span>守号管理</span></h3>
+          <div class="input-group">
+            <label>守号名称</label>
+            <input type="text" id="strategyShouhaoName" placeholder="我的守号">
+          </div>
+          <div class="input-group">
+            <label>红球/前区号码 (逗号分隔)</label>
+            <input type="text" id="strategyShouhaoReds" placeholder="01,02,03,04,05,06">
+          </div>
+          <div class="input-group" id="strategyShouhaoBlueGroup" style="display:block;">
+            <label>蓝球/后区号码 (逗号分隔)</label>
+            <input type="text" id="strategyShouhaoBlues" placeholder="07">
+          </div>
+          <button class="btn btn-coral" style="width:100%;margin-top:12px;" onclick="addStrategyShouhao()">
+            ⏰ 添加守号
+          </button>
+          <div id="strategyShouhaoList" style="margin-top:16px;"></div>
+        </div>
+
+        <!-- 号码形态分析 -->
+        <div class="play-card">
+          <h3>📊 <span>号码形态分析</span></h3>
+          <div class="input-group">
+            <label>选择分析类型</label>
+            <select id="strategyAlgoType" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+              <option value="ssq">双色球</option>
+              <option value="dlt">大乐透</option>
+            </select>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+            <button class="btn btn-secondary" onclick="runStrategyAdjacent()">
+              🔗 邻号分析
+            </button>
+            <button class="btn btn-secondary" onclick="runStrategyTailPair()">
+              🔢 尾对分析
+            </button>
+            <button class="btn btn-secondary" onclick="runStrategyWave()">
+              🌊 波浪周期
+            </button>
+            <button class="btn btn-secondary" onclick="runStrategyPosition()">
+              📍 位置分析
+            </button>
+          </div>
+          <div id="strategyAlgoResult" style="margin-top:16px;"></div>
+        </div>
+      </div>
+    </div>
+    
     <!-- Tab: Tools -->
     <div id="tab-tools" class="tab-content" style="display:none;">
+      <!-- 手气指数 -->
       <div class="grid grid-2">
         <div class="card">
           <div class="card-title">
@@ -725,6 +1217,65 @@
           </button>
           <div id="compareResult" style="margin-top:12px;"></div>
         </div>
+      </div>
+      
+      <!-- 周报告生成 -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">📑</span>
+          <span>周报告生成</span>
+        </div>
+        <div class="grid grid-3" style="margin-bottom:16px;">
+          <div class="input-group">
+            <label>彩票类型</label>
+            <select id="weeklyType">
+              <option value="ssq">双色球</option>
+              <option value="dlt">大乐透</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>生成周数</label>
+            <input type="number" id="weeklyWeeks" value="4" min="1" max="12">
+          </div>
+          <div style="display:flex;align-items:flex-end;">
+            <button class="btn btn-primary" onclick="doGenerateWeeklyReport()">生成报告</button>
+          </div>
+        </div>
+        <div id="weeklyReportResult" style="margin-top:12px;"></div>
+      </div>
+      
+      <!-- 下期开奖时间 -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">⏰</span>
+          <span>下期开奖时间</span>
+        </div>
+        <div class="input-group" style="margin-bottom:16px;">
+          <label>彩票类型</label>
+          <select id="drawTimeType">
+            <option value="ssq">双色球</option>
+            <option value="dlt">大乐透</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="doGetNextDrawTime()">查询开奖时间</button>
+        <div id="drawTimeResult" style="margin-top:16px;"></div>
+      </div>
+      
+      <!-- 直播入口 -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">📺</span>
+          <span>直播入口</span>
+        </div>
+        <div class="input-group" style="margin-bottom:16px;">
+          <label>彩票类型</label>
+          <select id="liveStreamType">
+            <option value="ssq">双色球</option>
+            <option value="dlt">大乐透</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="doGetLiveStreamURL()">获取直播链接</button>
+        <div id="liveStreamResult" style="margin-top:16px;"></div>
       </div>
     </div>
   </div>
@@ -1145,6 +1696,7 @@
       if (tab === 'history-data') renderHistoryTable();
       if (tab === 'play') initPlayMethods();
       if (tab === 'trend') renderTrendData();
+      if (tab === 'batch') initBatchTools();
     }
     
     function togglePanel(panel) {
@@ -1701,6 +2253,554 @@
       });
       html += '</div>';
       document.getElementById('compareResult').innerHTML = html;
+    }
+
+    // ============ Batch Tools ============
+    function initBatchTools() {
+      // Load saved budget status
+      if (window.PersonalEnhancements) {
+        const budget = window.PersonalEnhancements.getBudget ? window.PersonalEnhancements.getBudget() : null;
+        if (budget) {
+          document.getElementById('budgetMonthly').value = budget.monthly || 200;
+          document.getElementById('budgetSpent').value = budget.spent || 0;
+          updateBudgetStatus();
+        }
+      }
+    }
+
+    function doBatchGenerate() {
+      const type = document.getElementById('batchGenType').value;
+      const count = parseInt(document.getElementById('batchGenCount').value) || 10;
+      const multi = parseInt(document.getElementById('batchGenMulti').value) || 1;
+      const resultDiv = document.getElementById('batchGenResult');
+
+      const isSSQ = type === 'ssq';
+      const redMax = isSSQ ? 33 : 35;
+      const blueMax = isSSQ ? 16 : 12;
+      const redCount = isSSQ ? 6 : 5;
+
+      const results = [];
+      for (let g = 0; g < count; g++) {
+        const reds = [];
+        while (reds.length < redCount) {
+          const n = Math.floor(Math.random() * redMax) + 1;
+          if (!reds.includes(n)) reds.push(n);
+        }
+        reds.sort((a, b) => a - b);
+
+        const blues = [];
+        const blueCount = isSSQ ? 1 : 2;
+        while (blues.length < blueCount) {
+          const n = Math.floor(Math.random() * blueMax) + 1;
+          if (!blues.includes(n)) blues.push(n);
+        }
+        blues.sort((a, b) => a - b);
+
+        results.push({ reds, blues, display: reds.map(n => String(n).padStart(2, '0')).join(',') + (isSSQ ? ' | ' : ' + ') + blues.map(n => String(n).padStart(2, '0')).join(',') });
+      }
+
+      let html = '<div style="display:flex;flex-direction:column;gap:8px;">';
+      results.forEach((r, i) => {
+        html += `<div style="padding:8px 12px;background:var(--bg);border-radius:6px;font-size:13px;">
+          <div style="margin-bottom:4px;"><span style="color:var(--text-secondary);">组${i + 1}:</span> ${isSSQ ?
+            r.reds.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join(' ') + ' <span style="margin:0 4px;">|</span> ' + r.blues.map(n => `<span class="ball ball-small ball-blue">${String(n).padStart(2,'0')}</span>`).join(' ') :
+            r.reds.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join(' ') + ' <span style="margin:0 4px;">+</span> ' + r.blues.map(n => `<span class="ball ball-small ball-blue">${String(n).padStart(2,'0')}</span>`).join(' ')
+          }</div>
+          <div style="font-size:12px;color:var(--text-secondary);">${r.display}</div>
+        </div>`;
+      });
+      html += '</div>';
+      resultDiv.innerHTML = html;
+      showToast(`已生成 ${count} 组号码`, 'success');
+    }
+
+    function doShrinkFilter() {
+      const type = document.getElementById('shrinkType').value;
+      const minSum = parseInt(document.getElementById('shrinkMinSum').value) || 60;
+      const maxSum = parseInt(document.getElementById('shrinkMaxSum').value) || 130;
+      const inputText = document.getElementById('shrinkNumbers').value.trim();
+      const resultDiv = document.getElementById('shrinkResult');
+
+      if (!inputText) {
+        resultDiv.innerHTML = '<div style="color:var(--coral);">请输入号码列表</div>';
+        return;
+      }
+
+      const lines = inputText.split('\n').filter(l => l.trim());
+      const allNumbers = [];
+      lines.forEach(line => {
+        const nums = line.split(/[,，\s]+/).map(n => parseInt(n.trim())).filter(n => n > 0 && n <= 36);
+        if (nums.length > 0) allNumbers.push(nums);
+      });
+
+      if (allNumbers.length === 0) {
+        resultDiv.innerHTML = '<div style="color:var(--coral);">未找到有效号码</div>';
+        return;
+      }
+
+      const filtered = allNumbers.filter(nums => {
+        const sum = nums.reduce((a, b) => a + b, 0);
+        return sum >= minSum && sum <= maxSum;
+      });
+
+      let html = `<div style="margin-bottom:12px;color:var(--text-secondary);font-size:13px;">原始: ${allNumbers.length} 组 | 过滤后: ${filtered.length} 组</div>`;
+      if (filtered.length > 0) {
+        html += '<div style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;">';
+        filtered.slice(0, 20).forEach((nums, i) => {
+          html += `<div style="padding:6px 10px;background:var(--bg);border-radius:4px;font-size:13px;">
+            ${nums.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join(' ')}
+            <span style="margin-left:8px;color:var(--text-secondary);">和值:${nums.reduce((a,b)=>a+b,0)}</span>
+          </div>`;
+        });
+        if (filtered.length > 20) html += `<div style="color:var(--text-secondary);font-size:12px;text-align:center;padding:8px;">还有 ${filtered.length - 20} 组...</div>`;
+        html += '</div>';
+      } else {
+        html += '<div style="color:var(--coral);">没有符合条件的号码</div>';
+      }
+      resultDiv.innerHTML = html;
+    }
+
+    function doGroupByPattern() {
+      const type = document.getElementById('groupType').value;
+      const pattern = document.getElementById('groupPattern').value;
+      const inputText = document.getElementById('groupNumbers').value.trim();
+      const resultDiv = document.getElementById('groupResult');
+
+      if (!inputText) {
+        resultDiv.innerHTML = '<div style="color:var(--coral);">请输入号码</div>';
+        return;
+      }
+
+      const nums = inputText.split(/[,，\s]+/).map(n => parseInt(n.trim())).filter(n => n > 0);
+      if (nums.length === 0) {
+        resultDiv.innerHTML = '<div style="color:var(--coral);">未找到有效号码</div>';
+        return;
+      }
+
+      const isSSQ = type === 'ssq';
+      const maxNum = isSSQ ? 33 : 35;
+      const step = 5;
+
+      let groups = {};
+      if (pattern === 'range') {
+        for (let i = 1; i <= maxNum; i += step) {
+          const key = `${i}-${Math.min(i + step - 1, maxNum)}`;
+          groups[key] = [];
+        }
+        nums.forEach(n => {
+          const idx = Math.floor((n - 1) / step);
+          const key = `${idx * step + 1}-${Math.min((idx + 1) * step, maxNum)}`;
+          if (groups[key]) groups[key].push(n);
+        });
+      } else {
+        groups = { odd: [], even: [] };
+        nums.forEach(n => groups[n % 2 === 0 ? 'even' : 'odd'].push(n));
+      }
+
+      let html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;">';
+      Object.keys(groups).forEach(key => {
+        const items = groups[key];
+        html += `<div style="padding:10px;background:var(--bg);border-radius:8px;text-align:center;">
+          <div style="font-weight:600;margin-bottom:6px;">${pattern === 'range' ? key : (key === 'odd' ? '奇数' : '偶数')}</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">${items.length} 个</div>
+          <div>${items.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join(' ')}</div>
+        </div>`;
+      });
+      html += '</div>';
+      resultDiv.innerHTML = html;
+    }
+
+    function doCompareTwoSets() {
+      const type = document.getElementById('compareType').value;
+      const set1Text = document.getElementById('compareSet1').value.trim();
+      const set2Text = document.getElementById('compareSet2').value.trim();
+      const resultDiv = document.getElementById('compareResult');
+
+      const set1 = set1Text.split(/[,，\s]+/).map(n => parseInt(n.trim())).filter(n => n > 0);
+      const set2 = set2Text.split(/[,，\s]+/).map(n => parseInt(n.trim())).filter(n => n > 0);
+
+      if (set1.length === 0 || set2.length === 0) {
+        resultDiv.innerHTML = '<div style="color:var(--coral);">请输入两组号码</div>';
+        return;
+      }
+
+      const intersect = set1.filter(n => set2.includes(n));
+      const union = [...new Set([...set1, ...set2])];
+      const only1 = set1.filter(n => !set2.includes(n));
+      const only2 = set2.filter(n => !set1.includes(n));
+
+      let html = `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px;">
+        <div style="padding:12px;background:rgba(16,185,129,0.1);border-radius:8px;text-align:center;">
+          <div style="font-size:12px;color:var(--text-secondary);">交集</div>
+          <div style="font-size:16px;font-weight:600;color:var(--accent);">${intersect.length} 个</div>
+          <div style="margin-top:4px;">${intersect.map(n => `<span class="ball ball-small" style="background:var(--accent);">${String(n).padStart(2,'0')}</span>`).join(' ')}</div>
+        </div>
+        <div style="padding:12px;background:rgba(59,130,246,0.1);border-radius:8px;text-align:center;">
+          <div style="font-size:12px;color:var(--text-secondary);">并集</div>
+          <div style="font-size:16px;font-weight:600;color:var(--blue);">${union.length} 个</div>
+          <div style="font-size:11px;margin-top:4px;">${union.map(n => String(n).padStart(2,'0')).join(', ')}</div>
+        </div>
+        <div style="padding:12px;background:var(--bg);border-radius:8px;text-align:center;">
+          <div style="font-size:12px;color:var(--text-secondary);">仅第一组</div>
+          <div style="font-size:16px;font-weight:600;">${only1.length} 个</div>
+          <div style="margin-top:4px;">${only1.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join(' ')}</div>
+        </div>
+        <div style="padding:12px;background:var(--bg);border-radius:8px;text-align:center;">
+          <div style="font-size:12px;color:var(--text-secondary);">仅第二组</div>
+          <div style="font-size:16px;font-weight:600;">${only2.length} 个</div>
+          <div style="margin-top:4px;">${only2.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join(' ')}</div>
+        </div>
+      </div>`;
+      resultDiv.innerHTML = html;
+    }
+
+    function doSaveBudget() {
+      const monthly = parseInt(document.getElementById('budgetMonthly').value) || 200;
+      const spent = parseInt(document.getElementById('budgetSpent').value) || 0;
+
+      if (window.PersonalEnhancements) {
+        const current = window.PersonalEnhancements.getBudget ? window.PersonalEnhancements.getBudget() : { monthly: 200, spent: 0, records: [] };
+        current.monthly = monthly;
+        current.spent = spent;
+        if (window.PersonalEnhancements.updateBudget) {
+          window.PersonalEnhancements.updateBudget({ monthly, spent });
+        }
+        showToast('预算已保存', 'success');
+        updateBudgetStatus();
+      } else {
+        showToast('预算功能不可用', 'error');
+      }
+    }
+
+    function doOptimizeBudget() {
+      const monthly = parseInt(document.getElementById('budgetMonthly').value) || 200;
+      const spent = parseInt(document.getElementById('budgetSpent').value) || 0;
+      const remaining = Math.max(0, monthly - spent);
+      const usagePercent = monthly > 0 ? Math.round((spent / monthly) * 100) : 0;
+
+      let suggestion = '';
+      if (usagePercent >= 90) {
+        suggestion = '⚠️ 已使用 ' + usagePercent + '%，建议暂停购彩或降低预算';
+      } else if (usagePercent >= 70) {
+        suggestion = '📊 已使用 ' + usagePercent + '%，建议谨慎投注，可考虑倍投守号';
+      } else {
+        suggestion = '✅ 预算使用正常，剩余 ' + remaining + ' 元，建议分散投注';
+      }
+
+      document.getElementById('budgetResult').innerHTML = `<div style="padding:12px;background:var(--bg);border-radius:8px;font-size:13px;">${suggestion}</div>`;
+    }
+
+    function updateBudgetStatus() {
+      const monthly = parseInt(document.getElementById('budgetMonthly').value) || 200;
+      const spent = parseInt(document.getElementById('budgetSpent').value) || 0;
+      const remaining = Math.max(0, monthly - spent);
+      const usagePercent = monthly > 0 ? Math.round((spent / monthly) * 100) : 0;
+
+      const statusColor = usagePercent >= 90 ? 'var(--coral)' : usagePercent >= 70 ? 'var(--blue)' : 'var(--accent)';
+      document.getElementById('budgetStatus').innerHTML = `
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span>本月预算</span><span style="font-weight:600;">${monthly} 元</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span>已消费</span><span style="font-weight:600;color:var(--coral);">${spent} 元</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span>剩余</span><span style="font-weight:600;color:${statusColor};">${remaining} 元</span>
+        </div>
+        <div style="margin-top:8px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+          <div style="height:100%;width:${usagePercent}%;background:${statusColor};border-radius:3px;transition:width 0.3s;"></div>
+        </div>
+        <div style="text-align:center;font-size:12px;color:var(--text-secondary);margin-top:4px;">${usagePercent}% 已使用</div>
+      `;
+    }
+
+    // ============ Strategy Tab Functions ============
+    let strategyShouhaoList = JSON.parse(localStorage.getItem('million_life_strategy_shouhao') || '[]');
+
+    function runStrategyZodiac() {
+      const year = parseInt(document.getElementById('strategyBirthYear').value) || 1990;
+      const type = document.getElementById('strategyZodiacType').value;
+      const count = parseInt(document.getElementById('strategyZodiacCount').value) || 1;
+      const result = window.PlayEnhancements.generateByBirthYear(year, { type, count });
+      const container = document.getElementById('strategyZodiacResult');
+      if (result.errors && result.errors.length > 0) {
+        container.innerHTML = `<div style="color:var(--coral);padding:8px;">${result.errors.join('<br>')}</div>`;
+        return;
+      }
+      let html = `<div style="padding:8px;background:var(--bg);border-radius:8px;margin-bottom:8px;"><strong>🐉 ${result.zodiac}年</strong> <span style="color:var(--text-secondary);font-size:12px;">${result.description}</span></div>`;
+      result.bets.forEach((bet, idx) => {
+        const nums = type === 'ssq' ? bet.red : bet.front;
+        const extra = type === 'ssq' ? `<span style="margin-left:8px;">蓝球 <span class="ball ball-small ball-blue">${String(bet.blue).padStart(2,'0')}</span></span>` : `<span style="margin-left:8px;">后区 ${bet.back.map(n => `<span class="ball ball-small ball-blue">${String(n).padStart(2,'0')}</span>`).join('')}</span>`;
+        html += `<div style="padding:8px;background:var(--bg);border-radius:8px;margin-bottom:4px;">方案${idx + 1}: ${nums.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join('')}${extra}</div>`;
+      });
+      container.innerHTML = html;
+      showToast('生肖选号生成成功 🐉');
+    }
+
+    function runStrategyWuxing() {
+      const wuxing = document.getElementById('strategyWuxing').value;
+      const bagua = document.getElementById('strategyBagua').value;
+      const type = document.getElementById('strategyWuxingType').value;
+      const count = parseInt(document.getElementById('strategyWuxingCount').value) || 1;
+      if (!wuxing) { showToast('请选择五行', 'error'); return; }
+      const result = window.PlayEnhancements.generateByWuxing({ wuxing, bagua: bagua || undefined, type, count });
+      const container = document.getElementById('strategyWuxingResult');
+      if (result.errors && result.errors.length > 0) {
+        container.innerHTML = `<div style="color:var(--coral);padding:8px;">${result.errors.join('<br>')}</div>`;
+        return;
+      }
+      let html = `<div style="padding:8px;background:var(--bg);border-radius:8px;margin-bottom:8px;"><strong>🈴 ${result.description}</strong></div>`;
+      result.bets.forEach((bet, idx) => {
+        const nums = type === 'ssq' ? bet.red : bet.front;
+        const extra = type === 'ssq' ? `<span style="margin-left:8px;">蓝球 <span class="ball ball-small ball-blue">${String(bet.blue).padStart(2,'0')}</span></span>` : `<span style="margin-left:8px;">后区 ${bet.back.map(n => `<span class="ball ball-small ball-blue">${String(n).padStart(2,'0')}</span>`).join('')}</span>`;
+        html += `<div style="padding:8px;background:var(--bg);border-radius:8px;margin-bottom:4px;">方案${idx + 1}: ${nums.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join('')}${extra}</div>`;
+      });
+      container.innerHTML = html;
+      showToast('五行选号生成成功 🈴');
+    }
+
+    function runStrategyBirthday() {
+      const dateStr = document.getElementById('strategyBirthdayDate').value;
+      const type = document.getElementById('strategyBirthdayType').value;
+      if (!dateStr) { showToast('请选择生日', 'error'); return; }
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const digits = [...String(y), ...String(m).padStart(2,'0'), ...String(d).padStart(2,'0')].map(Number);
+      const unique = [...new Set(digits)].sort((a, b) => a - b);
+      const reds = [...unique];
+      const maxNum = type === 'ssq' ? 33 : 35;
+      while (reds.length < (type === 'ssq' ? 6 : 5)) {
+        const n = Math.floor(Math.random() * maxNum) + 1;
+        if (!reds.includes(n)) reds.push(n);
+      }
+      const result = reds.slice(0, type === 'ssq' ? 6 : 5).sort((a, b) => a - b);
+      const container = document.getElementById('strategyBirthdayResult');
+      let html = `<div style="padding:8px;background:var(--bg);border-radius:8px;margin-bottom:8px;"><strong>🎂 ${y}-${m}-${d}</strong></div>`;
+      html += `<div style="padding:8px;background:var(--bg);border-radius:8px;">`;
+      if (type === 'ssq') {
+        const blue = Math.floor(Math.random() * 16) + 1;
+        html += `红球: ${result.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join('')} <span style="margin-left:8px;">蓝球 <span class="ball ball-small ball-blue">${String(blue).padStart(2,'0')}</span></span>`;
+      } else {
+        const back = [];
+        while (back.length < 2) { const n = Math.floor(Math.random() * 12) + 1; if (!back.includes(n)) back.push(n); }
+        html += `前区: ${result.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join('')} <span style="margin-left:8px;">后区: ${back.sort((a,b)=>a-b).map(n => `<span class="ball ball-small ball-blue">${String(n).padStart(2,'0')}</span>`).join('')}</span>`;
+      }
+      html += `</div>`;
+      container.innerHTML = html;
+      showToast('生日选号生成成功 🎂');
+    }
+
+    function renderStrategyShouhaoList() {
+      const list = document.getElementById('strategyShouhaoList');
+      if (!strategyShouhaoList.length) { list.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:20px;">暂无守号</div>'; return; }
+      list.innerHTML = strategyShouhaoList.map(s => {
+        const nums = s.reds.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join('');
+        const blues = s.blues ? ' | ' + s.blues.map(n => `<span class="ball ball-small ball-blue">${String(n).padStart(2,'0')}</span>`).join('') : '';
+        return `<div style="padding:8px;background:var(--bg);border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+          <div><div style="font-weight:600;">${s.name}</div><div style="font-size:12px;">${nums}${blues}</div></div>
+          <button class="btn btn-coral" onclick="deleteStrategyShouhao(${s.id})" style="padding:4px 8px;font-size:12px;">🗑️</button>
+        </div>`;
+      }).join('');
+    }
+
+    function addStrategyShouhao() {
+      const name = document.getElementById('strategyShouhaoName').value || `守号${strategyShouhaoList.length + 1}`;
+      const redsStr = document.getElementById('strategyShouhaoReds').value;
+      const bluesStr = document.getElementById('strategyShouhaoBlues').value;
+      const reds = redsStr.split(',').map(n => parseInt(n.trim())).filter(n => n > 0);
+      const blues = bluesStr ? bluesStr.split(',').map(n => parseInt(n.trim())).filter(n => n > 0) : [];
+      if (!reds.length) { showToast('请输入有效红球/前区号码', 'error'); return; }
+      strategyShouhaoList.push({ id: Date.now(), name, reds, blues, type: currentType, createdAt: new Date().toISOString() });
+      localStorage.setItem('million_life_strategy_shouhao', JSON.stringify(strategyShouhaoList));
+      document.getElementById('strategyShouhaoReds').value = '';
+      document.getElementById('strategyShouhaoBlues').value = '';
+      renderStrategyShouhaoList();
+      showToast('守号添加成功 ⏰');
+    }
+
+    function deleteStrategyShouhao(id) {
+      strategyShouhaoList = strategyShouhaoList.filter(s => s.id !== id);
+      localStorage.setItem('million_life_strategy_shouhao', JSON.stringify(strategyShouhaoList));
+      renderStrategyShouhaoList();
+    }
+
+    function runStrategyAdjacent() {
+      const type = document.getElementById('strategyAlgoType').value;
+      const result = window.AlgoEnhancements.adjacentAnalysis(type);
+      const container = document.getElementById('strategyAlgoResult');
+      let html = `<div style="margin-bottom:12px;"><strong>🔗 邻号分析</strong> (平均邻号数: ${result.avgAdjCount})</div>`;
+      html += '<div class="number-list" style="margin-bottom:12px;">' + result.topAdjNums.map(n => `<span class="ball ball-red ball-small">${String(n).padStart(2,'0')}</span>`).join('') + '</div>';
+      if (result.recommended && result.recommended.length > 0) {
+        html += '<div style="margin-bottom:8px;"><strong>推荐号码:</strong></div>';
+        result.recommended.forEach((nums, idx) => {
+          html += `<div style="margin-bottom:4px;padding:8px;background:var(--bg);border-radius:8px;">方案${idx + 1}: ${nums.map(n => `<span class="ball ball-red ball-small">${String(n).padStart(2,'0')}</span>`).join('')}</div>`;
+        });
+      }
+      container.innerHTML = html;
+    }
+
+    function runStrategyTailPair() {
+      const type = document.getElementById('strategyAlgoType').value;
+      const result = window.AlgoEnhancements.tailPairAnalysis(type);
+      const container = document.getElementById('strategyAlgoResult');
+      let html = `<div style="margin-bottom:12px;"><strong>🔢 尾对分析</strong></div>`;
+      html += '<div style="margin-bottom:12px;"><strong>高频尾对:</strong> ' + result.topPairs.slice(0, 5).map(p => p.pair.join('-')).join(', ') + '</div>';
+      if (result.recommended && result.recommended.length > 0) {
+        html += '<div style="margin-bottom:8px;"><strong>推荐号码:</strong></div>';
+        result.recommended.forEach((nums, idx) => {
+          html += `<div style="margin-bottom:4px;padding:8px;background:var(--bg);border-radius:8px;">方案${idx + 1}: ${nums.map(n => `<span class="ball ball-red ball-small">${String(n).padStart(2,'0')}</span>`).join('')}</div>`;
+        });
+      }
+      container.innerHTML = html;
+    }
+
+    function runStrategyWave() {
+      const type = document.getElementById('strategyAlgoType').value;
+      const result = window.AlgoEnhancements.waveCycleAnalysis(type);
+      const container = document.getElementById('strategyAlgoResult');
+      let html = `<div style="margin-bottom:12px;"><strong>🌊 波浪周期分析</strong></div>`;
+      html += '<div class="number-list" style="margin-bottom:12px;">' + result.topWaveNums.map(n => `<span class="ball ball-red ball-small">${String(n).padStart(2,'0')}</span>`).join('') + '</div>';
+      if (result.recommended && result.recommended.length > 0) {
+        html += '<div style="margin-bottom:8px;"><strong>推荐号码:</strong></div>';
+        result.recommended.forEach((nums, idx) => {
+          html += `<div style="margin-bottom:4px;padding:8px;background:var(--bg);border-radius:8px;">方案${idx + 1}: ${nums.map(n => `<span class="ball ball-red ball-small">${String(n).padStart(2,'0')}</span>`).join('')}</div>`;
+        });
+      }
+      container.innerHTML = html;
+    }
+
+    function runStrategyPosition() {
+      const type = document.getElementById('strategyAlgoType').value;
+      const result = window.AlgoEnhancements.positionAnalysis(type);
+      const container = document.getElementById('strategyAlgoResult');
+      let html = `<div style="margin-bottom:12px;"><strong>📍 位置分析</strong></div>`;
+      if (result.positionStats) {
+        html += '<div style="margin-bottom:12px;">';
+        result.positionStats.forEach((stat, idx) => {
+          html += `<div style="margin-bottom:8px;"><strong>位置${idx + 1}:</strong> ${stat.slice(0, 5).map(s => `<span class="ball ball-red ball-small">${String(s.num).padStart(2,'0')}</span>`).join('')}</div>`;
+        });
+        html += '</div>';
+      }
+      if (result.recommended && result.recommended.length > 0) {
+        html += '<div style="margin-bottom:8px;"><strong>推荐号码:</strong></div>';
+        result.recommended.forEach((nums, idx) => {
+          html += `<div style="margin-bottom:4px;padding:8px;background:var(--bg);border-radius:8px;">方案${idx + 1}: ${nums.map(n => `<span class="ball ball-red ball-small">${String(n).padStart(2,'0')}</span>`).join('')}</div>`;
+        });
+      }
+      container.innerHTML = html;
+    }
+    
+    // ============ Advanced Algorithms UI Functions ============
+    function runAdjacentAnalysis() {
+      const result = window.AlgoEnhancements.adjacentAnalysis(currentType);
+      const container = document.getElementById('adjacentResult');
+      let html = `<div style="margin-bottom:12px;"><strong>平均邻号数:</strong> ${result.avgAdjCount}</div>`;
+      html += '<div style="margin-bottom:8px;"><strong>热门邻号:</strong></div>';
+      html += '<div class="number-list">' + result.topAdjNums.map(n => `<span class="ball ball-red ball-small">${String(n).padStart(2,'0')}</span>`).join('') + '</div>';
+      if (result.recommended && result.recommended.length > 0) {
+        html += '<div style="margin-top:12px;margin-bottom:8px;"><strong>推荐号码:</strong></div>';
+        result.recommended.forEach((nums, idx) => {
+          html += `<div style="margin-bottom:4px;">方案${idx + 1}: ${nums.map(n => `<span class="ball ball-red ball-small">${String(n).padStart(2,'0')}</span>`).join('')}</div>`;
+        });
+      }
+      container.innerHTML = html;
+    }
+    
+    function runTailPairAnalysis() {
+      const result = window.AlgoEnhancements.tailPairAnalysis(currentType);
+      const container = document.getElementById('tailPairResult');
+      let html = '<div style="margin-bottom:8px;"><strong>尾数频率排行:</strong></div>';
+      html += '<div class="number-list">';
+      result.tailScores.slice(0, 10).forEach(t => {
+        html += `<span class="ball ball-small" style="background:var(--accent);" title="频率:${t.freq}">${t.tail}</span>`;
+      });
+      html += '</div>';
+      html += '<div style="margin-top:12px;margin-bottom:8px;"><strong>高频尾对:</strong></div>';
+      result.topPairs.slice(0, 5).forEach(p => {
+        html += `<span style="margin-right:8px;padding:2px 8px;background:var(--bg);border-radius:4px;font-size:12px;">[${p.pair[0]},${p.pair[1]}] ×${p.count}</span>`;
+      });
+      if (result.recommended && result.recommended.length > 0) {
+        html += '<div style="margin-top:12px;margin-bottom:8px;"><strong>推荐号码:</strong></div>';
+        result.recommended.forEach((nums, idx) => {
+          html += `<div style="margin-bottom:4px;">方案${idx + 1}: ${nums.map(n => `<span class="ball ball-red ball-small">${String(n).padStart(2,'0')}</span>`).join('')}</div>`;
+        });
+      }
+      container.innerHTML = html;
+    }
+    
+    function runWaveCycleAnalysis() {
+      const result = window.AlgoEnhancements.waveCycleAnalysis(currentType);
+      const container = document.getElementById('waveCycleResult');
+      let html = '<div style="margin-bottom:8px;"><strong>波浪评分Top15:</strong></div>';
+      html += '<div class="number-list">' + result.topWaveNums.map(n => `<span class="ball ball-red ball-small">${String(n).padStart(2,'0')}</span>`).join('') + '</div>';
+      html += '<div style="margin-top:12px;font-size:12px;color:var(--text-secondary);">';
+      result.waveStats.slice(0, 5).forEach(s => {
+        html += `<div>号码${String(s.num).padStart(2,'0')}: 平均间隔${s.avgInterval}期, 当前遗漏${s.currentMiss}期, 波浪分${s.waveScore}</div>`;
+      });
+      html += '</div>';
+      if (result.recommended && result.recommended.length > 0) {
+        html += '<div style="margin-top:12px;margin-bottom:8px;"><strong>推荐号码:</strong></div>';
+        result.recommended.forEach((nums, idx) => {
+          html += `<div style="margin-bottom:4px;">方案${idx + 1}: ${nums.map(n => `<span class="ball ball-red ball-small">${String(n).padStart(2,'0')}</span>`).join('')}</div>`;
+        });
+      }
+      container.innerHTML = html;
+    }
+    
+    function runPositionAnalysis() {
+      const result = window.AlgoEnhancements.positionAnalysis(currentType);
+      const container = document.getElementById('positionResult');
+      const isSSQ = currentType === 'ssq';
+      const count = isSSQ ? 6 : 5;
+      let html = '<div style="margin-bottom:12px;"><strong>各位置热门号码:</strong></div>';
+      result.positionStats.forEach((ps, idx) => {
+        html += `<div style="margin-bottom:8px;"><strong>位置${idx + 1}:</strong> `;
+        html += ps.topNums.map(n => `<span class="ball ball-red ball-small">${String(n.num).padStart(2,'0')}</span>(${n.count}次)`).join(' ');
+        html += '</div>';
+      });
+      html += '<div style="margin-top:12px;"><strong>位置统计:</strong></div>';
+      result.positionAvg.forEach(pa => {
+        html += `<div style="font-size:12px;color:var(--text-secondary);">位置${pa.position}: 平均值${pa.avg}, 标准差${pa.std}</div>`;
+      });
+      if (result.recommended && result.recommended.length > 0) {
+        html += '<div style="margin-top:12px;margin-bottom:8px;"><strong>推荐号码:</strong></div>';
+        result.recommended.forEach((nums, idx) => {
+          const redBalls = isSSQ ? nums.slice(0, 6) : nums.slice(0, 5);
+          html += `<div style="margin-bottom:4px;">方案${idx + 1}: ${redBalls.map(n => `<span class="ball ball-red ball-small">${String(n).padStart(2,'0')}</span>`).join('')}</div>`;
+        });
+      }
+      container.innerHTML = html;
+    }
+    
+    function runACValueOpt() {
+      const result = acValue(currentType);
+      const container = document.getElementById('acValueResult');
+      let html = '<div style="margin-bottom:8px;"><strong>AC值分布:</strong></div>';
+      if (result.acStats) {
+        Object.entries(result.acStats).slice(0, 6).forEach(([ac, count]) => {
+          html += `<span style="margin-right:8px;font-size:12px;">AC${ac}: ${count}次</span>`;
+        });
+      }
+      if (result.recommended && result.recommended.length > 0) {
+        html += '<div style="margin-top:12px;margin-bottom:8px;"><strong>推荐号码:</strong></div>';
+        result.recommended.forEach((nums, idx) => {
+          html += `<div style="margin-bottom:4px;">方案${idx + 1}: ${nums.map(n => `<span class="ball ball-red ball-small">${String(n).padStart(2,'0')}</span>`).join('')}</div>`;
+        });
+      }
+      container.innerHTML = html;
+    }
+    
+    function runSumValueOpt() {
+      const result = sumValue(currentType);
+      const container = document.getElementById('sumValueResult');
+      let html = `<div style="margin-bottom:8px;"><strong>历史平均和值:</strong> ${result.avgSum}</div>`;
+      html += `<div style="margin-bottom:8px;"><strong>目标和值:</strong> ${result.targetSum}</div>`;
+      if (result.recommended && result.recommended.length > 0) {
+        html += '<div style="margin-top:12px;margin-bottom:8px;"><strong>推荐号码:</strong></div>';
+        result.recommended.forEach((nums, idx) => {
+          html += `<div style="margin-bottom:4px;">方案${idx + 1}: ${nums.map(n => `<span class="ball ball-red ball-small">${String(n).padStart(2,'0')}</span>`).join('')}</div>`;
+        });
+      }
+      container.innerHTML = html;
     }
     
     // ============ INIT ============
@@ -2358,6 +3458,396 @@
           };
           processNext();
           return results;
+        }
+      };
+
+      // ===== 3. DataLayer UI Handlers =====
+      function doSearchHistory() {
+        const period = document.getElementById('searchPeriod').value.trim();
+        const type = document.getElementById('searchType').value;
+        const resultDiv = document.getElementById('searchResult');
+        if (!period) {
+          showToast('请输入期号', 'error');
+          return;
+        }
+        const result = window.DataLayer.searchHistory(period, type);
+        if (result) {
+          const data = type === 'ssq' ? result : (result.ssq || result.dlt);
+          if (data) {
+            const nums = type === 'ssq' ? data.r : data.f;
+            const bonus = type === 'ssq' ? [data.b] : data.b;
+            resultDiv.innerHTML = `
+              <div class="result-item fade-in">
+                <div>
+                  <div style="font-weight:600;margin-bottom:8px;">期号: ${data.p}</div>
+                  <div class="result-numbers">
+                    ${nums.map(n => `<span class="ball ball-red">${String(n).padStart(2,'0')}</span>`).join('')}
+                    ${bonus.map(n => `<span class="ball ball-blue">${String(n).padStart(2,'0')}</span>`).join('')}
+                  </div>
+                </div>
+              </div>
+            `;
+            resultDiv.style.display = 'block';
+          }
+        } else {
+          resultDiv.innerHTML = '<div class="empty-state"><p>未找到该期号数据</p></div>';
+          resultDiv.style.display = 'block';
+        }
+      }
+      
+      function clearSearch() {
+        document.getElementById('searchPeriod').value = '';
+        document.getElementById('searchResult').style.display = 'none';
+      }
+      
+      function doGetDataStats() {
+        const type = currentType;
+        const stats = window.DataLayer.getDataStats(type);
+        const container = document.getElementById('dataStatsContainer');
+        const s = stats[type] || stats.ssq || stats.dlt;
+        if (!s) {
+          container.innerHTML = '<div class="empty-state"><p>暂无统计数据</p></div>';
+          return;
+        }
+        let html = '';
+        if (s.redBall || s.frontArea) {
+          const hotLabel = s.redBall ? '红球热号' : '前区热号';
+          const coldLabel = s.redBall ? '红球冷号' : '前区冷号';
+          const hotNums = s.redBall ? s.redBall.hotNumbers : s.frontArea.hotNumbers;
+          const coldNums = s.redBall ? s.redBall.coldNumbers : s.frontArea.coldNumbers;
+          html += `<div class="card"><div class="card-title"><span class="icon">🔥</span>${hotLabel}</div>
+            <div class="number-list">${hotNums.map(n => `<span class="number-item ${type === 'ssq' ? 'red' : 'blue'}">${String(n.num).padStart(2,'0')} (${n.freq}次)</span>`).join('')}</div></div>`;
+          html += `<div class="card"><div class="card-title"><span class="icon">❄️</span>${coldLabel}</div>
+            <div class="number-list">${coldNums.map(n => `<span class="number-item ${type === 'ssq' ? 'blue' : 'red'}">${String(n.num).padStart(2,'0')} (${n.freq}次)</span>`).join('')}</div></div>`;
+        }
+        if (s.blueBall || s.backArea) {
+          const label = s.blueBall ? '蓝球热号' : '后区热号';
+          const nums = s.blueBall ? s.blueBall.hotNumbers : s.backArea.hotNumbers;
+          html += `<div class="card"><div class="card-title"><span class="icon">🔵</span>${label}</div>
+            <div class="number-list">${nums.map(n => `<span class="number-item blue">${String(n.num).padStart(2,'0')} (${n.freq}次)</span>`).join('')}</div></div>`;
+        }
+        html += `<div class="card"><div class="card-title"><span class="icon">📊</span>数据概览</div>
+          <div style="line-height:2;"><div>总记录数: <strong>${s.recordCount}</strong> 条</div>
+          <div>期号范围: <strong>${s.periodRange.from} ~ ${s.periodRange.to}</strong></div></div></div>`;
+        container.innerHTML = html;
+      }
+      
+      function doSubmitCorrection() {
+        const period = document.getElementById('correctPeriod').value.trim();
+        const redStr = document.getElementById('correctRed').value.trim();
+        const blueStr = document.getElementById('correctBlue').value.trim();
+        const resultDiv = document.getElementById('correctionResult');
+        if (!period || !redStr) {
+          showToast('请填写期号和红球号码', 'error');
+          return;
+        }
+        const type = currentType;
+        const redNums = redStr.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+        const blueNums = blueStr ? blueStr.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n)) : [];
+        if (redNums.length === 0) {
+          showToast('请输入有效的红球号码', 'error');
+          return;
+        }
+        const data = type === 'ssq' 
+          ? { r: redNums, b: blueNums[0] || 1 }
+          : { f: redNums, b: blueNums };
+        const result = window.DataLayer.submitCorrection(period, data, type);
+        if (result.status === 'updated') {
+          resultDiv.innerHTML = `<div class="result-item fade-in"><span style="color:var(--accent);">✓ 纠错成功</span> - 已更新第 ${period} 期数据</div>`;
+          showToast('数据纠错成功');
+        } else {
+          resultDiv.innerHTML = `<div class="result-item fade-in"><span style="color:var(--coral);">✗ 未找到该期号</span> - 请确认期号是否正确</div>`;
+        }
+      }
+      
+      function doExportCSV() {
+        const type = document.getElementById('exportType').value;
+        const filename = document.getElementById('exportFilename').value.trim() || 'lottery_data';
+        window.DataLayer.exportCSV(type, filename + '_' + type + '.csv');
+        showToast('CSV导出成功');
+      }
+      
+      // ===== Stats Tab UI Handlers =====
+      function doCheckMissAlert() {
+        const input = document.getElementById('missAlertNumbers').value.trim();
+        const resultDiv = document.getElementById('missAlertResult');
+        if (!input) {
+          showToast('请输入号码', 'error');
+          return;
+        }
+        const numbers = input.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+        if (numbers.length === 0) {
+          showToast('请输入有效号码', 'error');
+          return;
+        }
+        const result = window.ToolsModule.checkMissAlert(numbers);
+        let html = `<div class="fade-in">`;
+        if (result.missedNumbers && result.missedNumbers.length > 0) {
+          html += `<div style="margin-bottom:12px;"><strong style="color:var(--coral);">⚠️ 遗漏提醒:</strong> 以下号码已遗漏较长时间</div>`;
+          html += `<div class="number-list">${result.missedNumbers.map(n => `<span class="number-item ${currentType === 'ssq' ? 'red' : 'blue'}">${String(n.num).padStart(2,'0')} (遗漏${n.miss}期)</span>`).join('')}</div>`;
+        } else {
+          html += `<div style="color:var(--accent);">✓ 目前没有号码遗漏超过10期</div>`;
+        }
+        html += `</div>`;
+        resultDiv.innerHTML = html;
+      }
+      
+      function doCalculateRecommendIndex() {
+        const input = document.getElementById('recommendNumbers').value.trim();
+        const resultDiv = document.getElementById('recommendIndexResult');
+        if (!input) {
+          showToast('请输入号码', 'error');
+          return;
+        }
+        const numbers = input.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+        if (numbers.length === 0) {
+          showToast('请输入有效号码', 'error');
+          return;
+        }
+        const result = window.ToolsModule.calculateRecommendIndex(numbers);
+        const indexColor = result.index >= 80 ? 'var(--accent)' : result.index >= 60 ? 'var(--blue)' : 'var(--text-secondary)';
+        resultDiv.innerHTML = `
+          <div class="fade-in" style="text-align:center;padding:20px;">
+            <div style="font-size:64px;font-weight:bold;color:${indexColor};">${result.index}</div>
+            <div style="color:var(--text-secondary);margin-top:8px;">推荐指数</div>
+            <div style="margin-top:16px;padding:12px;background:var(--bg);border-radius:8px;text-align:left;">
+              <div style="margin-bottom:8px;"><strong>分析结果:</strong></div>
+              <div>• 奇偶比例: ${result.analysis.oddEvenRatio}</div>
+              <div>• 和值: ${result.analysis.sum}</div>
+              <div>• 号码分布: ${result.analysis.distribution}</div>
+              <div>• AC值: ${result.analysis.acValue}</div>
+            </div>
+          </div>
+        `;
+      }
+      
+      function doDrawTrendLine() {
+        const input = document.getElementById('trendLineNumber').value;
+        const resultDiv = document.getElementById('trendLineResult');
+        const num = parseInt(input);
+        const maxNum = currentType === 'ssq' ? 33 : 35;
+        if (isNaN(num) || num < 1 || num > maxNum) {
+          showToast(`请输入1-${maxNum}之间的号码`, 'error');
+          return;
+        }
+        const result = window.ToolsModule.drawTrendLine(num);
+        const containerId = 'trendLineChart';
+        resultDiv.innerHTML = `<div id="${containerId}" style="margin-top:12px;"></div>`;
+        const container = document.getElementById(containerId);
+        const maxFreq = Math.max(...result.history.map(h => h.freq));
+        let html = `<div style="margin-bottom:12px;">号码 <strong>${String(num).padStart(2,'0')}</strong> 近 ${result.history.length} 期趋势:</div>`;
+        html += `<div style="display:flex;gap:4px;align-items:flex-end;height:100px;">`;
+        result.history.forEach((h, i) => {
+          const height = (h.freq / maxFreq) * 80 + 10;
+          const color = h.isRecent ? 'var(--accent)' : 'var(--border)';
+          html += `<div style="flex:1;text-align:center;">
+            <div style="height:${height}px;background:${color};border-radius:4px 4px 0 0;min-height:4px;"></div>
+            <div style="font-size:10px;color:var(--text-secondary);margin-top:4px;">${h.period.slice(-4)}</div>
+            <div style="font-size:10px;">${h.freq}</div>
+          </div>`;
+        });
+        html += `</div>`;
+        html += `<div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:8px;">
+          <div>出现次数: <strong>${result.stats.appearanceCount}</strong> | 
+          平均遗漏: <strong>${result.stats.avgMiss.toFixed(1)}</strong>期 | 
+          最大遗漏: <strong>${result.stats.maxMiss}</strong>期</div>
+        </div>`;
+        container.innerHTML = html;
+      }
+      
+      // ===== Tools Tab UI Handlers =====
+      function doGenerateWeeklyReport() {
+        const type = document.getElementById('weeklyType').value;
+        const weeks = parseInt(document.getElementById('weeklyWeeks').value) || 4;
+        const resultDiv = document.getElementById('weeklyReportResult');
+        const result = window.ToolsModule.generateWeeklyReport(type, weeks);
+        let html = `<div class="fade-in" style="padding:16px;background:var(--bg);border-radius:8px;">`;
+        html += `<h4 style="margin-bottom:12px;">📊 ${type === 'ssq' ? '双色球' : '大乐透'} 周分析报告</h4>`;
+        html += `<div style="line-height:2;">`;
+        html += `<div><strong>报告周期:</strong> ${result.period}</div>`;
+        html += `<div><strong>分析期数:</strong> ${result.totalPeriods} 期</div>`;
+        html += `<div style="margin-top:8px;"><strong>🔴 红球/前区 热门号码 TOP5:</strong></div>`;
+        html += `<div class="number-list">${result.hotNumbers.red.map(n => `<span class="number-item ${type === 'ssq' ? 'red' : 'blue'}">${String(n.num).padStart(2,'0')}</span>`).join('')}</div>`;
+        html += `<div style="margin-top:8px;"><strong>🔵 蓝球/后区 热门号码:</strong></div>`;
+        html += `<div class="number-list">${result.hotNumbers.blue.map(n => `<span class="number-item blue">${String(n.num).padStart(2,'0')}</span>`).join('')}</div>`;
+        html += `<div style="margin-top:8px;"><strong>📈 和值区间:</strong> ${result.sumRange.min} - ${result.sumRange.max} (均值: ${result.sumRange.avg})</div>`;
+        html += `<div style="margin-top:8px;"><strong>⚖️ 奇偶比例:</strong> 奇数 ${result.oddEvenRatio.odd}% : 偶数 ${result.oddEvenRatio.even}%</div>`;
+        html += `</div></div>`;
+        resultDiv.innerHTML = html;
+      }
+      
+      function doGetNextDrawTime() {
+        const type = document.getElementById('drawTimeType').value;
+        const result = window.ToolsModule.getNextDrawTime(type);
+        const resultDiv = document.getElementById('drawTimeResult');
+        resultDiv.innerHTML = `
+          <div class="fade-in" style="padding:20px;background:var(--bg);border-radius:8px;text-align:center;">
+            <div style="font-size:24px;margin-bottom:12px;">${result.isOpen ? '✅' : '⏰'}</div>
+            <div style="font-size:18px;font-weight:600;">${result.message}</div>
+            ${result.nextDraw ? `<div style="margin-top:12px;color:var(--text-secondary);">开奖时间: ${result.nextDraw}</div>` : ''}
+            <div style="margin-top:8px;color:var(--text-secondary);">${result.note}</div>
+          </div>
+        `;
+      }
+      
+      function doGetLiveStreamURL() {
+        const type = document.getElementById('liveStreamType').value;
+        const result = window.ToolsModule.getLiveStreamURL(type);
+        const resultDiv = document.getElementById('liveStreamResult');
+        resultDiv.innerHTML = `
+          <div class="fade-in" style="padding:20px;background:var(--bg);border-radius:8px;text-align:center;">
+            <div style="font-size:48px;margin-bottom:12px;">${result.icon}</div>
+            <div style="font-weight:600;margin-bottom:8px;">${result.title}</div>
+            <div style="margin-bottom:16px;color:var(--text-secondary);">${result.description}</div>
+            <button class="btn btn-primary" onclick="window.open('${result.url}', '_blank')">进入直播间</button>
+          </div>
+        `;
+      }
+
+      // ===== 4. ToolsModule Extensions =====
+      ToolsModule = {
+        ...ToolsModule,
+        checkMissAlert: function(numbers) {
+          const type = currentType;
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const count = isSSQ ? 6 : 5;
+          const maxNum = isSSQ ? 33 : 35;
+          const miss = {};
+          for (let i = 1; i <= maxNum; i++) miss[i] = 0;
+          data.forEach(row => {
+            const nums = isSSQ ? row.r : row.f;
+            for (let n = 1; n <= maxNum; n++) {
+              if (nums.includes(n)) miss[n] = 0; else miss[n]++;
+            }
+          });
+          const inputNums = Array.isArray(numbers) ? numbers : [];
+          const missedNumbers = [];
+          inputNums.forEach(n => {
+            if (miss[n] > 10) missedNumbers.push({ num: n, miss: miss[n] });
+          });
+          return { type, numbers: inputNums, missedNumbers: missedNumbers.sort((a, b) => b.miss - a.miss) };
+        },
+        calculateRecommendIndex: function(numbers) {
+          const type = currentType;
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const nums = Array.isArray(numbers) ? numbers : [];
+          let index = 50;
+          const freq = {};
+          const maxNum = isSSQ ? 33 : 35;
+          for (let i = 1; i <= maxNum; i++) freq[i] = 0;
+          data.forEach(row => { const arr = isSSQ ? row.r : row.f; arr.forEach(n => freq[n]++); });
+          const avgFreq = data.length * (isSSQ ? 6 : 5) / maxNum;
+          let hotCount = 0;
+          nums.forEach(n => { if (freq[n] > avgFreq) hotCount++; });
+          index += (hotCount / nums.length) * 30;
+          const oddCount = nums.filter(n => n % 2 === 1).length;
+          const oddRatio = oddCount / nums.length;
+          if (isSSQ) { if (oddRatio >= 0.4 && oddRatio <= 0.6) index += 10; }
+          else { if (oddRatio >= 0.3 && oddRatio <= 0.7) index += 10; }
+          const sum = nums.reduce((a, b) => a + b, 0);
+          const expectedSum = isSSQ ? 99 : 90;
+          if (Math.abs(sum - expectedSum) < 30) index += 10;
+          return {
+            index: Math.min(100, Math.max(0, Math.round(index))),
+            analysis: {
+              oddEvenRatio: `${oddCount}:${nums.length - oddCount}`,
+              sum: sum,
+              distribution: `分散于${Math.ceil(nums.length / 3)}个区间`,
+              acValue: '待计算'
+            }
+          };
+        },
+        drawTrendLine: function(number) {
+          const type = currentType;
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const num = parseInt(number);
+          const history = [];
+          let miss = 0;
+          data.slice(0, 50).forEach(row => {
+            const nums = isSSQ ? row.r : row.f;
+            const appeared = nums.includes(num);
+            history.push({ period: row.p, freq: appeared ? 1 : 0, miss: appeared ? 0 : miss++ });
+          });
+          const appearedHistory = history.filter(h => h.freq > 0);
+          const misses = history.map(h => h.miss).filter(m => m > 0);
+          return {
+            number: num,
+            history: history.reverse(),
+            stats: {
+              appearanceCount: appearedHistory.length,
+              avgMiss: misses.length > 0 ? misses.reduce((a, b) => a + b, 0) / misses.length : 0,
+              maxMiss: Math.max(...misses, 0)
+            }
+          };
+        },
+        generateWeeklyReport: function(type, weeks) {
+          type = type || 'ssq';
+          weeks = weeks || 4;
+          const data = type === 'ssq' ? SSQ_DATA : DLT_DATA;
+          const isSSQ = type === 'ssq';
+          const sliceCount = Math.min(weeks * 2, data.length);
+          const recentData = data.slice(0, sliceCount);
+          const freq = {};
+          const maxNum = isSSQ ? 33 : 35;
+          const count = isSSQ ? 6 : 5;
+          for (let i = 1; i <= maxNum; i++) freq[i] = 0;
+          recentData.forEach(row => { const nums = isSSQ ? row.r : row.f; nums.forEach(n => freq[n]++); });
+          const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]);
+          const hotRed = sorted.slice(0, 5).map(([n, c]) => ({ num: parseInt(n), freq: c }));
+          const hotBlue = isSSQ 
+            ? Object.entries(data.slice(0, sliceCount).reduce((acc, row) => { acc[row.b] = (acc[row.b] || 0) + 1; return acc; }, {})).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([n, c]) => ({ num: parseInt(n), freq: c }))
+            : Object.entries(data.slice(0, sliceCount).reduce((acc, row) => { row.b.forEach(bn => acc[bn] = (acc[bn] || 0) + 1); return acc; }, {})).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([n, c]) => ({ num: parseInt(n), freq: c }));
+          const sums = recentData.map(row => (isSSQ ? row.r : row.f).reduce((a, b) => a + b, 0));
+          let oddCount = 0, total = 0;
+          recentData.forEach(row => { const nums = isSSQ ? row.r : row.f; nums.forEach(n => { if (n % 2 === 1) oddCount++; total++; }); });
+          return {
+            period: `近${sliceCount}期`,
+            totalPeriods: sliceCount,
+            hotNumbers: { red: hotRed, blue: hotBlue },
+            sumRange: { min: Math.min(...sums), max: Math.max(...sums), avg: Math.round(sums.reduce((a, b) => a + b, 0) / sums.length) },
+            oddEvenRatio: { odd: Math.round(oddCount / total * 100), even: Math.round((total - oddCount) / total * 100) }
+          };
+        },
+        getNextDrawTime: function(type) {
+          type = type || 'ssq';
+          const now = new Date();
+          const day = now.getDay();
+          const hour = now.getHours();
+          const isSSQ = type === 'ssq';
+          if (isSSQ) {
+            if (day === 2 || day === 4 || day === 6) {
+              if (day === 6 && hour >= 21) return { isOpen: true, message: '今晚开奖!', nextDraw: '周日 21:15', note: '双色球每周二、四、日开奖' };
+              if (day === 2 && hour >= 21) return { isOpen: true, message: '今晚开奖!', nextDraw: '周二 21:15', note: '双色球每周二、四、日开奖' };
+              if (day === 4 && hour >= 21) return { isOpen: true, message: '今晚开奖!', nextDraw: '周四 21:15', note: '双色球每周二、四、日开奖' };
+            }
+            const nextDay = day === 0 ? 2 : day < 2 ? 2 : day === 2 ? 4 : day < 4 ? 4 : day === 4 ? 6 : day < 6 ? 6 : 2;
+            const daysUntil = nextDay - day + (nextDay <= day ? 7 : 0);
+            const nextDate = new Date(now);
+            nextDate.setDate(nextDate.getDate() + daysUntil);
+            return { isOpen: false, message: `距离开奖还有 ${daysUntil} 天`, nextDraw: `${nextDate.getMonth() + 1}月${nextDate.getDate()}日 21:15`, note: '双色球每周二、四、日开奖' };
+          } else {
+            if (day === 1 || day === 3 || day === 6) {
+              if (day === 6 && hour >= 20) return { isOpen: true, message: '今晚开奖!', nextDraw: '周六 20:30', note: '大乐透每周一、三、六开奖' };
+              if (day === 1 && hour >= 20) return { isOpen: true, message: '今晚开奖!', nextDraw: '周一 20:30', note: '大乐透每周一、三、六开奖' };
+              if (day === 3 && hour >= 20) return { isOpen: true, message: '今晚开奖!', nextDraw: '周三 20:30', note: '大乐透每周一、三、六开奖' };
+            }
+            const nextDay = day === 0 ? 1 : day < 1 ? 1 : day === 1 ? 3 : day < 3 ? 3 : day === 3 ? 6 : day < 6 ? 6 : 1;
+            const daysUntil = nextDay - day + (nextDay <= day ? 7 : 0);
+            const nextDate = new Date(now);
+            nextDate.setDate(nextDate.getDate() + daysUntil);
+            return { isOpen: false, message: `距离开奖还有 ${daysUntil} 天`, nextDraw: `${nextDate.getMonth() + 1}月${nextDate.getDate()}日 20:30`, note: '大乐透每周一、三、六开奖' };
+          }
+        },
+        getLiveStreamURL: function(type) {
+          type = type || 'ssq';
+          if (type === 'ssq') {
+            return { icon: '🎯', title: '双色球直播', description: '官方开奖直播频道', url: 'https://直播频道/ssq' };
+          } else {
+            return { icon: '🎰', title: '大乐透直播', description: '官方开奖直播频道', url: 'https://直播频道/dlt' };
+          }
         }
       };
 
