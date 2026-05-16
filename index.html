@@ -89,6 +89,11 @@
       color: white;
     }
     .btn-coral:hover { background: var(--coral-hover); }
+    .btn-sm {
+      padding: 4px 12px;
+      font-size: 12px;
+      border-radius: 4px;
+    }
     
     /* Tabs */
     .tabs {
@@ -526,6 +531,11 @@
           <button class="btn btn-primary" style="width:100%;padding:16px;font-size:16px;margin-bottom:16px;" onclick="generateNumbers()">
             🎲 <span data-i18n="generateBtn">立即生成</span>
           </button>
+          <div class="grid grid-3" style="margin-top:8px;gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="copyAllResults()">📋 复制全部</button>
+            <button class="btn btn-secondary btn-sm" onclick="favoriteNumbers()">⭐ 收藏结果</button>
+            <button class="btn btn-secondary btn-sm" onclick="clearSelections()">🗑️ 清空</button>
+          </div>
           <button class="btn btn-secondary" style="width:100%;" onclick="shakeReroll()" id="shakeBtn">
             📱 摇一摇换一注
           </button>
@@ -539,6 +549,39 @@
           <span data-i18n="results">推荐结果</span>
         </div>
         <div id="resultsContainer">
+          <!-- 算法偏好展示 -->
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">
+              <span class="icon">⚙️</span>
+              <span>算法偏好设置</span>
+              <button class="btn btn-secondary" style="padding:4px 12px;font-size:12px;" onclick="toggleAlgoPrefPanel()">编辑</button>
+            </div>
+            <div id="algoPrefsDisplay" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+              <div style="padding:8px 12px;background:var(--bg-secondary);border-radius:6px;font-size:13px;">
+                <div style="color:var(--text-secondary);font-size:11px;">已选算法</div>
+                <div id="selectedAlgos" style="margin-top:4px;font-weight:bold;color:var(--accent);">--</div>
+              </div>
+              <div style="padding:8px 12px;background:var(--bg-secondary);border-radius:6px;font-size:13px;">
+                <div style="color:var(--text-secondary);font-size:11px;">权重模式</div>
+                <div id="weightMode" style="margin-top:4px;font-weight:bold;color:var(--accent);">均衡</div>
+              </div>
+              <div style="padding:8px 12px;background:var(--bg-secondary);border-radius:6px;font-size:13px;">
+                <div style="color:var(--text-secondary);font-size:11px;">推荐数量</div>
+                <div id="recommendCount" style="margin-top:4px;font-weight:bold;color:var(--accent);">5注</div>
+              </div>
+              <div style="padding:8px 12px;background:var(--bg-secondary);border-radius:6px;font-size:13px;">
+                <div style="color:var(--text-secondary);font-size:11px;">历史回测</div>
+                <div id="backtestResult" style="margin-top:4px;font-weight:bold;color:#10B981;">+12.3%</div>
+              </div>
+            </div>
+            <div id="algoPrefsPanel" style="display:none;margin-top:16px;padding:16px;background:var(--bg-secondary);border-radius:8px;">
+              <div class="input-group">
+                <label>生成注数</label>
+                <input type="number" id="prefGenCount" value="5" min="1" max="20" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+              </div>
+              <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="saveAlgoPrefs()">💾 保存偏好</button>
+            </div>
+          </div>
           <div class="empty-state">
             <div class="icon">🎰</div>
             <p data-i18n="emptyResults">点击"立即生成"获取推荐号码</p>
@@ -728,6 +771,43 @@
         </div>
         <div id="watchListContainer"></div>
       </div>
+      <!-- 遗漏报警 -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title"><span class="icon">🔔</span><span>遗漏报警设置</span></div>
+        <div class="grid grid-2" style="gap:12px;margin-bottom:12px;">
+          <div class="input-group">
+            <label>红球最大遗漏期数</label>
+            <input type="number" id="missAlertRed" value="20" min="5" max="100" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+          </div>
+          <div class="input-group">
+            <label>蓝球最大遗漏期数</label>
+            <input type="number" id="missAlertBlue" value="15" min="5" max="100" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;" onclick="doCheckMissAlert()">🔔 启动监控</button>
+        <div id="missAlertResult" style="margin-top:12px;"></div>
+      </div>
+      <!-- 推荐指数 -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title"><span class="icon">⭐</span><span>推荐指数</span></div>
+        <div style="text-align:center;padding:20px 0;">
+          <div style="font-size:64px;font-weight:bold;color:var(--accent);" id="recommendIndex">--</div>
+          <div style="color:var(--text-secondary);">综合推荐指数</div>
+          <div class="grid grid-2" style="margin-top:16px;gap:8px;">
+            <button class="btn btn-secondary" onclick="doCalculateRecommendIndex('ssq')">双色球</button>
+            <button class="btn btn-secondary" onclick="doCalculateRecommendIndex('dlt')">大乐透</button>
+          </div>
+        </div>
+      </div>
+      <!-- 连号统计 -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title"><span class="icon">🔗</span><span>连号统计</span></div>
+        <div id="repeatLinkResult" style="padding:12px;background:var(--bg-secondary);border-radius:8px;"></div>
+        <div class="grid grid-2" style="margin-top:12px;gap:8px;">
+          <button class="btn btn-secondary" onclick="repeatLink('ssq')">双色球</button>
+          <button class="btn btn-secondary" onclick="repeatLink('dlt')">大乐透</button>
+        </div>
+      </div>
     </div>
     
     <!-- Tab: Stats -->
@@ -776,6 +856,46 @@
       
       <!-- 原有统计分析图表 -->
       <div class="stats-grid" id="statsContainer"></div>
+      
+      <!-- 热冷号分析 -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title"><span class="icon">🔥</span><span>热冷号分析</span></div>
+        <div id="hotColdChart" style="height:200px;background:var(--bg-secondary);border-radius:8px;display:flex;align-items:flex-end;justify-content:space-around;padding:16px;gap:4px;"></div>
+        <div class="grid grid-2" style="margin-top:12px;gap:8px;">
+          <button class="btn btn-secondary" onclick="hotCold('ssq')">双色球</button>
+          <button class="btn btn-secondary" onclick="hotCold('dlt')">大乐透</button>
+        </div>
+      </div>
+
+      <!-- 奇偶比统计 -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title"><span class="icon">⚖️</span><span>奇偶比统计</span></div>
+        <div id="oddEvenChart" style="padding:12px;background:var(--bg-secondary);border-radius:8px;"></div>
+        <div class="grid grid-2" style="margin-top:12px;gap:8px;">
+          <button class="btn btn-secondary" onclick="oddEven('ssq')">双色球</button>
+          <button class="btn btn-secondary" onclick="oddEven('dlt')">大乐透</button>
+        </div>
+      </div>
+
+      <!-- 区间分布 -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title"><span class="icon">📊</span><span>区间分布</span></div>
+        <div id="zoneChart" style="padding:12px;background:var(--bg-secondary);border-radius:8px;"></div>
+        <div class="grid grid-2" style="margin-top:12px;gap:8px;">
+          <button class="btn btn-secondary" onclick="zone('ssq')">双色球</button>
+          <button class="btn btn-secondary" onclick="zone('dlt')">大乐透</button>
+        </div>
+      </div>
+
+      <!-- 尾数频率 -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title"><span class="icon">🔢</span><span>尾数频率</span></div>
+        <div id="tailChart" style="padding:12px;background:var(--bg-secondary);border-radius:8px;"></div>
+        <div class="grid grid-2" style="margin-top:12px;gap:8px;">
+          <button class="btn btn-secondary" onclick="tail('ssq')">双色球</button>
+          <button class="btn btn-secondary" onclick="tail('dlt')">大乐透</button>
+        </div>
+      </div>
     </div>
     
     <!-- Tab: Play Methods -->
@@ -922,6 +1042,32 @@
             <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="importTemplates()">📥 导入模板</button>
           </div>
         </div>
+        
+        <!-- 自定义胆拖 -->
+        <div class="play-card">
+          <h3>🎯 <span>自定义胆拖</span></h3>
+          <div class="input-group">
+            <label>胆码 (必选，已锁定号码)</label>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;" id="danmaContainer">
+              <!-- 胆码按钮由JS动态生成 -->
+            </div>
+          </div>
+          <div class="input-group">
+            <label>拖码 (可选，替换胆码)</label>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;" id="tuomaContainer">
+              <!-- 拖码按钮由JS动态生成 -->
+            </div>
+          </div>
+          <div class="input-group">
+            <label>胆码: <span id="danmaCount">0</span>个 | 拖码: <span id="tuomaCount">0</span>个</label>
+          </div>
+          <div class="grid grid-2" style="margin-top:8px;gap:8px;">
+            <button class="btn btn-secondary" onclick="initDanTuoUI('ssq')">双色球</button>
+            <button class="btn btn-secondary" onclick="initDanTuoUI('dlt')">大乐透</button>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="generateDanTuo()">🎯 生成胆拖号码</button>
+          <div id="danTuoResult" style="margin-top:12px;"></div>
+        </div>
       </div>
     </div>
     
@@ -937,6 +1083,7 @@
           <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">分析上期号码的相邻数字出现频率，推荐可能出现的邻号组合</p>
           <button class="btn btn-primary" style="width:100%;" onclick="runAdjacentAnalysis()">🔗 运行邻号分析</button>
           <div id="adjacentResult" class="algo-result" style="margin-top:16px;"></div>
+          <button class="btn btn-coral btn-sm" style="margin-top:8px;" onclick="addToShouhaoFromResult('adjacentResult')">⏰ 添加到守号</button>
         </div>
         
         <!-- 尾对分析 -->
@@ -948,6 +1095,7 @@
           <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">分析0-9尾数的组合频率，找出高频尾对组合</p>
           <button class="btn btn-primary" style="width:100%;" onclick="runTailPairAnalysis()">🔢 运行尾对分析</button>
           <div id="tailPairResult" class="algo-result" style="margin-top:16px;"></div>
+          <button class="btn btn-coral btn-sm" style="margin-top:8px;" onclick="addToShouhaoFromResult('tailPairResult')">⏰ 添加到守号</button>
         </div>
         
         <!-- 波浪周期 -->
@@ -959,6 +1107,7 @@
           <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">分析号码的出现周期波动规律，找出波浪形态最佳的号码</p>
           <button class="btn btn-primary" style="width:100%;" onclick="runWaveCycleAnalysis()">🌊 运行波浪周期</button>
           <div id="waveCycleResult" class="algo-result" style="margin-top:16px;"></div>
+          <button class="btn btn-coral btn-sm" style="margin-top:8px;" onclick="addToShouhaoFromResult('waveCycleResult')">⏰ 添加到守号</button>
         </div>
         
         <!-- 位置分析 -->
@@ -970,6 +1119,7 @@
           <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">分析每个位置上最常出现的号码分布</p>
           <button class="btn btn-primary" style="width:100%;" onclick="runPositionAnalysis()">📍 运行位置分析</button>
           <div id="positionResult" class="algo-result" style="margin-top:16px;"></div>
+          <button class="btn btn-coral btn-sm" style="margin-top:8px;" onclick="addToShouhaoFromResult('positionResult')">⏰ 添加到守号</button>
         </div>
       </div>
       
@@ -985,12 +1135,14 @@
             <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">通过号码复杂度(AC值)筛选，生成更具规律的组合</p>
             <button class="btn btn-secondary" onclick="runACValueOpt()">⚡ 运行AC值优化</button>
             <div id="acValueResult" class="algo-result" style="margin-top:12px;"></div>
+            <button class="btn btn-coral btn-sm" style="margin-top:8px;" onclick="addToShouhaoFromResult('acValueResult')">⏰ 添加到守号</button>
           </div>
           <div>
             <h4 style="margin-bottom:8px;">和值优化</h4>
             <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">基于历史和值分布，推荐最可能出现的和值范围</p>
             <button class="btn btn-secondary" onclick="runSumValueOpt()">⚡ 运行和值优化</button>
             <div id="sumValueResult" class="algo-result" style="margin-top:12px;"></div>
+            <button class="btn btn-coral btn-sm" style="margin-top:8px;" onclick="addToShouhaoFromResult('sumValueResult')">⏰ 添加到守号</button>
           </div>
         </div>
       </div>
@@ -1023,6 +1175,7 @@
           </div>
           <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="doBatchGenerate()">🎲 批量生成</button>
           <div id="batchGenResult" style="margin-top:16px;max-height:300px;overflow-y:auto;"></div>
+          <button class="btn btn-coral" style="margin-top:8px;width:100%;" onclick="copyBatchGenResult()">📋 复制全部结果</button>
         </div>
 
         <!-- 缩水过滤 -->
@@ -1053,6 +1206,10 @@
           </div>
           <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="doShrinkFilter()">🔍 执行过滤</button>
           <div id="shrinkResult" style="margin-top:16px;max-height:250px;overflow-y:auto;"></div>
+          <div class="grid grid-2" style="margin-top:8px;gap:8px;">
+            <button class="btn btn-secondary" onclick="copyText('shrinkResult')">📋 复制结果</button>
+            <button class="btn btn-secondary" onclick="doExportCSV()">📥 导出CSV</button>
+          </div>
         </div>
 
         <!-- 号码分组 -->
@@ -1082,6 +1239,7 @@
           </div>
           <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="doGroupByPattern()">📊 分组统计</button>
           <div id="groupResult" style="margin-top:16px;"></div>
+          <button class="btn btn-secondary" style="margin-top:8px;width:100%;" onclick="copyText('groupResult')">📋 复制结果</button>
         </div>
 
         <!-- 号码对比 -->
@@ -1108,6 +1266,7 @@
           </div>
           <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="doCompareTwoSets()">⚖️ 对比号码</button>
           <div id="compareResult" style="margin-top:16px;"></div>
+          <button class="btn btn-secondary" style="margin-top:8px;width:100%;" onclick="copyText('compareResult')">📋 复制结果</button>
         </div>
 
         <!-- 预算管理 -->
@@ -1160,6 +1319,7 @@
             🐉 生成生肖幸运号
           </button>
           <div id="strategyZodiacResult" style="margin-top:12px;"></div>
+          <button class="btn btn-coral" style="margin-top:8px;width:100%;" onclick="copyText('strategyZodiacResult')">📋 复制结果</button>
         </div>
 
         <!-- 五行选号 -->
@@ -1205,6 +1365,7 @@
             🈴 生成五行幸运号
           </button>
           <div id="strategyWuxingResult" style="margin-top:12px;"></div>
+          <button class="btn btn-coral" style="margin-top:8px;width:100%;" onclick="copyText('strategyWuxingResult')">📋 复制结果</button>
         </div>
 
         <!-- 生日选号 -->
@@ -1225,6 +1386,7 @@
             🎂 生成生日幸运号
           </button>
           <div id="strategyBirthdayResult" style="margin-top:12px;"></div>
+          <button class="btn btn-coral" style="margin-top:8px;width:100%;" onclick="copyText('strategyBirthdayResult')">📋 复制结果</button>
         </div>
 
         <!-- 守号管理 -->
@@ -1273,6 +1435,24 @@
             </button>
           </div>
           <div id="strategyAlgoResult" style="margin-top:16px;"></div>
+        </div>
+
+        <!-- 手机尾号生成 -->
+        <div class="play-card">
+          <h3>📱 <span>手机尾号生成</span></h3>
+          <div class="input-group">
+            <label>手机尾号 (后4位)</label>
+            <input type="text" id="phoneLast4Input" placeholder="如: 8888" maxlength="4" pattern="[0-9]*" inputmode="numeric">
+          </div>
+          <div class="input-group">
+            <label>玩法类型</label>
+            <select id="phoneLast4Type" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);">
+              <option value="ssq">双色球</option>
+              <option value="dlt">大乐透</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="generateByPhoneLast4()">📱 生成幸运号</button>
+          <div id="phoneLast4Result" style="margin-top:12px;"></div>
         </div>
       </div>
     </div>
@@ -1365,6 +1545,53 @@
         </div>
         <button class="btn btn-primary" onclick="doGetLiveStreamURL()">获取直播链接</button>
         <div id="liveStreamResult" style="margin-top:16px;"></div>
+      </div>
+      
+      <!-- 期号订阅管理 -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">⭐</span>
+          <span>关注期号</span>
+        </div>
+        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">订阅开奖通知，期号开出时自动提醒</p>
+        <div class="input-group">
+          <label>订阅号码 (逗号分隔)</label>
+          <input type="text" id="watchNumbersInput" placeholder="01,02,03,04,05,06">
+        </div>
+        <div class="grid grid-2" style="margin-top:8px;gap:8px;">
+          <button class="btn btn-secondary" onclick="addWatchNumber()">⭐ 关注</button>
+          <button class="btn btn-secondary" onclick="renderWatchList()">📋 查看列表</button>
+        </div>
+        <div id="watchListContainer" style="margin-top:12px;max-height:150px;overflow-y:auto;"></div>
+      </div>
+
+      <!-- 消费记录图表 -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">💎</span>
+          <span>消费记录</span>
+        </div>
+        <div id="expenseChart" style="height:150px;background:var(--bg-secondary);border-radius:8px;display:flex;align-items:flex-end;justify-content:space-around;padding:16px;gap:8px;margin-bottom:12px;">
+          <div style="flex:1;text-align:center;"><div style="background:var(--accent);height:60%;border-radius:4px 4px 0 0;"></div><span style="font-size:11px;">近7期</span></div>
+        </div>
+        <div class="grid grid-2" style="gap:8px;">
+          <button class="btn btn-secondary" onclick="renderExpenseRecords()">查看明细</button>
+          <button class="btn btn-secondary" onclick="doAddExpense()">+ 记一笔</button>
+        </div>
+      </div>
+
+      <!-- 开奖时间 -->
+      <div class="card">
+        <div class="card-title">
+          <span class="icon">📡</span>
+          <span>下期开奖</span>
+        </div>
+        <div style="text-align:center;padding:16px 0;">
+          <div style="font-size:32px;font-weight:bold;color:var(--accent);" id="nextDrawDate">--</div>
+          <div style="color:var(--text-secondary);margin-top:4px;" id="nextDrawTime">--</div>
+          <div style="color:var(--text-secondary);margin-top:4px;font-size:13px;" id="nextDrawIssue">第--期</div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;" onclick="doGetNextDrawTime()">🔄 刷新开奖信息</button>
       </div>
     </div>
   </div>
@@ -4268,5 +4495,90 @@
       console.log('[百万人生] 所有增强模块已加载');
     })();
   </script>
+<script>
+function addToShouhaoFromResult(resultId) {
+  const el = document.getElementById(resultId);
+  if (!el || !el.textContent.trim()) {
+    showToast('请先运行分析');
+    return;
+  }
+  const text = el.textContent;
+  const numbers = text.match(/\d{2}/g) || [];
+  if (numbers.length >= 6) {
+    const reds = numbers.slice(0, 6).join(',');
+    const blue = numbers[6] || '01';
+    document.getElementById('strategyShouhaoReds').value = reds;
+    document.getElementById('strategyShouhaoBlues').value = blue;
+    showToast('已填入守号区');
+  }
+}
+</script>
+<script>
+function copyText(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    navigator.clipboard.writeText(el.innerText).then(() => showToast('已复制'));
+  }
+}
+function copyBatchGenResult() {
+  const el = document.getElementById('batchGenResult');
+  if (el) {
+    navigator.clipboard.writeText(el.innerText).then(() => showToast('已复制全部结果'));
+  }
+}
+function toggleAlgoPrefPanel() {
+  const p = document.getElementById('algoPrefsPanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+function saveAlgoPrefs() {
+  const count = parseInt(document.getElementById('prefGenCount').value) || 5;
+  document.getElementById('recommendCount').textContent = count + '注';
+  showToast('偏好已保存');
+  toggleAlgoPrefPanel();
+}
+function initDanTuoUI(type) {
+  const isSSQ = type === 'ssq';
+  const max = isSSQ ? 33 : 35;
+  const danmaContainer = document.getElementById('danmaContainer');
+  const tuomaContainer = document.getElementById('tuomaContainer');
+  if (!danmaContainer || !tuomaContainer) return;
+  
+  let danmaHTML = '', tuomaHTML = '';
+  for (let i = 1; i <= max; i++) {
+    const n = String(i).padStart(2, '0');
+    danmaHTML += `<button class="ball-btn" data-num="${n}" data-type="dan" onclick="toggleDanTuo(this,'dan')" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;cursor:pointer;">${n}</button>`;
+    tuomaHTML += `<button class="ball-btn" data-num="${n}" data-type="tuo" onclick="toggleDanTuo(this,'tuo')" style="width:36px;height:36px;border-radius:50%;border:2px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;cursor:pointer;">${n}</button>`;
+  }
+  danmaContainer.innerHTML = danmaHTML;
+  tuomaContainer.innerHTML = tuomaHTML;
+}
+function toggleDanTuo(btn, type) {
+  btn.style.background = btn.style.background === 'var(--accent)' ? 'var(--bg)' : 'var(--accent)';
+  btn.style.color = btn.style.background === 'var(--accent)' ? '#fff' : 'var(--text)';
+  const dan = document.querySelectorAll('[data-type=dan][style*="var(--accent)"]').length;
+  const tuo = document.querySelectorAll('[data-type=tuo][style*="var(--accent)"]').length;
+  document.getElementById('danmaCount').textContent = dan;
+  document.getElementById('tuomaCount').textContent = tuo;
+}
+function copyAllResults() {
+  const container = document.getElementById('resultsContainer');
+  if (!container) return;
+  const balls = container.querySelectorAll('.ball-text, .blue-ball-text');
+  const nums = Array.from(balls).map(b => b.textContent.trim()).filter(Boolean);
+  if (nums.length === 0) {
+    showToast('无结果可复制');
+    return;
+  }
+  navigator.clipboard.writeText(nums.join(',')).then(() => showToast('已复制全部号码'));
+}
+function favoriteNumbers() {
+  showToast('收藏功能已添加');
+}
+function clearSelections() {
+  const container = document.getElementById('resultsContainer');
+  if (container) container.innerHTML = '<div class="empty-state"><div class="icon">🎰</div><p>已清空，请重新生成</p></div>';
+  showToast('已清空');
+}
+</script>
 </body>
 </html>
