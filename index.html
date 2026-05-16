@@ -1003,14 +1003,22 @@ function generate() {
     'tail': '尾数',
     'monte-carlo': '蒙特卡洛'
   };
+  const algoKeyMap = {
+    'hot-cold': 'hotCold',
+    'odd-even': 'oddEven',
+    'zone': 'zone',
+    'tail': 'tail',
+    'monte-carlo': 'monteCarlo'
+  };
 
   const results = [];
   for (const algo of selectedAlgos) {
-    if (algos[algo]) {
+    const key = algoKeyMap[algo];
+    if (key && algos[key]) {
       results.push({
         algo,
         name: algoNames[algo] || algo,
-        nums: algos[algo](currentType)
+        nums: algos[key](currentType)
       });
     }
   }
