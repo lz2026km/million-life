@@ -549,6 +549,30 @@
     
     <!-- Tab: History Data -->
     <div id="tab-history-data" class="tab-content" style="display:none;">
+      <!-- 数据信息概览 -->
+      <div class="card" id="dataInfoCard">
+        <div class="card-title">
+          <span class="icon">ℹ️</span>
+          <span>数据信息</span>
+          <button class="btn btn-secondary" style="margin-left:auto;" onclick="refreshDataInfo()">刷新</button>
+        </div>
+        <div id="dataInfoContainer" class="grid grid-3" style="gap:16px;">
+          <div style="padding:16px;background:var(--bg);border-radius:8px;text-align:center;">
+            <div style="font-size:24px;font-weight:bold;color:var(--accent);" id="dataInfoVersion">-</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">数据版本</div>
+          </div>
+          <div style="padding:16px;background:var(--bg);border-radius:8px;text-align:center;">
+            <div style="font-size:24px;font-weight:bold;color:var(--blue);" id="dataInfoCount">-</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">总期数</div>
+          </div>
+          <div style="padding:16px;background:var(--bg);border-radius:8px;text-align:center;">
+            <div style="font-size:14px;font-weight:bold;color:var(--text);" id="dataInfoRange">-</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">数据范围</div>
+          </div>
+        </div>
+        <div id="dataInfoDetail" style="margin-top:12px;padding:12px;background:var(--bg);border-radius:8px;font-size:13px;color:var(--text-secondary);"></div>
+      </div>
+      
       <!-- 搜索功能 -->
       <div class="card">
         <div class="card-title">
@@ -832,6 +856,71 @@
             <span data-i18n="addShouhao">添加守号</span>
           </button>
           <div id="shouhaoList" style="margin-top:16px;"></div>
+        </div>
+        
+        <!-- 手机尾号选号 -->
+        <div class="play-card">
+          <h3>📱 <span>手机尾号选号</span></h3>
+          <div class="input-group">
+            <label>手机尾号 (最后4位)</label>
+            <input type="number" id="phoneLast4" placeholder="1234" maxlength="4" min="0" max="9999">
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="generateByPhoneLast4()">
+            生成幸运号
+          </button>
+          <div id="phoneResult" style="margin-top:12px;"></div>
+        </div>
+        
+        <!-- 五行选号 -->
+        <div class="play-card">
+          <h3>🈯 <span>五行选号</span></h3>
+          <div class="input-group">
+            <label>选择五行 (可多选)</label>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+              <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="wuxing_jin" value="金"> 金</label>
+              <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="wuxing_mu" value="木"> 木</label>
+              <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="wuxing_shui" value="水"> 水</label>
+              <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="wuxing_huo" value="火"> 火</label>
+              <label style="display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="wuxing_tu" value="土"> 土</label>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:12px;" onclick="generateByWuxing()">
+            生成幸运号
+          </button>
+          <div id="wuxingResult" style="margin-top:12px;"></div>
+        </div>
+        
+        <!-- 号码模板管理 -->
+        <div class="play-card">
+          <h3>📋 <span>号码模板管理</span></h3>
+          <div class="input-group">
+            <label>模板名称</label>
+            <input type="text" id="templateName" placeholder="我的模板">
+          </div>
+          <div class="input-group">
+            <label>号码 (逗号分隔红球，蓝球用|分隔)</label>
+            <input type="text" id="templateNumbers" placeholder="01,02,03,04,05,06|07">
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="btn btn-primary" style="flex:1;" onclick="saveTemplate()">💾 保存</button>
+            <button class="btn btn-secondary" style="flex:1;" onclick="loadTemplate()">📂 加载</button>
+          </div>
+          <div id="templateList" style="margin-top:16px;max-height:200px;overflow-y:auto;"></div>
+        </div>
+        
+        <!-- 模板导入导出 -->
+        <div class="play-card">
+          <h3>🔄 <span>模板导入导出</span></h3>
+          <div class="input-group">
+            <label>导出JSON</label>
+            <button class="btn btn-secondary" style="width:100%;" onclick="exportTemplates()">📤 导出模板</button>
+            <textarea id="exportArea" style="width:100%;margin-top:8px;height:60px;display:none;"></textarea>
+          </div>
+          <div class="input-group">
+            <label>导入JSON</label>
+            <textarea id="importArea" style="width:100%;height:60px;" placeholder="粘贴模板JSON..."></textarea>
+            <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="importTemplates()">📥 导入模板</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1669,10 +1758,9 @@
     }
     
     function toggleDarkMode() {
-      isDarkMode = !isDarkMode;
-      localStorage.setItem('darkMode', isDarkMode);
-      document.body.classList.toggle('dark-mode', isDarkMode);
-      document.getElementById('themeIcon').textContent = isDarkMode ? '☀️' : '🌙';
+      // Legacy function - now uses 3-theme system
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      setTheme(newTheme);
     }
     
     function toggleLanguage() {
@@ -1683,17 +1771,113 @@
       renderAlgoGrid();
     }
     
+    // ============ PERSONAL SETTINGS ============
+    let currentTheme = localStorage.getItem('theme') || 'light';
+    let algoPrefs = JSON.parse(localStorage.getItem('algoPrefs') || '["frequency","miss"]');
+    
+    function setTheme(theme) {
+      currentTheme = theme;
+      localStorage.setItem('theme', theme);
+      document.body.classList.remove('dark-mode', 'gold-mode');
+      if (theme === 'dark') document.body.classList.add('dark-mode');
+      if (theme === 'gold') document.body.classList.add('gold-mode');
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.toggle('btn-primary', btn.dataset.theme === theme);
+        btn.classList.toggle('btn-secondary', btn.dataset.theme !== theme);
+      });
+    }
+    
+    function changeNickname() {
+      const newNickname = PersonalEnhancements.generateNickname();
+      PersonalEnhancements.profile({ nickname: newNickname });
+      document.getElementById('nicknameDisplay').textContent = newNickname;
+      showToast('昵称已更新: ' + newNickname);
+    }
+    
+    function toggleAlgoPref(algo) {
+      const idx = algoPrefs.indexOf(algo);
+      if (idx > -1) {
+        algoPrefs.splice(idx, 1);
+      } else {
+        algoPrefs.push(algo);
+      }
+      localStorage.setItem('algoPrefs', JSON.stringify(algoPrefs));
+      updateAlgoPrefsUI();
+    }
+    
+    function updateAlgoPrefsUI() {
+      document.querySelectorAll('[data-algo]').forEach(el => {
+        el.classList.toggle('selected', algoPrefs.includes(el.dataset.algo));
+      });
+    }
+    
+    function initPersonalSettings() {
+      const profile = PersonalEnhancements.profile();
+      document.getElementById('nicknameDisplay').textContent = profile.nickname;
+      setTheme(currentTheme);
+      updateAlgoPrefsUI();
+    }
+    
+    // ============ BUDGET & EXPENSE ============
+    function doAddExpense() {
+      const amount = parseFloat(document.getElementById('expenseAmount').value) || 0;
+      const note = document.getElementById('expenseNote').value;
+      if (amount <= 0) {
+        showToast('请输入有效的消费金额', 'error');
+        return;
+      }
+      PersonalEnhancements.recordExpense(amount, note);
+      document.getElementById('expenseNote').value = '';
+      updateBudgetDisplay();
+      showToast('已记录消费: ' + amount + '元');
+    }
+    
+    function doResetBudget() {
+      PersonalEnhancements.resetBudget();
+      updateBudgetDisplay();
+      showToast('预算已重置');
+    }
+    
+    function updateBudgetDisplay() {
+      const budget = PersonalEnhancements.budget();
+      document.getElementById('budgetMonthlyDisplay').textContent = budget.monthly;
+      document.getElementById('budgetSpentDisplay').textContent = budget.spent;
+      document.getElementById('budgetRemainingDisplay').textContent = budget.remaining;
+      renderExpenseRecords();
+    }
+    
+    function renderExpenseRecords() {
+      const records = PersonalEnhancements.getExpenseRecords(10);
+      const container = document.getElementById('expenseRecordsContainer');
+      if (!records.length) {
+        container.innerHTML = '';
+        return;
+      }
+      container.innerHTML = `
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;">最近消费记录:</div>
+        <div style="max-height:150px;overflow-y:auto;">
+          ${records.map(r => `
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;">
+              <span style="color:var(--text-secondary);">${r.date} ${r.note ? '- ' + r.note : ''}</span>
+              <span style="color:var(--coral);font-weight:600;">-${r.amount}元</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    
     function switchLottery(type) {
       currentType = type;
       document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.type === type));
       renderHistoryTable();
+      if (document.getElementById('tab-history-data').style.display !== 'none') refreshDataInfo();
     }
     
     function switchTab(tab) {
       document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
       document.querySelectorAll('.tab-content').forEach(c => c.style.display = c.id === 'tab-' + tab ? 'block' : 'none');
       if (tab === 'stats') renderStats();
-      if (tab === 'history-data') renderHistoryTable();
+      if (tab === 'history-data') { renderHistoryTable(); refreshDataInfo(); }
       if (tab === 'play') initPlayMethods();
       if (tab === 'trend') renderTrendData();
       if (tab === 'batch') initBatchTools();
@@ -1976,6 +2160,25 @@
       `).join('');
     }
     
+    function refreshDataInfo() {
+      const type = currentType;
+      const versionInfo = window.DataLayer.getDataVersion();
+      const stats = window.DataLayer.getDataStats(type);
+      const v = versionInfo[type] || versionInfo.ssq || { version: 'N/A', lastUpdate: 'N/A' };
+      const s = stats[type] || stats.ssq || { recordCount: 0, periodRange: { from: '-', to: '-' } };
+      
+      document.getElementById('dataInfoVersion').textContent = v.version || '1.0.0';
+      document.getElementById('dataInfoCount').textContent = s.recordCount || 0;
+      document.getElementById('dataInfoRange').textContent = `${s.periodRange?.from || '-'} ~ ${s.periodRange?.to || '-'}`;
+      document.getElementById('dataInfoDetail').innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+          <div>🕐 更新时间: <strong>${v.lastUpdate || '-'}</strong></div>
+          <div>📊 当前类型: <strong>${type === 'ssq' ? '双色球' : '大乐透'}</strong></div>
+          <div>📋 导出时间: <strong>${versionInfo.exportedAt ? new Date(versionInfo.exportedAt).toLocaleString() : '-'}</strong></div>
+        </div>
+      `;
+    }
+    
     function renderHistoryTable() {
       const data = currentType === 'ssq' ? SSQ_DATA : DLT_DATA;
       document.getElementById('historyCount').textContent = `共 ${data.length} 期`;
@@ -2229,6 +2432,103 @@
       shouhaoList = shouhaoList.filter(s => s.id !== id);
       localStorage.setItem('million_life_shouhao', JSON.stringify(shouhaoList));
       renderShouhaoList();
+    }
+    
+    function generateByPhoneLast4() {
+      const phoneLast4 = document.getElementById('phoneLast4').value;
+      if (!phoneLast4 || phoneLast4.length !== 4) { showToast('请输入4位手机尾号', 'error'); return; }
+      const result = window.PlayEnhancements.generateByPhoneLast4(phoneLast4, { type: currentType });
+      if (result.bets && result.bets.length > 0) {
+        const bet = result.bets[0];
+        const blue = currentType === 'ssq' ? bet.blue : bet.blue;
+        document.getElementById('phoneResult').innerHTML = `<div style="padding:12px;background:var(--bg);border-radius:8px;"><strong>📱 手机尾号 ${phoneLast4}</strong><br>幸运号: ${bet.red.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join('')} <span class="ball ball-small ball-blue">${String(blue).padStart(2,'0')}</span></div>`;
+        showToast('手机尾号生成成功 📱');
+      }
+    }
+    
+    function generateByWuxing() {
+      const elements = [];
+      ['jin', 'mu', 'shui', 'huo', 'tu'].forEach(el => {
+        const cb = document.getElementById('wuxing_' + el);
+        if (cb && cb.checked) elements.push(cb.value);
+      });
+      if (elements.length === 0) { showToast('请至少选择一个五行', 'error'); return; }
+      const result = window.PlayEnhancements.generateByWuxing({ elements: elements }, { type: currentType });
+      if (result.bets && result.bets.length > 0) {
+        const bet = result.bets[0];
+        const blue = currentType === 'ssq' ? bet.blue : bet.blue;
+        document.getElementById('wuxingResult').innerHTML = `<div style="padding:12px;background:var(--bg);border-radius:8px;"><strong>🈯 五行: ${elements.join(',')}</strong><br>幸运号: ${bet.red.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join('')} <span class="ball ball-small ball-blue">${String(blue).padStart(2,'0')}</span></div>`;
+        showToast('五行选号生成成功 🈯');
+      }
+    }
+    
+    function saveTemplate() {
+      const name = document.getElementById('templateName').value;
+      const numsStr = document.getElementById('templateNumbers').value;
+      if (!name) { showToast('请输入模板名称', 'error'); return; }
+      if (!numsStr) { showToast('请输入号码', 'error'); return; }
+      const parts = numsStr.split('|');
+      const reds = parts[0].split(',').map(n => parseInt(n.trim())).filter(n => n > 0);
+      const blues = parts[1] ? parseInt(parts[1].trim()) : 1;
+      window.PlayEnhancements.saveTemplate(name, { reds: reds, blue: blues }, currentType, '');
+      document.getElementById('templateName').value = '';
+      document.getElementById('templateNumbers').value = '';
+      renderTemplateList();
+      showToast('模板保存成功 💾');
+    }
+    
+    function loadTemplate() {
+      const templates = window.PlayEnhancements.listTemplates();
+      if (templates.length === 0) { showToast('暂无保存的模板', 'error'); return; }
+      const t = templates[templates.length - 1];
+      if (t && t.numbers) {
+        const nums = t.numbers;
+        const numsStr = nums.reds.join(',') + '|' + (nums.blue || 1);
+        document.getElementById('templateName').value = t.name || '';
+        document.getElementById('templateNumbers').value = numsStr;
+        showToast('模板已加载 📂');
+      }
+    }
+    
+    function deleteTemplate(id) {
+      window.PlayEnhancements.deleteTemplate(id);
+      renderTemplateList();
+      showToast('模板已删除');
+    }
+    
+    function renderTemplateList() {
+      const list = document.getElementById('templateList');
+      const templates = window.PlayEnhancements.listTemplates();
+      if (!templates.length) { list.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:20px;">暂无模板</div>'; return; }
+      list.innerHTML = templates.map(t => `
+        <div style="padding:8px;background:var(--bg);border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-weight:600;">${t.name}</div>
+            <div style="font-size:12px;color:var(--text-secondary);">${t.numbers.reds.map(n => `<span class="ball ball-small ball-red">${String(n).padStart(2,'0')}</span>`).join('')} ${t.numbers.blue ? `<span class="ball ball-small ball-blue">${String(t.numbers.blue).padStart(2,'0')}</span>` : ''}</div>
+          </div>
+          <button class="btn btn-coral" onclick="deleteTemplate(${t.id})" style="padding:4px 8px;font-size:12px;">🗑️</button>
+        </div>
+      `).join('');
+    }
+    
+    function exportTemplates() {
+      const json = window.PlayEnhancements.exportTemplates();
+      const area = document.getElementById('exportArea');
+      area.style.display = 'block';
+      area.value = json;
+      area.select();
+      document.execCommand('copy');
+      showToast('模板已复制到剪贴板 📤');
+    }
+    
+    function importTemplates() {
+      const json = document.getElementById('importArea').value;
+      if (!json) { showToast('请输入要导入的JSON', 'error'); return; }
+      const result = window.PlayEnhancements.importTemplates(json);
+      if (result.error) { showToast(result.error, 'error'); return; }
+      document.getElementById('importArea').value = '';
+      renderTemplateList();
+      showToast(`成功导入 ${result.count} 个模板 📥`);
     }
     
     function showLuckIndex() {
@@ -2810,6 +3110,8 @@
       document.getElementById('histCount').textContent = history.length;
       renderAlgoGrid();
       renderHistoryTable();
+      initPersonalSettings();
+      updateBudgetDisplay();
     });
 
     // ============ ENHANCED MODULES (Integrated) ============
@@ -3373,8 +3675,12 @@
 
       // ===== 5-10. Other Enhancement Modules =====
       const PlayEnhancements = {
+        _templateKey: 'million_life_templates',
         ZODIAC_ANIMALS: ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪'],
+        WUXING_ELEMENTS: { '金': [4, 9], '木': [3, 8], '水': [1, 6], '火': [2, 7], '土': [5, 10] },
         ZODIAC_LUCKY_MAP: { '鼠': { redMin: 2, redMax: 32, redStep: 10, blueNums: [3, 9], elements: '水' }, '牛': { redMin: 5, redMax: 35, redStep: 10, blueNums: [4, 10], elements: '土' }, '虎': { redMin: 3, redMax: 33, redStep: 10, blueNums: [5, 11], elements: '木' }, '兔': { redMin: 4, redMax: 34, redStep: 10, blueNums: [6, 12], elements: '木' }, '龙': { redMin: 1, redMax: 31, redStep: 10, blueNums: [7, 13], elements: '土' }, '蛇': { redMin: 6, redMax: 36, redStep: 10, blueNums: [8, 14], elements: '火' }, '马': { redMin: 7, redMax: 37, redStep: 10, blueNums: [9, 15], elements: '火' }, '羊': { redMin: 8, redMax: 38, redStep: 10, blueNums: [10, 16], elements: '土' }, '猴': { redMin: 9, redMax: 29, redStep: 10, blueNums: [1, 7], elements: '金' }, '鸡': { redMin: 10, redMax: 30, redStep: 10, blueNums: [2, 8], elements: '金' }, '狗': { redMin: 11, redMax: 31, redStep: 10, blueNums: [3, 9], elements: '土' }, '猪': { redMin: 12, redMax: 32, redStep: 10, blueNums: [4, 10], elements: '水' } },
+        _getTemplates: function() { try { return JSON.parse(localStorage.getItem(this._templateKey)) || []; } catch (e) { return []; } },
+        _saveTemplates: function(templates) { try { localStorage.setItem(this._templateKey, JSON.stringify(templates)); } catch (e) { } },
         generateByZodiac: function(zodiacName, options) {
           options = options || {};
           const type = options.type || 'ssq';
@@ -3396,6 +3702,103 @@
             result.bets.push({ red: reds, blue: blue });
           }
           return result;
+        },
+        generateByBirthYear: function(year, options) {
+          options = options || {};
+          const type = options.type || 'ssq';
+          const digits = String(year).split('').map(Number);
+          const unique = [...new Set(digits)].sort((a, b) => a - b);
+          let reds = [...unique];
+          const maxRed = type === 'ssq' ? 33 : 35;
+          while (reds.length < 6) { const n = Math.floor(Math.random() * maxRed) + 1; if (!reds.includes(n)) reds.push(n); }
+          reds = reds.slice(0, 6).sort((a, b) => a - b);
+          const bluePool = type === 'ssq' ? Array.from({length: 16}, (_, i) => i + 1) : Array.from({length: 12}, (_, i) => i + 1);
+          const blue = bluePool[Math.floor(Math.random() * bluePool.length)];
+          return { year: year, type: type, bets: [{ red: reds, blue: blue }] };
+        },
+        generateByWuxing: function(params, options) {
+          options = options || {};
+          const type = options.type || 'ssq';
+          const elements = params.elements || [];
+          let pool = [];
+          elements.forEach(el => { if (this.WUXING_ELEMENTS[el]) pool = pool.concat(this.WUXING_ELEMENTS[el]); });
+          pool = [...new Set(pool)];
+          const maxRed = type === 'ssq' ? 33 : 35;
+          let reds = pool.length >= 6 ? pool.slice(0, 6) : [...pool];
+          while (reds.length < 6) { const n = Math.floor(Math.random() * maxRed) + 1; if (!reds.includes(n)) reds.push(n); }
+          reds = reds.slice(0, 6).sort((a, b) => a - b);
+          const bluePool = type === 'ssq' ? Array.from({length: 16}, (_, i) => i + 1) : Array.from({length: 12}, (_, i) => i + 1);
+          const blue = bluePool[Math.floor(Math.random() * bluePool.length)];
+          return { elements: elements, type: type, bets: [{ red: reds, blue: blue }] };
+        },
+        generateByPhoneLast4: function(phoneLast4, options) {
+          options = options || {};
+          const type = options.type || 'ssq';
+          const digits = String(phoneLast4).split('').map(Number);
+          const unique = [...new Set(digits)];
+          let reds = [...unique];
+          const maxRed = type === 'ssq' ? 33 : 35;
+          while (reds.length < 6) { const n = Math.floor(Math.random() * maxRed) + 1; if (!reds.includes(n)) reds.push(n); }
+          reds = reds.slice(0, 6).sort((a, b) => a - b);
+          const bluePool = type === 'ssq' ? Array.from({length: 16}, (_, i) => i + 1) : Array.from({length: 12}, (_, i) => i + 1);
+          const blue = phoneLast4 % 16 + 1;
+          return { phoneLast4: phoneLast4, type: type, bets: [{ red: reds, blue: blue }] };
+        },
+        generateByCustomDanTuo: function(params, options) {
+          options = options || {};
+          const type = options.type || 'ssq';
+          const dans = params.dans || [];
+          const tuos = params.tuos || [];
+          const need = type === 'ssq' ? 6 : 5;
+          const danCount = dans.length;
+          const tuoNeed = need - danCount;
+          if (tuoNeed <= 0 || tuos.length < tuoNeed) return { error: '胆码拖码数量不足' };
+          const overlap = dans.filter(d => tuos.includes(d));
+          if (overlap.length) return { error: '胆码拖码不能重复' };
+          const combos = this._combination(tuos, tuoNeed);
+          return { type: type, dans: dans, tuos: tuos, totalBets: combos, bets: [] };
+        },
+        _combination: function(arr, n) {
+          if (n === 1) return arr.length;
+          if (n === arr.length) return 1;
+          const result = [];
+          arr.forEach((item, i) => { this._combination(arr.slice(i + 1), n - 1).forEach(r => result.push([item, ...r])); });
+          return result.length;
+        },
+        // Template Management
+        saveTemplate: function(name, numbers, type, note) {
+          const templates = this._getTemplates();
+          const template = { id: Date.now(), name: name, numbers: numbers, type: type, note: note || '', createdAt: new Date().toISOString() };
+          templates.push(template);
+          this._saveTemplates(templates);
+          return template;
+        },
+        loadTemplate: function(id) {
+          const templates = this._getTemplates();
+          return templates.find(t => t.id === id);
+        },
+        listTemplates: function() {
+          return this._getTemplates();
+        },
+        deleteTemplate: function(id) {
+          const templates = this._getTemplates();
+          const idx = templates.findIndex(t => t.id === id);
+          if (idx > -1) { templates.splice(idx, 1); this._saveTemplates(templates); return true; }
+          return false;
+        },
+        exportTemplates: function() {
+          const templates = this._getTemplates();
+          return JSON.stringify(templates, null, 2);
+        },
+        importTemplates: function(jsonStr) {
+          try {
+            const imported = JSON.parse(jsonStr);
+            if (!Array.isArray(imported)) return { error: '格式无效' };
+            const templates = this._getTemplates();
+            imported.forEach(t => { if (t.name && t.numbers) templates.push({ id: Date.now() + Math.random(), name: t.name, numbers: t.numbers, type: t.type || 'ssq', note: t.note || '', createdAt: t.createdAt || new Date().toISOString() }); });
+            this._saveTemplates(templates);
+            return { success: true, count: imported.length };
+          } catch (e) { return { error: 'JSON解析失败' }; }
         }
       };
 
